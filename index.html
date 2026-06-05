@@ -308,7 +308,7 @@ function cloudSave(){if(!CLOUD)return;clearTimeout(_cloudTimer);_cloudTimer=setT
   try{const {error}=await c.from('presupuesto').upsert({id:DOC_ID,data:state,updated_at:new Date().toISOString()});setCloud(error?'error':'ok');}catch(e){setCloud('error');}},700);}
 async function cloudInit(){if(!CLOUD){setCloud('local');return;}const c=cloudClient();if(!c){setCloud('sinlib');return;}setCloud('cargando');
   try{const {data,error}=await c.from('presupuesto').select('data').eq('id',DOC_ID).maybeSingle();if(error)throw error;
-    if(data&&data.data&&data.data.partidas){state=data.data;if(!state.catalog)state.catalog=deep(CATSEED);try{state.partidas.forEach(purgeBlankLines);}catch(e){}localStorage.setItem(KEY,JSON.stringify(state));refresh();setCloud('ok');}
+    if(data&&data.data&&data.data.partidas){state=data.data;if(!state.catalog)state.catalog=deep(CATSEED);const ch=migrate();try{state.partidas.forEach(purgeBlankLines);}catch(e){}localStorage.setItem(KEY,JSON.stringify(state));refresh();setCloud('ok');if(ch)cloudSave();}
     else{await c.from('presupuesto').upsert({id:DOC_ID,data:state,updated_at:new Date().toISOString()});setCloud('ok');}
   }catch(e){setCloud('error');}}
 async function cloudPull(){if(!CLOUD){alert('La nube no está activada. Pegá tus claves de Supabase en el archivo.');return;}await cloudInit();}
@@ -331,6 +331,7 @@ const openF={},openA={};   // frentes/áreas abiertos en la vista de bloques
 
 function deep(o){return JSON.parse(JSON.stringify(o));}
 function load(){try{const r=localStorage.getItem(KEY);if(r){state=JSON.parse(r);if(!state.catalog)state.catalog=deep(CATSEED);return;}}catch(e){} state={partidas:deep(SEED),catalog:deep(CATSEED)};}
+function migrate(){let ch=false;(state.partidas||[]).forEach(p=>{if(p.frente==='Cubierta 0'){p.frente='Casco';ch=true;}});return ch;}
 function save(manual){try{localStorage.setItem(KEY,JSON.stringify(state));if(CLOUD){cloudSave();}else{const t=document.getElementById('saveTag');t.className='savetag';t.innerHTML=manual?'●&nbsp;Guardado ✓':'●&nbsp;Guardado';}}catch(e){const t=document.getElementById('saveTag');t.className='savetag warn';t.innerHTML='●&nbsp;Sin guardar';}}
 function backup(){const blob=new Blob([JSON.stringify(state)],{type:'application/json'});const a=document.createElement('a');const d=new Date().toISOString().slice(0,10);a.href=URL.createObjectURL(blob);a.download='Respaldo_Presupuesto_TREASURE_'+d+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
 function restoreBackup(input){const f=input.files&&input.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);if(!data.partidas)throw new Error('formato');if(!confirm('Esto reemplaza el presupuesto actual con el del respaldo. ¿Continuar?')){input.value='';return;}state=data;if(!state.catalog)state.catalog=deep(CATSEED);save();refresh();alert('Respaldo restaurado correctamente.');}catch(e){alert('No se pudo leer el respaldo: archivo inválido.');}input.value='';};rd.readAsText(f);}
@@ -673,7 +674,9 @@ function exportExcel(){const ps=state.partidas,wb=XLSX.utils.book_new();
   XLSX.writeFile(wb,'Presupuesto_TREASURE_Dique2026.xlsx');}
 
 load();
+const _mig=migrate();
 try{state.partidas.forEach(purgeBlankLines);}catch(e){}
+if(_mig)save();
 renderTable();renderPresupuesto();
 document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeEditor();});
 cloudInit();
