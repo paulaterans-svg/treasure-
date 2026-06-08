@@ -129,8 +129,9 @@ td.comp{font-family:'DM Mono',monospace;color:var(--muted)}td.comp.zero{color:#3
 .tr-tot{font-family:'DM Mono';font-size:13.5px;color:var(--ink);font-weight:500;text-align:right;min-width:84px}
 .pctmini{font-family:'DM Mono';font-size:11px;color:var(--faint);min-width:34px;text-align:right}
 .paywrap{display:flex;gap:5px;align-items:center}
-.paysel{min-width:96px;padding:5px 6px;font-size:12.5px}
-.payamt{width:74px}
+.paysel{min-width:0;flex:1;padding:5px 3px;font-size:11.5px}
+.payamt{width:50px;flex:0 0 auto}
+.paywrap{display:flex;gap:4px;align-items:center}
 .catsel{width:100%;padding:7px 6px;font-size:12.5px}
 .dtgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:880px){.dtgrid{grid-template-columns:repeat(2,1fr)}}
@@ -212,7 +213,7 @@ td.comp{font-family:'DM Mono',monospace;color:var(--muted)}td.comp.zero{color:#3
 .h-ok{background:rgba(67,214,192,.07);border-color:rgba(67,214,192,.3)}.h-ok .ic,.h-ok .pill{color:var(--teal)}
 /* editor */
 .modal-bg{position:fixed;inset:0;background:rgba(4,10,18,.74);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:24px 14px;overflow:auto}.modal-bg.show{display:flex}
-.modal{background:var(--navy2);border:1px solid var(--line);border-radius:16px;width:min(1100px,100%);box-shadow:var(--shadow);margin:auto}
+.modal{background:var(--navy2);border:1px solid var(--line);border-radius:16px;width:min(1280px,96vw);box-shadow:var(--shadow);margin:auto}
 .mhead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 22px 0}.mhead h3{margin:0;font-size:19px}.mhead .x{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
 .mbody{padding:14px 22px 0}
 .hg{display:grid;gap:11px;margin-bottom:6px}.hg.g4{grid-template-columns:repeat(4,1fr)}.hg.g3{grid-template-columns:repeat(3,1fr)}
@@ -224,11 +225,17 @@ td.comp{font-family:'DM Mono',monospace;color:var(--muted)}td.comp.zero{color:#3
 .section{border:1px solid var(--line);border-radius:12px;margin:11px 0;overflow:hidden}
 .shead{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:#0c2440}
 .shead .stitle{font:700 13px 'Bricolage Grotesque';color:var(--ink);display:flex;align-items:center;gap:8px}.shead .stitle .ico{color:var(--brass)}.shead .ssub{font-family:'DM Mono';font-size:12.5px;color:var(--brass)}
-.ltbl{width:100%;border-collapse:collapse;font-size:12px}.ltbl th{position:static;background:#0a2036;font-size:10px;padding:7px 8px;color:var(--muted)}
+.ltbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}.ltbl th{position:static;background:#0a2036;font-size:10px;padding:7px 8px;color:var(--muted)}
 .ltbl td{padding:5px 7px;border-bottom:1px solid #15314f;white-space:nowrap}
 .ltbl input,.ltbl select{background:#0a1f37;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:5px 6px;font:500 12px 'Spline Sans';width:100%}
 .ltbl input.nf{font-family:'DM Mono';text-align:right}.ltbl input:focus,.ltbl select:focus{outline:none;border-color:var(--brass)}
-.ltbl .lt{font-family:'DM Mono';text-align:right;color:var(--ink);font-weight:500}.ltbl .rm{background:none;border:none;color:var(--faint);cursor:pointer;font-size:13px}.ltbl .rm:hover{color:var(--coral)}
+.ltbl .lt{font-family:'DM Mono';text-align:right;color:var(--ink);font-weight:500}
+.sbody{overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.sbody::-webkit-scrollbar{display:none;height:0}
+.ltbl td:last-child{text-align:center;padding-left:4px;padding-right:4px}
+.ltbl .rm{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;background:transparent;border:none;color:#56708d;cursor:pointer;transition:.15s}
+.ltbl .rm:hover{background:rgba(197,83,71,.15);color:#e58a7f}
+.ltbl .rm:active{transform:scale(.9)}
 .ltbl input.filled{border-color:rgba(67,214,192,.5)}
 .addline{margin:8px 13px 12px;background:transparent;border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:7px;width:calc(100% - 26px);cursor:pointer;font:600 12px 'Spline Sans'}.addline:hover{border-color:var(--brass2);color:var(--ink)}
 .emptyline{color:var(--faint);font-size:12px;padding:10px 13px}
@@ -703,10 +710,12 @@ function sectionHTML(b){const lines=E[b.k]||[];let h=`<div class="section"><div 
   if(!lines.length)h+=`<div class="emptyline">Sin líneas todavía.</div>`;
   else{h+=`<table class="ltbl"><thead>${lineHead(b)}</thead><tbody>`;lines.forEach((l,i)=>h+=lineRow(b,l,i));h+=`</tbody></table>`;}
   h+=`<button class="addline" onclick="addLine('${b.k}')">＋ agregar línea</button></div></div>`;return h;}
-function lineHead(b){if(b.kind==='mat')return `<tr><th>Descripción</th><th style="width:160px">Categoría</th><th class="n" style="width:58px">Cant.</th><th style="width:80px">Unidad</th><th class="n" style="width:90px">V. unit.</th><th style="width:40px;text-align:center">IVA</th><th class="n" style="width:168px">Pagado</th><th class="n" style="width:84px">Total</th><th style="width:24px"></th></tr>`;
-  if(b.kind==='mo')return `<tr><th style="width:140px">Gremio</th><th style="width:120px">Nivel</th><th class="n" style="width:66px">Personas</th><th class="n" style="width:52px">Días</th><th class="n" style="width:84px">Jornal/día</th><th style="width:40px;text-align:center">IVA</th><th class="n" style="width:168px">Pagado</th><th class="n" style="width:84px">Total</th><th style="width:24px"></th></tr>`;
-  return `<tr><th>Descripción</th><th style="width:170px">Tipo</th><th class="n" style="width:60px">Cant.</th><th style="width:76px">Unidad</th><th class="n" style="width:92px">V. unit.</th><th style="width:40px;text-align:center">IVA</th><th class="n" style="width:168px">Pagado</th><th class="n" style="width:92px">Total</th><th style="width:24px"></th></tr>`;}
+function lineHead(b){if(b.kind==='mat')return `<tr><th>Descripción</th><th style="width:160px">Categoría</th><th class="n" style="width:48px">Cant.</th><th style="width:72px">Unidad</th><th class="n" style="width:80px">V. unit.</th><th style="width:34px;text-align:center">IVA</th><th class="n" style="width:138px">Pagado</th><th class="n" style="width:80px">Total</th><th style="width:38px"></th></tr>`;
+  if(b.kind==='mo')return `<tr><th style="width:150px">Gremio</th><th style="width:120px">Nivel</th><th class="n" style="width:62px">Personas</th><th class="n" style="width:48px">Días</th><th class="n" style="width:80px">Jornal/día</th><th style="width:34px;text-align:center">IVA</th><th class="n" style="width:138px">Pagado</th><th class="n" style="width:80px">Total</th><th style="width:38px"></th></tr>`;
+  return `<tr><th>Descripción</th><th style="width:160px">Tipo</th><th class="n" style="width:50px">Cant.</th><th style="width:72px">Unidad</th><th class="n" style="width:82px">V. unit.</th><th style="width:34px;text-align:center">IVA</th><th class="n" style="width:138px">Pagado</th><th class="n" style="width:82px">Total</th><th style="width:38px"></th></tr>`;}
 function ipt(k,i,f,val,cls,list,type){const l=list?`list="${list}"`:'',t=type?`type="${type}" step="any"`:'';return `<input class="${cls||''}" ${t} ${l} value="${esc(val)}" oninput="el('${k}',${i},'${f}',this.value)">`;}
+const TRASH='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>';
+function rmBtn(k,i){return `<button class="rm" title="Eliminar línea" onclick="rmLine('${k}',${i})">${TRASH}</button>`;}
 function ivaCell(k,i,l){return `<td style="text-align:center"><input type="checkbox" ${l.iva?'checked':''} onchange="elIva('${k}',${i},this.checked)"></td>`;}
 function pagCell(k,i,l){const lt=lineTotal(k,l),pl=+l.pagadoLinea||0;const est=pl<=0.005?'Pendiente':(pl>=lt-0.005?'Pagado':'Parcial');
   const sel=`<select class="paysel" onchange="elPagoEstado('${k}',${i},this.value)"><option ${est==='Pendiente'?'selected':''}>Pendiente</option><option ${est==='Parcial'?'selected':''}>Parcial</option><option ${est==='Pagado'?'selected':''}>Pagado</option></select>`;
@@ -717,9 +726,9 @@ function catSel(k,i,l){const list=LISTS.catMat||[];let opts='<option value="">�
 function tipoSel(k,i,l){const list=tipoListFor(k);let opts='<option value="">— tipo —</option>'+list.map(c=>`<option ${c===l.tipo?'selected':''}>${esc(c)}</option>`).join('');if(l.tipo&&!list.includes(l.tipo))opts+=`<option selected>${esc(l.tipo)}</option>`;return `<select id="cat_${k}_${i}" class="catsel" onchange="el('${k}',${i},'tipo',this.value)">${opts}</select>`;}
 function gremioSel(i,l){let opts='<option value="">— gremio —</option>'+GREMIOS.map(c=>`<option ${c===l.gremio?'selected':''}>${esc(c)}</option>`).join('');if(l.gremio&&!GREMIOS.includes(l.gremio))opts+=`<option selected>${esc(l.gremio)}</option>`;return `<select id="grem_${i}" class="catsel" onchange="elMO(${i},'gremio',this.value)">${opts}</select>`;}
 function lineRow(b,l,i){const lt=fmt0(lineTotal(b.k,l));
-  if(b.kind==='mat')return `<tr><td><input list="${b.dl}" value="${esc(l.descripcion)}" oninput="elDesc('${b.k}',${i},this.value)"></td><td>${catSel(b.k,i,l)}</td><td>${ipt(b.k,i,'cantidad',l.cantidad,'nf',null,'number')}</td><td><input list="dlUnidad" id="un_${b.k}_${i}" value="${esc(l.unidad)}" oninput="el('${b.k}',${i},'unidad',this.value)"></td><td><input class="nf" type="number" step="any" id="vu_${b.k}_${i}" value="${esc(l.valorUnitario)}" oninput="el('${b.k}',${i},'valorUnitario',this.value)"></td>${ivaCell(b.k,i,l)}${pagCell(b.k,i,l)}<td class="lt" id="lt_${b.k}_${i}">${lt}</td><td><button class="rm" onclick="rmLine('${b.k}',${i})">✕</button></td></tr>`;
-  if(b.kind==='mo')return `<tr><td>${gremioSel(i,l)}</td><td><select onchange="elMO(${i},'nivel',this.value)">${NIVEL_MO.map(o=>`<option ${o===l.nivel?'selected':''}>${o}</option>`).join('')}</select></td><td>${ipt(b.k,i,'personas',l.personas,'nf',null,'number')}</td><td>${ipt(b.k,i,'dias',l.dias,'nf',null,'number')}</td><td><input class="nf" type="number" step="any" id="jr_mo_${i}" value="${esc(l.jornalDia)}" oninput="el('mo',${i},'jornalDia',this.value)"></td>${ivaCell('mo',i,l)}${pagCell('mo',i,l)}<td class="lt" id="lt_${b.k}_${i}">${lt}</td><td><button class="rm" onclick="rmLine('${b.k}',${i})">✕</button></td></tr>`;
-  return `<tr><td><input list="${b.dl}" value="${esc(l.descripcion||'')}" oninput="elDesc('${b.k}',${i},this.value)"></td><td>${tipoSel(b.k,i,l)}</td><td>${ipt(b.k,i,'cantidad',l.cantidad,'nf',null,'number')}</td><td><input list="dlUnidad" id="un_${b.k}_${i}" value="${esc(l.unidad)}" oninput="el('${b.k}',${i},'unidad',this.value)"></td><td><input class="nf" type="number" step="any" id="vu_${b.k}_${i}" value="${esc(l.valorUnitario)}" oninput="el('${b.k}',${i},'valorUnitario',this.value)"></td>${ivaCell(b.k,i,l)}${pagCell(b.k,i,l)}<td class="lt" id="lt_${b.k}_${i}">${lt}</td><td><button class="rm" onclick="rmLine('${b.k}',${i})">✕</button></td></tr>`;}
+  if(b.kind==='mat')return `<tr><td><input list="${b.dl}" value="${esc(l.descripcion)}" oninput="elDesc('${b.k}',${i},this.value)"></td><td>${catSel(b.k,i,l)}</td><td>${ipt(b.k,i,'cantidad',l.cantidad,'nf',null,'number')}</td><td><input list="dlUnidad" id="un_${b.k}_${i}" value="${esc(l.unidad)}" oninput="el('${b.k}',${i},'unidad',this.value)"></td><td><input class="nf" type="number" step="any" id="vu_${b.k}_${i}" value="${esc(l.valorUnitario)}" oninput="el('${b.k}',${i},'valorUnitario',this.value)"></td>${ivaCell(b.k,i,l)}${pagCell(b.k,i,l)}<td class="lt" id="lt_${b.k}_${i}">${lt}</td><td>${rmBtn(b.k,i)}</td></tr>`;
+  if(b.kind==='mo')return `<tr><td>${gremioSel(i,l)}</td><td><select onchange="elMO(${i},'nivel',this.value)">${NIVEL_MO.map(o=>`<option ${o===l.nivel?'selected':''}>${o}</option>`).join('')}</select></td><td>${ipt(b.k,i,'personas',l.personas,'nf',null,'number')}</td><td>${ipt(b.k,i,'dias',l.dias,'nf',null,'number')}</td><td><input class="nf" type="number" step="any" id="jr_mo_${i}" value="${esc(l.jornalDia)}" oninput="el('mo',${i},'jornalDia',this.value)"></td>${ivaCell('mo',i,l)}${pagCell('mo',i,l)}<td class="lt" id="lt_${b.k}_${i}">${lt}</td><td>${rmBtn(b.k,i)}</td></tr>`;
+  return `<tr><td><input list="${b.dl}" value="${esc(l.descripcion||'')}" oninput="elDesc('${b.k}',${i},this.value)"></td><td>${tipoSel(b.k,i,l)}</td><td>${ipt(b.k,i,'cantidad',l.cantidad,'nf',null,'number')}</td><td><input list="dlUnidad" id="un_${b.k}_${i}" value="${esc(l.unidad)}" oninput="el('${b.k}',${i},'unidad',this.value)"></td><td><input class="nf" type="number" step="any" id="vu_${b.k}_${i}" value="${esc(l.valorUnitario)}" oninput="el('${b.k}',${i},'valorUnitario',this.value)"></td>${ivaCell(b.k,i,l)}${pagCell(b.k,i,l)}<td class="lt" id="lt_${b.k}_${i}">${lt}</td><td>${rmBtn(b.k,i)}</td></tr>`;}
 function elIva(k,i,checked){E[k][i].iva=checked;const cs=document.getElementById('cs_'+k);if(cs)cs.textContent=fmt(compTotal(E,k));recalcEditorTotals();}
 function eh(f,v){E[f]=v;}
 function ehFrente(v){const wasAuto=(E._isNew||E.codigo===''||E.codigo===nextCodigo(E.frente));E.frente=v;if(wasAuto){E.codigo=nextCodigo(v);renderEditor();}}
