@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Torre de Control Lean · M/Y TREASURE — Dique 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0b1220; --bg2:#0e1626; --panel:#111d31; --panel2:#16243b; --line:#22344f;
+  --ink:#e8eef7; --ink2:#9fb1c9; --ink3:#647793;
+  --cyan:#4FB3A7; --cyan-d:#2E7E76;
+  --amber:#D9A441; --red:#D15A4A; --green:#6FB07A; --blue:#6E97BC; --violet:#8B79A8;
+  --buffer:rgba(217,164,65,.14);
+  --shadow:0 10px 40px -12px rgba(0,0,0,.6);
+  --mono:'Space Mono',monospace; --sans:'Sora',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:
+   radial-gradient(1200px 600px at 80% -10%, #14233c 0%, transparent 60%),
+   radial-gradient(900px 500px at -10% 110%, #122033 0%, transparent 55%),
+   var(--bg);
+  color:var(--ink);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+a{color:var(--cyan)}
+.wrap{max-width:1480px;margin:0 auto;padding:18px 20px 80px}
+/* ---- header ---- */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 22px;justify-content:space-between;
+  padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.brand .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;color:var(--cyan);text-transform:uppercase}
+.brand h1{margin:4px 0 2px;font-size:24px;font-weight:700;letter-spacing:-.01em}
+.brand .sub{color:var(--ink2);font-size:12.5px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--ink);background:var(--panel2);
+  border:1px solid var(--line);border-radius:10px;padding:8px 13px;cursor:pointer;display:inline-flex;
+  align-items:center;gap:7px;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--cyan-d);background:#1b2c46}
+.btn.primary{background:linear-gradient(180deg,var(--cyan),var(--cyan-d));color:#04201d;border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn .ic{font-size:14px;line-height:1}
+/* ---- KPI ---- */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+  border-radius:14px;padding:14px 15px;position:relative;overflow:hidden}
+.kpi .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.kpi .val{font-family:var(--mono);font-size:30px;font-weight:700;margin-top:6px;line-height:1}
+.kpi .val small{font-size:14px;color:var(--ink2);font-weight:400}
+.kpi .note{font-size:11.5px;color:var(--ink2);margin-top:6px}
+.kpi .bar{height:6px;border-radius:6px;background:#0a1322;margin-top:10px;overflow:hidden}
+.kpi .bar>i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--cyan),var(--green))}
+.kpi.warn .val{color:var(--amber)} .kpi.bad .val{color:var(--red)} .kpi.good .val{color:var(--green)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:20px;border:1px solid var(--line)}
+.pill.green{color:var(--green);border-color:#234d38} .pill.amber{color:var(--amber);border-color:#5a4a1f}
+.pill.red{color:var(--red);border-color:#5a2630} .pill.cyan{color:var(--cyan);border-color:#1c5a55}
+/* ---- alerts ---- */
+.alerts{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.alerts .hd{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;user-select:none}
+.alerts .hd h3{margin:0;font-size:14px;font-weight:600;letter-spacing:.01em}
+.alerts .hd .counts{display:flex;gap:7px;margin-left:auto}
+.cbadge{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px}
+.cbadge.red{background:#3a161c;color:var(--red)} .cbadge.amber{background:#3a2e12;color:var(--amber)}
+.cbadge.blue{background:#16273f;color:var(--blue)}
+.alerts .body{border-top:1px solid var(--line);max-height:320px;overflow:auto}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:11px 16px;border-bottom:1px solid #19283e;cursor:pointer}
+.alert:last-child{border-bottom:none} .alert:hover{background:var(--panel2)}
+.alert .dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:none}
+.alert.red .dot{background:var(--red);box-shadow:0 0 0 4px #ff5d6c22}
+.alert.amber .dot{background:var(--amber);box-shadow:0 0 0 4px #f2b13822}
+.alert.blue .dot{background:var(--blue);box-shadow:0 0 0 4px #5aa7ff22}
+.alert .txt{flex:1}
+.alert .t1{font-size:13px;font-weight:600}
+.alert .t2{font-size:11.5px;color:var(--ink2);margin-top:2px}
+.alert .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  border:1px solid var(--line);border-radius:6px;padding:2px 6px;align-self:center}
+.empty{padding:22px 16px;color:var(--ink2);text-align:center;font-size:13px}
+/* ---- view tabs + controls ---- */
+.viewbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+.tabs{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:4px;gap:3px}
+.tab{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--ink2);background:transparent;border:none;
+  padding:7px 13px;border-radius:8px;cursor:pointer}
+.tab.on{background:var(--cyan);color:#04201d}
+.ctl{display:flex;align-items:center;gap:7px;color:var(--ink2);font-size:12px}
+select,input[type=text],input[type=number]{font-family:var(--sans);font-size:12.5px;color:var(--ink);
+  background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 9px;outline:none}
+select:focus,input:focus{border-color:var(--cyan-d)}
+input[type=range]{accent-color:var(--cyan)}
+.simbox{margin-left:auto;display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);
+  border-radius:11px;padding:7px 12px}
+.simbox b{font-family:var(--mono);color:var(--cyan)}
+/* ---- card ---- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+/* ---- gantt ---- */
+.gscroll{overflow:auto;max-height:65vh}
+.gtable{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+.gtable th,.gtable td{border-bottom:1px solid #18273d}
+.gtable thead th{position:sticky;top:0;z-index:6;background:var(--panel2);font-weight:600;font-size:10.5px;
+  color:var(--ink2);font-family:var(--mono);text-align:center;padding:6px 0}
+.colhead{min-width:34px;max-width:34px;line-height:1.2}
+.colhead .d{color:var(--ink);font-size:11px}
+.colhead .dl{font-family:var(--mono);font-size:9px;color:var(--cyan);font-weight:700;letter-spacing:.02em}
+.colhead.subida{background:#0f2c2a;box-shadow:inset 0 -3px 0 var(--cyan-d)}
+.colhead.subida .dl{color:var(--cyan)}
+.colhead.wknd{background:#13203450} .colhead.buf{background:var(--buffer);color:var(--amber)}
+.colhead.today{box-shadow:inset 0 -3px 0 var(--cyan)}
+.lblcol{position:sticky;left:0;z-index:7;background:var(--panel2);text-align:left;min-width:330px;max-width:330px;
+  padding:7px 12px}
+.gtable tbody .lblcol{background:var(--panel)}
+.grp td{background:linear-gradient(90deg,#16243b,#111d31);position:sticky;left:0;z-index:5}
+.grp .gname{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);
+  padding:8px 12px;display:flex;align-items:center;gap:10px}
+.grp .gname .gp{color:var(--ink3)}
+.trow:hover .lblcol{background:#16243b}
+.task-l{display:flex;align-items:center;gap:9px;cursor:pointer}
+.task-l .id{font-family:var(--mono);font-size:10px;color:var(--ink3);min-width:42px}
+.task-l .nm{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-l .nm .meta{color:var(--ink3);font-size:10.5px}
+.cell{padding:0;height:30px;position:relative}
+.cell.wknd{background:#0e18280f} .cell.buf{background:var(--buffer)}
+.cell.today::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--cyan);opacity:.8}
+.cell.conf{box-shadow:inset 0 0 0 2px var(--red)}
+.bar{position:absolute;top:5px;bottom:5px;border-radius:6px;cursor:grab;overflow:hidden;z-index:4;
+  box-shadow:0 2px 8px -2px rgba(0,0,0,.5);display:flex;align-items:center;touch-action:none}
+.bar .rsz{position:absolute;right:0;top:0;bottom:0;width:9px;cursor:ew-resize;background:rgba(0,0,0,.18);border-radius:0 6px 6px 0}
+.bar:hover .rsz{background:rgba(0,0,0,.34)}
+.dragtip{position:fixed;z-index:60;background:var(--cyan);color:#04201d;font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:4px 9px;border-radius:7px;pointer-events:none;box-shadow:var(--shadow);display:none}
+.bar>.fill{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.30)}
+.bar>.lab{position:relative;font-family:var(--mono);font-size:9.5px;font-weight:700;
+  padding:0 5px;white-space:nowrap}
+.bar.night{background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(0,0,0,.18) 4px,rgba(0,0,0,.18) 8px)}
+.bar.blocked{outline:2px solid var(--red);outline-offset:-2px}
+.bar.done{filter:saturate(.4) brightness(.85)}
+.bar .check{margin-left:4px;color:#06121f;font-size:10px}
+/* swimlane / zona */
+.lane td{height:32px}
+.lcell{position:relative;height:32px;border-right:1px solid #14223607}
+.lchip{position:absolute;top:6px;bottom:6px;left:2px;right:2px;border-radius:5px;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;overflow:hidden}
+.lcell.idle{background:repeating-linear-gradient(45deg,#1a2740,#1a2740 5px,#16223a 5px,#16223a 10px)}
+.lcell.over{box-shadow:inset 0 0 0 2px var(--red)}
+.lanelbl{position:sticky;left:0;background:var(--panel);z-index:4;min-width:160px;max-width:160px;padding:7px 12px;
+  font-size:12px;font-weight:600}
+.lanelbl .sm{font-family:var(--mono);font-size:10px;color:var(--ink3);font-weight:400}
+/* table view */
+.dt{width:100%;border-collapse:collapse;font-size:12.5px}
+.dt th{position:sticky;top:0;background:var(--panel2);text-align:left;padding:9px 10px;font-size:10.5px;
+  font-family:var(--mono);letter-spacing:.08em;color:var(--ink2);text-transform:uppercase;border-bottom:1px solid var(--line);z-index:3}
+.dt td{padding:6px 10px;border-bottom:1px solid #18273d;vertical-align:middle}
+.dt tr:hover td{background:var(--panel2)}
+.dt .id{font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.dt select,.dt input{padding:5px 7px;font-size:12px;width:100%}
+.dt input.pct{width:62px;text-align:center}
+.mini{padding:5px 8px;font-size:11px;border-radius:7px}
+.swatch{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px}
+.estd{font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:7px;white-space:nowrap}
+.estd.Pendiente{background:#1d2a3f;color:var(--ink2)}
+.estd.Proceso{background:#16364f;color:var(--blue)} .estd.Listo{background:#16382a;color:var(--green)}
+.estd.Bloqueado{background:#3a161c;color:var(--red)}
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(5,9,17,.66);backdrop-filter:blur(3px);z-index:40;display:none;
+  align-items:center;justify-content:center;padding:20px}
+.scrim.on{display:flex}
+.modal{width:min(560px,96vw);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow)}
+.modal .mh{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.modal .mh h3{margin:0;font-size:15px}
+.modal .mh .x{margin-left:auto;cursor:pointer;color:var(--ink2);font-size:20px;line-height:1}
+.modal .mb{padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.fld{display:flex;flex-direction:column;gap:5px} .fld.full{grid-column:1/-1}
+.fld label{font-size:10.5px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.fld input,.fld select,.fld textarea{width:100%}
+.fld textarea{font-family:var(--sans);background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+  padding:8px;color:var(--ink);resize:vertical;min-height:54px}
+.rangewrap{display:flex;align-items:center;gap:10px} .rangewrap b{font-family:var(--mono);color:var(--cyan);min-width:42px}
+.modal .mf{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:space-between}
+.legend{display:flex;flex-wrap:wrap;gap:5px 14px;padding:10px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.hl{animation:hl 1.6s ease}
+@keyframes hl{0%{box-shadow:inset 0 0 0 9999px #35d0c033}100%{box-shadow:none}}
+.foot{margin-top:14px;color:var(--ink3);font-size:11px;text-align:center}
+.pd-top{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.pd-nav{display:flex;align-items:center;gap:10px}
+.pd-nav .btn{padding:6px 12px}
+.pd-day{font-size:14px} .pd-day b{font-family:var(--mono)}
+.pd-stats{display:flex;gap:16px;font-size:12px;color:var(--ink2)} .pd-stats b{font-family:var(--mono);color:var(--ink);font-size:15px;margin-right:3px}
+.pd-idle{padding:10px 16px;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink2);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;padding:14px}
+.pd-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pd-hd{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.pd-hd .id{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.pd-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #18273d;cursor:pointer}
+.pd-item:last-child{border-bottom:none} .pd-item:hover{background:var(--panel2)}
+.pd-main{flex:1;min-width:0}
+.pd-act{font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.pd-meta{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:2px}
+.pd-pct{display:flex;align-items:center;gap:7px;min-width:92px;justify-content:flex-end}
+.pd-bar{width:52px;height:6px;border-radius:6px;background:#0a1322;overflow:hidden}
+.pd-bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))}
+.pd-pct b{font-family:var(--mono);font-size:11px;min-width:30px;text-align:right}
+.spark{display:flex;align-items:flex-end;gap:1px;height:34px;width:180px}
+.spark>i{flex:1;border-radius:1px;min-height:0}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper b{font-family:var(--mono);min-width:24px;text-align:center;font-size:15px;color:var(--cyan)}
+.stepper .sb{width:27px;height:27px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:7px;cursor:pointer;font-size:14px;line-height:1}
+.stepper .sb:hover{border-color:var(--cyan-d);background:#1b2c46}
+.stepper .sb.flex{font-size:13px;color:var(--ink3)}
+.stepper .sb.flex.on{color:var(--cyan);border-color:var(--cyan-d);background:#102a28}
+.bar.pkg{padding:0;box-shadow:0 2px 8px -2px rgba(0,0,0,.5)}
+.bar.pkg .seg{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:3px;box-sizing:border-box;border:1px solid rgba(0,0,0,.30)}
+.bar.pkg .seg.segnight{background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.20) 0 3px,transparent 3px 6px)}
+.bar.pkg .seglab{font-family:var(--mono);font-size:8px;font-weight:700;white-space:nowrap;pointer-events:none}
+.pstep{display:grid;grid-template-columns:15px 1.05fr 1.8fr 84px 32px 78px 24px;gap:5px;align-items:center;margin-bottom:6px}
+.pstep.isk{margin-left:14px;border-left:2px solid var(--cyan-d);padding-left:6px}
+.pstep-tog{background:transparent;border:1px solid var(--line);border-radius:6px;height:28px;cursor:pointer;filter:grayscale(1) opacity(.45);font-size:13px}
+.pstep-tog.on{filter:none;border-color:#6E5A8E;background:#241f33}
+.pstep-seq{background:transparent;border:1px solid var(--line);border-radius:6px;height:28px;cursor:pointer;color:var(--ink2);font-family:var(--mono);font-size:9.5px;white-space:nowrap}
+.pstep-seq.par{border-color:var(--cyan-d);color:var(--cyan);background:#102a28}
+.pstep-ini{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:center;text-transform:uppercase}
+.turnobtn{padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font:inherit;font-size:13px;text-align:left}
+.turnobtn.noche{border-color:#6E5A8E;background:#241f33;color:#cdbfe6}
+.hoja-wrap{padding:14px 16px}
+.hsheet{background:#fff;color:#1a2430;border-radius:10px;padding:22px 24px;margin:0 auto 18px;max-width:780px;box-shadow:0 1px 5px rgba(0,0,0,.3)}
+.hsheet .empty{color:#8a96a3;padding:24px;text-align:center}
+.hhd{border-bottom:2px solid #0e2a24;padding-bottom:10px}
+.hvessel{font-size:10px;letter-spacing:.16em;color:#8a96a3;font-weight:700}
+.hcrew{font-size:24px;font-weight:800;color:#0e2a24}
+.hsub{font-size:12px;color:#4a5663;margin-top:2px}
+.hsum{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 14px}
+.hchip{background:#eef4f2;border:1px solid #d4e2dd;border-radius:18px;padding:4px 12px;font-size:12px;color:#0f6e56}
+.hchip.warn{background:#fbf2e4;border-color:#eedcbf;color:#8a5a13}
+.hchip b{color:#0e2a24}
+.hday{display:flex;border:1px solid #d9dee4;border-radius:9px;margin-bottom:8px;overflow:hidden;break-inside:avoid}
+.hday.pause{background:#f4f1ea;border-style:dashed}
+.hdate{flex:0 0 122px;background:#f6f8f7;border-right:1px solid #d9dee4;padding:9px 12px}
+.hday.pause .hdate{background:transparent}
+.hdate .dw{font-size:15px;font-weight:700;text-transform:capitalize;color:#0e2a24}
+.hdate .dd{font-size:11px;color:#8a96a3}
+.hbody{flex:1;padding:8px 13px;display:flex;flex-direction:column;gap:7px;justify-content:center}
+.htask{font-size:14px;line-height:1.45}
+.hturno{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:#e7efd9;color:#3b6d11;margin-right:7px}
+.hturno.noche{background:#e9e4f3;color:#4a3a78}
+.hturno .hr{font-weight:500;opacity:.85;margin-left:4px}
+.hwhat{font-weight:700;color:#1a2430}
+.hwhere{font-size:12px;color:#4a5663;margin-left:3px}
+.hhand{font-size:12px;margin-top:3px;display:flex;gap:14px;flex-wrap:wrap}
+.hhand .recibe{color:#8a5a13}.hhand .entrega{color:#0f6e56}
+.hpause{font-size:13px;font-style:italic;color:#4a5663}
+.hpause b{font-style:normal;color:#8a5a13}
+.hfoot{font-size:10px;color:#8a96a3;border-top:1px solid #d9dee4;margin-top:14px;padding-top:7px}
+@media print{
+  body{background:#fff!important}
+  body *{visibility:hidden!important}
+  .hoja-wrap,.hoja-wrap *{visibility:visible!important}
+  .hoja-wrap{position:absolute;left:0;top:0;width:100%;padding:0}
+  .hsheet{box-shadow:none;margin:0 0 0 0;page-break-after:always;max-width:none}
+  .hsheet:last-child{page-break-after:auto}
+}
+.pstep-n{font-family:var(--mono);font-size:10px;color:var(--ink3);text-align:center}
+.pstep select,.pstep input{padding:5px 6px;font-size:11.5px}
+.pstep-x{background:transparent;border:1px solid var(--line);color:var(--ink2);border-radius:6px;cursor:pointer;height:28px}
+.pstep-x:hover{border-color:var(--red);color:var(--red)}
+.od-wrap{max-height:60vh;overflow:auto;padding:6px 14px 16px}
+.od-day{border:1px solid var(--line);border-radius:11px;margin-top:10px;overflow:hidden}
+.od-dh{background:var(--panel2);padding:8px 12px;font-size:13px;border-bottom:1px solid var(--line)}
+.od-dh b{font-family:var(--mono)}
+.od-item{display:flex;gap:12px;align-items:flex-start;padding:8px 12px;border-bottom:1px solid #18273d}
+.od-item:last-child{border-bottom:none}
+.od-slot{font-family:var(--mono);font-size:10px;color:var(--cyan);min-width:74px;text-transform:uppercase}
+.od-main>div:first-child{font-size:12.5px}
+.od-meta{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:2px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}.modal .mb{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="eyebrow">Torre de Control Lean · Parada de Dique</div>
+      <h1>M/Y TREASURE — Dique 2026</h1>
+      <div class="sub">3 días previos + subida (Día 0, 11 ago) → entrega (Día 24, 4 sep) · buffer Día 22–24 · <span id="lastsave"></span> · <span id="cloudst" style="font-family:var(--mono);font-size:11px">sin nube</span></div>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" id="addBtn"><span class="ic">＋</span>Agregar tarea</button>
+      <button class="btn" id="xlsxBtn"><span class="ic">⤓</span>Excel</button>
+      <button class="btn ghost" id="jsonBtn"><span class="ic">{ }</span>Backup</button>
+      <button class="btn ghost" id="impBtn"><span class="ic">↥</span>Importar</button>
+      <button class="btn ghost" id="resetBtn"><span class="ic">↺</span>Reset</button>
+      <input type="file" id="impFile" accept=".json" style="display:none">
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+  <div class="alerts" id="alerts"></div>
+
+  <div class="viewbar">
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-v="gantt">Gantt</button>
+      <button class="tab" data-v="parte">Parte diario</button>
+      <button class="tab" data-v="team">Por equipo</button>
+      <button class="tab" data-v="zone">Por zona</button>
+      <button class="tab" data-v="crew">Cuadrillas</button>
+      <button class="tab" data-v="orden">Hoja cuadrilla</button>
+      <button class="tab" data-v="table">Tabla</button>
+      <button class="tab" data-v="config">Reglas</button>
+    </div>
+    <div class="ctl" id="colorCtl">Color por
+      <select id="colorBy"><option value="equipo">Equipo</option><option value="turno">Turno</option><option value="estado">Estado</option></select>
+    </div>
+    <div class="ctl" id="filterCtl">Frente
+      <select id="fFase"><option value="">Todos</option></select>
+    </div>
+    <div class="simbox">
+      Día simulado: <b id="simLbl">—</b>
+      <input type="range" id="simRange" min="1" max="28" value="0" style="width:160px">
+    </div>
+  </div>
+
+  <div id="view"></div>
+  <div class="foot">Lean = no se planifica trabajo en el buffer (Día 22–24); solo se usa para recuperar atrasos. Marcar "Bloqueado" escala de inmediato. El % total está ponderado por días de trabajo.</div>
+</div>
+
+<div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
+
+<script>
+/* ============================ DATA ============================ */
+const SEED = /*seed*/[{"id":"F2-04","fase":"Pre-dique y arranque","act":"Transporte motores UIO → GYE (camión)","equipo":"Tripulación","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Llega desde UIO en días previos"},{"id":"PRE-01","fase":"Pre-dique y arranque","act":"Limpieza y preparación de bodega y estanterías","equipo":"Tripulación","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Días previos a la subida (en tierra)"},{"id":"PRE-02","fase":"Pre-dique y arranque","act":"Recepción de material desde UIO (muebles, teca, mármol, vidrios, Alucobond)","equipo":"Subcontrato","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Días previos · llega todo desde UIO"},{"id":"F1-04","fase":"Pre-dique y arranque","act":"Inventario y vaciado del barco","equipo":"Tripulación","turno":"DÍA","start":4,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F1-02","fase":"Pre-dique y arranque","act":"Reunión de arranque / asignación de frentes","equipo":"Múltiple","turno":"DÍA","start":5,"dias":1,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F2-01","fase":"Casco – Obra viva","act":"Obra viva — limpieza e inspección casco","equipo":"TAERA","turno":"DÍA","start":5,"dias":6,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":""},{"id":"OV-01","fase":"Casco – Obra viva","act":"Mantenimiento de hélices y ejes","equipo":"Subcontrato","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-03","fase":"Casco – Obra viva","act":"Válvulas de fondo (sea chests) y pasacascos","equipo":"Subcontrato","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-02","fase":"Casco – Obra viva","act":"Mantenimiento de timón y limera","equipo":"Subcontrato","turno":"DÍA","start":6,"dias":2,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-04","fase":"Casco – Obra viva","act":"Cambio de ánodos de zinc","equipo":"TAERA","turno":"DÍA","start":8,"dias":1,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"F2-02","fase":"Casco – Obra viva","act":"Antifouling (aplicación 2 capas)","equipo":"TAERA","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":""},{"id":"F1-01","fase":"Casco – Obra muerta","act":"Atraque y posicionamiento en parrilla TAERA","equipo":"TAERA","turno":"DÍA","start":4,"dias":1,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F1-03","fase":"Casco – Obra muerta","act":"Llegada botes inflables y armado de cama","equipo":"Tripulación","turno":"DÍA","start":4,"dias":2,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F2-03","fase":"Casco – Obra muerta","act":"Obra muerta y servicios astillero (TAERA)","equipo":"TAERA","turno":"DÍA","start":4,"dias":22,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F3-48","fase":"Casco – Obra muerta","act":"Instalación defensas proa botes inflables","equipo":"Subcontrato","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F4-09","fase":"Casco – Obra muerta","act":"Salida de parrilla / reflotar (TAERA)","equipo":"TAERA","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F1-05","fase":"Cámara de máquinas y áreas de servicio","act":"Desmontaje Sala de Máquinas","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F1-06","fase":"Cámara de máquinas y áreas de servicio","act":"Extracción 2 motores viejos","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F1-07","fase":"Cámara de máquinas y áreas de servicio","act":"Extracción generador viejo","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-09","fase":"Cámara de máquinas y áreas de servicio","act":"Mantenimiento generador 90 kVA babor","equipo":"Mecánicos","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-10","fase":"Cámara de máquinas y áreas de servicio","act":"Trabajos fibra Sala de Máquinas","equipo":"Fibreros A","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-05","fase":"Cámara de máquinas y áreas de servicio","act":"Recepción e inspección motores en astillero","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":1,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-06","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación motores C12 babor + estribor","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":6,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-07","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación generador 90 kVA estribor","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":5,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-08","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación generador 30 kVA (3er generador)","equipo":"Mecánicos","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F3-01","fase":"Cámara de máquinas y áreas de servicio","act":"Pintura área Sala de Máquinas","equipo":"Pintores","turno":"NOCHE","start":10,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"BH-01","fase":"Cámara de máquinas y áreas de servicio","act":"Adecuación y equipos de cocina (galley)","equipo":"Subcontrato","turno":"DÍA","start":11,"dias":6,"pct":0,"estado":"Pendiente","zona":"Cocina (galley)","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"BH-02","fase":"Cámara de máquinas y áreas de servicio","act":"Renovación de cuartos de tripulación","equipo":"Subcontrato","turno":"DÍA","start":13,"dias":5,"pct":0,"estado":"Pendiente","zona":"Cuartos tripulación","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"BH-03","fase":"Cámara de máquinas y áreas de servicio","act":"Adecuación de lavandería","equipo":"Subcontrato","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"Lavandería","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"F1-08","fase":"Cubierta 100","act":"Desmontaje Owner Suite (Cubierta 100)","equipo":"Carpinteros B","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F1-09","fase":"Cubierta 100","act":"Desmontaje exterior Cubiertas 100 y 200","equipo":"Tripulación","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-11","fase":"Cubierta 100","act":"Instalación columna pescante C100 (acero)","equipo":"Acero","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-13","fase":"Cubierta 100","act":"Apertura antepechos babor/estribor C100","equipo":"Fibreros B","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-16","fase":"Cubierta 100","act":"Ejecución visera de sombra sobre C100","equipo":"Fibreros C","turno":"DÍA","start":7,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-17","fase":"Cubierta 100","act":"Refuerzo estructural mamparo bar C100","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-03","fase":"Cubierta 100","act":"Nivelado cubierta exterior","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-10","fase":"Cubierta 100","act":"Fibra + trabajos en baño Owner Suite","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-12","fase":"Cubierta 100","act":"Ampliación, closet, peinadora Owner Suite","equipo":"Carpinteros B","turno":"DÍA","start":9,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-05","fase":"Cubierta 100","act":"Cielo falso Alucobond exterior C100","equipo":"Alucobond","turno":"DÍA","start":11,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-11","fase":"Cubierta 100","act":"Renovación completa baño Owner Suite","equipo":"Cuadrilla A","turno":"DÍA","start":11,"dias":4,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-07","fase":"Cubierta 100","act":"Instalación mueble fijo exterior C100","equipo":"Carpinteros B","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-13","fase":"Cubierta 100","act":"Piso vinyl Owner Suite","equipo":"Carpinteros B","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-04","fase":"Cubierta 100","act":"Instalación defensa caucho popa C100","equipo":"Fibreros B","turno":"DÍA","start":13,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-14","fase":"Cubierta 100","act":"Cielo falso + espaldar + sofá Owner Suite","equipo":"Tapiceros","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-17","fase":"Cubierta 100","act":"Reemplazo piso vinyl sala principal","equipo":"Carpinteros B","turno":"DÍA","start":13,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-19","fase":"Cubierta 100","act":"Renovación baño Cabina 2","equipo":"Cuadrilla A","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-06","fase":"Cubierta 100","act":"Teca cubierta exterior C100 (paquete)","equipo":"Carpinteros A","turno":"DÍA","start":14,"dias":7,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":"Ejemplo de PAQUETE: pasos en secuencia","pasos":[{"gremio":"Carpinteros A","act":"Desmontar teca vieja","medios":2,"turno":"DÍA","pct":0},{"gremio":"Fibreros B","act":"Nivelar piso","medios":4,"turno":"DÍA","pct":0},{"gremio":"Carpinteros A","act":"Instalar teca nueva","medios":6,"turno":"DÍA","pct":0},{"gremio":"Carpinteros A","act":"Pulido y sellado","medios":1,"turno":"DÍA","pct":0}]},{"id":"F3-08","fase":"Cubierta 100","act":"Cambio acrílico → vidrio puerta principal","equipo":"Vidrieros","turno":"DÍA","start":14,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-15","fase":"Cubierta 100","act":"Instalación eléctrica + 2 TVs 65\" Owner Suite","equipo":"Eléctricos","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-20","fase":"Cubierta 100","act":"Renovación baño Cabina 3","equipo":"Cuadrilla A","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-18","fase":"Cubierta 100","act":"Instalación mármol: bar, samovar y mesas","equipo":"Marmolistas","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-21","fase":"Cubierta 100","act":"Renovación baño Cabina 4","equipo":"Cuadrilla A","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-09","fase":"Cubierta 100","act":"Pintura paredes exteriores + columnas C100","equipo":"Pintores","turno":"DÍA-NOCHE","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-22","fase":"Cubierta 100","act":"Renovación baño Cabina 5","equipo":"Cuadrilla A","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-23","fase":"Cubierta 100","act":"Iluminación cálida C100","equipo":"Eléctricos","turno":"DÍA","start":17,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-16","fase":"Cubierta 100","act":"Pintura Owner Suite","equipo":"Pintores","turno":"NOCHE","start":18,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-24","fase":"Cubierta 100","act":"Pintura sala + cabinas C100","equipo":"Pintores","turno":"DÍA-NOCHE","start":19,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F2-14","fase":"Cubierta 200","act":"Modificación antepecho C200","equipo":"Fibreros B","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F2-12","fase":"Cubierta 200","act":"Fabricación/inst. pescantes botes C200","equipo":"Acero","turno":"DÍA","start":7,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F2-18","fase":"Cubierta 200","act":"Reubicación apoyos + refuerzo bao C200","equipo":"Fibreros B","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-26","fase":"Cubierta 200","act":"Cielo falso Alucobond exterior C200","equipo":"Alucobond","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-30","fase":"Cubierta 200","act":"Renovación baño Cabina 6","equipo":"Cuadrilla B","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-25","fase":"Cubierta 200","act":"Instalación teca C200 (59 m²)","equipo":"Carpinteros A","turno":"DÍA","start":15,"dias":5,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-27","fase":"Cubierta 200","act":"Baranda vidrio templado/laminado popa C200","equipo":"Vidrieros","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-31","fase":"Cubierta 200","act":"Renovación baño Cabina 7","equipo":"Cuadrilla B","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-34","fase":"Cubierta 200","act":"Closets + TV integrada Cabinas 6 y 7","equipo":"Carpinteros B","turno":"DÍA","start":15,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-29","fase":"Cubierta 200","act":"Sofá exterior sala C200","equipo":"Subcontrato","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-32","fase":"Cubierta 200","act":"Renovación baño Cabina 8","equipo":"Cuadrilla B","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-35","fase":"Cubierta 200","act":"Muebles wetsuits puente de mando","equipo":"Carpinteros B","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Puente","obs":""},{"id":"F3-28","fase":"Cubierta 200","act":"Ventanas baños C200 (vidrio)","equipo":"Vidrieros","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-33","fase":"Cubierta 200","act":"Renovación baño Cabina 9","equipo":"Cuadrilla B","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-36","fase":"Cubierta 200","act":"Puerta ingreso Cabina 8","equipo":"Carpinteros B","turno":"DÍA","start":17,"dias":2,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-37","fase":"Cubierta 200","act":"Iluminación cálida C200","equipo":"Eléctricos","turno":"DÍA","start":18,"dias":2,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-38","fase":"Cubierta 200","act":"Pintura interior + exterior C200","equipo":"Pintores","turno":"DÍA-NOCHE","start":20,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F1-10","fase":"Sundeck","act":"Desmontaje Sundeck","equipo":"Tripulación","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F2-15","fase":"Sundeck","act":"Modificación antepecho popa Sundeck","equipo":"Fibreros C","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F2-19","fase":"Sundeck","act":"Instalación piscina prefabricada Sundeck","equipo":"Fibreros C","turno":"DÍA","start":11,"dias":5,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-40","fase":"Sundeck","act":"Mesón BBQ y samovar (fibra)","equipo":"Fibreros C","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-39","fase":"Sundeck","act":"Hidrosanitaria piscina + conexiones","equipo":"Plomeros","turno":"DÍA","start":14,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-41","fase":"Sundeck","act":"Instalación teca Sundeck","equipo":"Carpinteros A","turno":"DÍA","start":17,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-42","fase":"Sundeck","act":"Instalación mobiliario exterior Sundeck","equipo":"Subcontrato","turno":"DÍA","start":18,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-43","fase":"Sundeck","act":"Pasamanos de vidrio Sundeck","equipo":"Vidrieros","turno":"DÍA","start":19,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-44","fase":"Sundeck","act":"Iluminación Sundeck","equipo":"Eléctricos","turno":"DÍA","start":20,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-45","fase":"Sundeck","act":"Pintura gelcoat Sundeck","equipo":"Pintores","turno":"NOCHE","start":21,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-46","fase":"Sistemas del barco","act":"Limpieza y mantenimiento A/C (todo el barco)","equipo":"A/C","turno":"DÍA","start":11,"dias":8,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F3-47","fase":"Sistemas del barco","act":"Sistema contra incendio (insp. + mant.)","equipo":"Subcontrato","turno":"DÍA","start":18,"dias":4,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F3-02","fase":"Pruebas y entrega","act":"Prueba preliminar generadores (pre-comisión)","equipo":"Mecánicos","turno":"DÍA","start":14,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-01","fase":"Pruebas y entrega","act":"Pruebas motores nuevos (banco y carga)","equipo":"Mecánicos","turno":"DÍA","start":23,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-02","fase":"Pruebas y entrega","act":"Prueba generadores + transferencia automática","equipo":"Mecánicos","turno":"DÍA","start":23,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-03","fase":"Pruebas y entrega","act":"Prueba sistema A/C","equipo":"A/C","turno":"DÍA","start":25,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-05","fase":"Pruebas y entrega","act":"Reposición muebles, equipos y accesorios","equipo":"Tripulación","turno":"DÍA","start":25,"dias":3,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-04","fase":"Pruebas y entrega","act":"Prueba sistema contra incendio","equipo":"Subcontrato","turno":"DÍA","start":26,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-06","fase":"Pruebas y entrega","act":"Inspección final + punch list","equipo":"Múltiple","turno":"DÍA","start":27,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-08","fase":"Pruebas y entrega","act":"Limpieza general del barco","equipo":"Tripulación","turno":"DÍA","start":27,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-07","fase":"Pruebas y entrega","act":"Correcciones finales (punch list)","equipo":"Múltiple","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-10","fase":"Pruebas y entrega","act":"Sea trial y prueba de navegación","equipo":"Mecánicos","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":""}];
+const EQUIPOS=["TAERA","Mecánicos","Fibreros A","Fibreros B","Fibreros C","Carpinteros A","Carpinteros B","Cuadrilla A","Cuadrilla B","Pintores","Alucobond","Vidrieros","Eléctricos","Plomeros","A/C","Marmolistas","Tapiceros","Acero","Tripulación","Subcontrato","Múltiple"];
+const TURNOS=["DÍA","DÍA-NOCHE","NOCHE"];
+const ESTADOS=["Pendiente","En Proceso","Listo","Bloqueado"];
+const ZONAS=["Sala de Máquinas","Cocina (galley)","Cuartos tripulación","Lavandería","C100 Exterior","C100 Owner Suite","C100 Sala Ppal.","C100 Cabinas 2-5","C200 Exterior","C200 Cabinas 6-9","C200 Puente","Sundeck","Obra Viva","Todo el barco","Logística / Ext.","Parrilla TAERA"];
+const START=new Date(2026,7,8);            // idx1 = 8 ago (Previo -3); subida 11 ago = idx4
+const SUBIDA=4;                              // idx de la subida = "Día 0"
+const BUFFER=[26,27,28];   // Día 22-24 (2-4 sep)
+const WD=['dom','lun','mar','mié','jue','vie','sáb'];
+const MO=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+// capacidad física por zona (cuántos frentes caben a la vez)
+const DEFAULT_CAP={"Sala de Máquinas":2,"C100 Exterior":2,"C200 Exterior":2,"Sundeck":2,"Obra Viva":2,
+  "C100 Owner Suite":1,"C100 Sala Ppal.":1,"C100 Cabinas 2-5":1,"C200 Cabinas 6-9":1,"C200 Puente":1,"Cocina (galley)":1,"Cuartos tripulación":1,"Lavandería":1,
+  "Todo el barco":99,"Logística / Ext.":99,"Parrilla TAERA":99};
+// capacidad de CADA equipo = cuántas cuadrillas de ese oficio hay (cuántos frentes a la vez).
+// 99 = flexible/sin límite (no genera cruces ni alertas de equipo parado).
+const FLEX_TEAMS=["Múltiple","Subcontrato","Tripulación","TAERA"];
+const DEFAULT_CAPT={};EQUIPOS.forEach(e=>DEFAULT_CAPT[e]=FLEX_TEAMS.includes(e)?99:1);
+function capT(e){return S.cap[e]??1;}
+function monT(e){return capT(e)<99;}   // monitored = no es flexible
+
+/* ============================ STORAGE ============================ */
+const KEY="treasure_dique_lean_v4";
+async function load(){
+  try{ if(window.storage){const r=await window.storage.get(KEY); if(r&&r.value) return JSON.parse(r.value);} }catch(e){}
+  try{ const s=localStorage.getItem(KEY); if(s) return JSON.parse(s);}catch(e){}
+  return null;
+}
+function snapshot(){return JSON.stringify({tasks:S.tasks,caps:S.caps,cap:S.cap,horarios:S.horarios});}
+async function persist(){
+  const blob=snapshot(); let ok=false;
+  try{ if(window.storage){ await window.storage.set(KEY,blob,false); ok=true; } }catch(e){}
+  try{ localStorage.setItem(KEY,blob); ok=true; }catch(e){}
+  if(SB){sbPush();}
+  return ok;
+}
+/* ---- Nube (Supabase) — opcional, aditivo ---- */
+const SB_CFG_KEY="treasure_sb_cfg";
+const SB_URL_DEFAULT="https://tzqvsdpzysdppwqrjdfw.supabase.co";
+const SB_KEY_DEFAULT="sb_publishable_0etSrFpFVA3tRSbp3oijmA_NU4J9jDg";
+const SB_TABLE="presupuesto";      // reusa la misma tabla del presupuesto
+const SB_DOC="dique";              // registro aparte (el presupuesto usa id 'treasure')
+let SB=null, SBstate='off';
+function sbCfg(){try{const s=localStorage.getItem(SB_CFG_KEY);if(s){const o=JSON.parse(s);if(o&&o.url&&o.key)return o;}}catch(e){}
+  if(SB_URL_DEFAULT&&SB_KEY_DEFAULT.length>20)return {url:SB_URL_DEFAULT,key:SB_KEY_DEFAULT};
+  return null;}
+function sbInit(){SB=null;const c=sbCfg();
+  if(c&&c.url&&c.key&&window.supabase){try{SB=window.supabase.createClient(c.url,c.key);SBstate='ok';}catch(e){SB=null;SBstate='error';}}
+  else SBstate='off';
+  return SB;}
+async function sbPull(){if(!SB)return null;
+  try{const r=await SB.from(SB_TABLE).select('data').eq('id',SB_DOC).maybeSingle();
+    if(r.error){SBstate='error';return null;} SBstate='ok'; return r.data?r.data.data:null;}catch(e){SBstate='error';return null;}}
+async function sbPush(){if(!SB)return false;
+  try{SBstate='saving';sbStatus();
+    const r=await SB.from(SB_TABLE).upsert({id:SB_DOC,data:JSON.parse(snapshot()),updated_at:new Date().toISOString()});
+    SBstate=r.error?'error':'ok';sbStatus();return !r.error;}catch(e){SBstate='error';sbStatus();return false;}}
+function sbStatus(){const e=el('cloudst');if(!e)return;
+  const map={off:['sin nube','var(--ink3)'],ok:['☁ en la nube','var(--green)'],saving:['☁ guardando…','var(--cyan)'],error:['☁ revisar nube','var(--red)']};
+  const v=map[SBstate]||map.off; e.textContent=v[0]; e.style.color=v[1];}
+function setStatus(s){const e=el('lastsave');if(!e)return;
+  if(s==='saving')e.innerHTML='guardando…';
+  else if(s==='saved'){const d=new Date();e.innerHTML='✓ guardado '+d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});}
+  else e.innerHTML='<span style="color:var(--red);font-weight:600">⚠ el navegador bloqueó el guardado — usá «Backup»</span>';}
+let saveT=null;
+function save(){
+  setStatus('saving'); clearTimeout(saveT);
+  saveT=setTimeout(async()=>{ const ok=await persist(); setStatus(ok?'saved':'fail'); },200);
+}
+// red de seguridad: guardado síncrono al cerrar o cambiar de pestaña
+function flush(){ try{localStorage.setItem(KEY,snapshot());}catch(e){} }
+window.addEventListener('pagehide',flush);
+window.addEventListener('beforeunload',flush);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush();});
+
+/* ============================ STATE ============================ */
+const DEF_HOR={diaMan:'08–12',diaTar:'13–18',nocTar:'13–18',nocNoc:'19–23'};
+let S={tasks:[],caps:{...DEFAULT_CAP},cap:{...DEFAULT_CAPT},view:'gantt',colorBy:'equipo',simDay:0,fFase:'',parteBy:'equipo',ordenEq:'',horarios:{...DEF_HOR}};
+function uid(){return 'T'+Math.random().toString(36).slice(2,7).toUpperCase();}
+function phaseOf(t){const m=(t.id||'').match(/^F(\d)/);return m?'F'+m[1]:'F0';}
+function isPkg(t){return Array.isArray(t.pasos)&&t.pasos.length>0;}
+function pkgLayout(t){
+  const steps=t.pasos.map(p=>({...p,m:Math.max(1,p.medios||2)}));
+  let groupStart=0,groupEnd=0;
+  steps.forEach((s,i)=>{const par=i>0&&s.par;
+    if(i===0){s.start=0;groupStart=0;groupEnd=s.m;}
+    else if(par){s.start=groupStart;groupEnd=Math.max(groupEnd,s.start+s.m);}
+    else{s.start=groupEnd;groupStart=s.start;groupEnd=s.start+s.m;}});
+  const total=steps.reduce((mx,s)=>Math.max(mx,s.start+s.m),0);
+  let gi=-1;const groups=[];
+  steps.forEach((s,i)=>{const par=i>0&&s.par;if(!par){gi++;groups[gi]=[];}groups[gi].push(s);s.g=gi;});
+  groups.forEach(g=>g.forEach((s,j)=>{s.lane=j;s.lanes=g.length;}));
+  return {steps,total,groups};
+}
+function pkgMedios(t){return pkgLayout(t).total;}
+function taskDays(t){return isPkg(t)?Math.max(1,Math.ceil(pkgMedios(t)/2)):t.dias;}
+function endOf(t){return t.start+taskDays(t)-1;}
+/* bloques en medios-días globales: hi = 2*(día-1)+slot  (slot 0=mañana, 1=tarde) */
+function blocksOf(t){
+  const H0=2*(t.start-1);
+  if(isPkg(t)){const L=pkgLayout(t);const gg=L.groups.map(g=>[...new Set(g.map(s=>s.gremio))]);
+    return L.steps.map(s=>({tid:t.id,equipo:s.gremio,zona:t.zona,turno:s.turno||'DÍA',name:s.act||t.act,hi0:H0+s.start,hi1:H0+s.start+s.m-1,pct:s.pct||0,paso:true,lane:s.lane,lanes:s.lanes,par:!!s.par,g:s.g,gg,taskName:t.act}));}
+  return [{tid:t.id,equipo:t.equipo,zona:t.zona,turno:t.turno,name:t.act,hi0:H0,hi1:H0+t.dias*2-1,pct:t.pct,paso:false,taskName:t.act}];
+}
+function allBlocks(){const o=[];S.tasks.forEach(t=>blocksOf(t).forEach(b=>o.push(b)));return o;}
+function hiDay(hi){return Math.floor(hi/2)+1;}
+function blkActiveHi(b,hi){return hi>=b.hi0&&hi<=b.hi1;}
+function blkActiveDay(b,d){return b.hi1>=2*(d-1)&&b.hi0<=2*(d-1)+1;}
+function blkSlot(b,d){const am=2*(d-1),pm=am+1;const a=blkActiveHi(b,am),p=blkActiveHi(b,pm);return a&&p?'todo el día':a?'mañana':'tarde';}
+function teamCountDay(eq,d,blks){const am=2*(d-1),pm=am+1;
+  const a=blks.filter(b=>b.equipo===eq&&blkActiveHi(b,am)).length;
+  const p=blks.filter(b=>b.equipo===eq&&blkActiveHi(b,pm)).length;return Math.max(a,p);}
+function zoneInfoDay(z,d,blks){const am=2*(d-1),pm=am+1;
+  const fa=blks.filter(b=>b.zona===z&&blkActiveHi(b,am));const fp=blks.filter(b=>b.zona===z&&blkActiveHi(b,pm));
+  const pick=fa.length>=fp.length?fa:fp;
+  const tids=new Set(pick.map(b=>b.tid));
+  return {n:tids.size,teams:new Set(pick.map(b=>b.equipo)).size,arr:pick};}
+function NDAYS(){return Math.max(28,...S.tasks.map(endOf),28);}
+// etiqueta de día: idx<SUBIDA = "P-n" (previo); idx>=SUBIDA = "D" + (idx-SUBIDA)
+function diaShort(i){return i<SUBIDA?("P"+(i-SUBIDA)):("D"+(i-SUBIDA));}
+function diaLong(i){return i<SUBIDA?("Previo "+(i-SUBIDA)):("Día "+(i-SUBIDA));}
+const WDL=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+function horario(b,d){const H=S.horarios||DEF_HOR;
+  if(b.turno==='NOCHE')return['tarde-noche',H.nocTar+' y '+H.nocNoc];
+  const s=blkSlot(b,d);
+  if(s==='mañana')return['mañana',H.diaMan];
+  if(s==='tarde')return['tarde',H.diaTar];
+  return['día completo',H.diaMan+' y '+H.diaTar];}
+function horarioLeyenda(){const H=S.horarios||DEF_HOR;return 'Día = '+H.diaMan+' y '+H.diaTar+' · Noche = '+H.nocTar+' y '+H.nocNoc;}
+function dateOf(i){const d=new Date(START);d.setDate(d.getDate()+i-1);return d;}
+function isWknd(i){const wd=dateOf(i).getDay();return wd===0||wd===6;}
+const PHASE_NAME={F1:'Fase 1 · Liberación',F2:'Fase 2 · Estructura',F3:'Fase 3 · Acabados',F4:'Fase 4 · Cierre',F0:'Otros'};
+
+/* color palette per equipo */
+/* Paleta Sanzo Wada (A Dictionary of Color Combinations) — tonos apagados y armónicos, intercalados cálido/frío */
+const SANZO=["#B85C44","#4FA39A","#C9A24B","#4A6E96","#5C9E63","#8E4A6E","#D89A77","#3E89A1","#8C8B4A","#7E6A9E","#5AA48F","#A85072","#BE9B3F","#5E86A8","#6F8A4E","#C76A86","#45A0B0","#A98A6A","#6E4E84","#BFC25A","#3D5A86","#D49AA0","#9A8FA0","#B5523F"];
+const PAL={};EQUIPOS.forEach((e,i)=>PAL[e]=SANZO[i%SANZO.length]);
+const TURNO_COL={"DÍA":"#E0B84E","DÍA-NOCHE":"#C77B4E","NOCHE":"#6E5A8E"};
+const EST_COL={"Pendiente":"#8392A1","En Proceso":"#5E86A8","Listo":"#6FB07A","Bloqueado":"#D15A4A"};
+function textOn(hex){const c=(hex||'').replace('#','');if(c.length<6)return '#13202c';
+  const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
+  return (0.299*r+0.587*g+0.114*b)>150?'#13202c':'#f2ece0';}
+const PLANTILLAS={
+ "Teca (cubierta exterior)":[{gremio:"Carpinteros A",act:"Desmontar teca vieja",medios:2,turno:"DÍA"},{gremio:"Fibreros B",act:"Nivelar piso",medios:4,turno:"DÍA"},{gremio:"Carpinteros A",act:"Instalar teca nueva",medios:6,turno:"DÍA"},{gremio:"Carpinteros A",act:"Pulido y sellado",medios:1,turno:"DÍA"}],
+ "Baño (renovación)":[{gremio:"Cuadrilla A",act:"Demolición",medios:2,turno:"DÍA"},{gremio:"Plomeros",act:"Hidrosanitaria",medios:3,turno:"DÍA"},{gremio:"Cuadrilla A",act:"Enchape y acabados",medios:4,turno:"DÍA"},{gremio:"Cuadrilla A",act:"Grifería y sellado",medios:1,turno:"DÍA"}],
+ "Pintura (área)":[{gremio:"Pintores",act:"Preparación y masillado",medios:2,turno:"NOCHE"},{gremio:"Pintores",act:"Aplicación 2 manos",medios:4,turno:"NOCHE"}]
+};
+function barColor(t){
+  if(S.colorBy==='turno')return TURNO_COL[t.turno]||'#888';
+  if(S.colorBy==='estado')return EST_COL[t.estado]||'#888';
+  return PAL[t.equipo]||'#7aa';
+}
+function activeOn(t,d){return d>=t.start&&d<=endOf(t);}
+
+/* ============================ METRICS ============================ */
+function metrics(){
+  const T=S.tasks, sim=S.simDay;
+  let wsum=0,wdone=0,wexp=0;
+  let cnt={Pendiente:0,"En Proceso":0,Listo:0,Bloqueado:0};
+  T.forEach(t=>{
+    const w=taskDays(t)*100; wsum+=w; wdone+=taskDays(t)*Math.min(100,Math.max(0,t.pct));
+    cnt[t.estado]=(cnt[t.estado]||0)+1;
+    // expected % at sim day (linear within duration)
+    let ep=0;
+    if(sim>0){ if(sim>=endOf(t))ep=100; else if(sim>=t.start)ep=Math.round((sim-t.start+1)/taskDays(t)*100); }
+    wexp+=taskDays(t)*ep;
+  });
+  const realPct = wsum? wdone/wsum*100 : 0;
+  const expPct  = wsum? wexp/wsum*100  : 0;
+  const delta   = realPct-expPct;
+  return {realPct,expPct,delta,cnt,total:T.length};
+}
+
+/* ============================ ALERT ENGINE ============================ */
+function buildAlerts(){
+  const T=S.tasks, A=[], N=NDAYS();
+  // 1) Bloqueos
+  T.filter(t=>t.estado==='Bloqueado').forEach(t=>A.push(
+    {sev:'red',tag:'Bloqueo',t1:`${t.id} bloqueada — escalar ahora`,t2:`${t.act} · ${t.equipo} · ${t.zona}${t.obs?' · '+t.obs:''}`,day:t.start,ref:[t.id]}));
+  const BLK=allBlocks();
+  // 2) Equipo sobre-asignado → FALTA CUADRILLA (más frentes que cuadrillas, por medio día)
+  for(let d=1;d<=N;d++){
+    EQUIPOS.forEach(eq=>{const cap=capT(eq);if(cap>=99)return;
+      const cnt=teamCountDay(eq,d,BLK); if(cnt>cap){
+        const refs=[...new Set(BLK.filter(b=>b.equipo===eq&&blkActiveDay(b,d)).map(b=>b.tid))];
+        A.push({sev:'red',tag:'Falta cuadrilla',
+          t1:`${eq}: ${cnt} frentes a la vez · ${cap} cuadrilla(s) · ${dlabel(d)}`,
+          t2:`Necesitás +${cnt-cap} cuadrilla(s) o re-secuenciar. Frentes: ${refs.join(', ')}`,
+          day:d,ref:refs});
+      }});
+  }
+  // 3) Choque de espacio (capacidad de zona, por medio día)
+  for(let d=1;d<=N;d++){
+    const zs=[...new Set(BLK.filter(b=>blkActiveDay(b,d)).map(b=>b.zona))];
+    zs.forEach(z=>{const cap=S.caps[z]??1;const info=zoneInfoDay(z,d,BLK);
+      if(info.n>cap&&info.teams>1)A.push({sev:info.n-cap>=2?'red':'amber',tag:'Espacio',
+        t1:`${z}: ${info.n} frentes / capacidad ${cap} · ${dlabel(d)}`,
+        t2:`Restricción de espacio. Equipos: ${[...new Set(info.arr.map(b=>b.equipo))].join(', ')}`,
+        day:d,ref:[...new Set(info.arr.map(b=>b.tid))],zone:z});});
+  }
+  // 4) Equipo parado (hueco entre sus bloques, dentro de la ventana activa)
+  const winEnd=BUFFER[0]-1;
+  EQUIPOS.filter(e=>monT(e)).forEach(eq=>{
+    const ebl=BLK.filter(b=>b.equipo===eq); if(!ebl.length)return;
+    const first=hiDay(Math.min(...ebl.map(b=>b.hi0))), last=Math.min(winEnd,hiDay(Math.max(...ebl.map(b=>b.hi1))));
+    const gaps=[];
+    for(let d=first;d<=last;d++){ if(isWknd(d))continue; if(!ebl.some(b=>blkActiveDay(b,d)))gaps.push(d); }
+    const groups=[];gaps.forEach(d=>{const g=groups[groups.length-1];if(g&&d===g[g.length-1]+1)g.push(d);else groups.push([d]);});
+    groups.forEach(g=>A.push({sev:'amber',tag:'Equipo parado',
+      t1:`${eq} sin frente ${g.length>1?dlabel(g[0])+'→'+dlabel(g[g.length-1]):dlabel(g[0])}`,
+      t2:`Equipo ocioso ${g.length} día(s) entre tareas — reasignar o adelantar trabajo (desperdicio lean).`,
+      day:g[0],ref:[]}));
+  });
+  // 5) Trabajo planificado en buffer
+  T.filter(t=>endOf(t)>=BUFFER[0]&&t.estado!=='Listo').forEach(t=>A.push(
+    {sev:'amber',tag:'Buffer invadido',t1:`${t.id} ocupa el buffer (${diaShort(Math.max(BUFFER[0],t.start))}–${diaShort(endOf(t))})`,
+     t2:`${t.act} · ${t.equipo}. El colchón Día 22–24 es solo para recuperar atrasos.`,day:Math.max(BUFFER[0],t.start),ref:[t.id]}));
+  // 6) Atraso vs plan (solo con día simulado)
+  if(S.simDay>0){
+    T.forEach(t=>{ if(t.estado==='Listo')return;
+      let ep=0; if(S.simDay>=endOf(t))ep=100; else if(S.simDay>=t.start)ep=Math.round((S.simDay-t.start+1)/t.dias*100);
+      if(ep-t.pct>=25)A.push({sev:'blue',tag:'Atraso',
+        t1:`${t.id} atrasada · esperado ${ep}% / real ${t.pct}%`,
+        t2:`${t.act} · ${t.equipo} · ${t.zona}`,day:Math.min(S.simDay,endOf(t)),ref:[t.id]});
+    });
+  }
+  const order={red:0,amber:1,blue:2};
+  A.sort((a,b)=>order[a.sev]-order[b.sev]||a.day-b.day);
+  return A;
+}
+function dlabel(d){const dt=dateOf(d);return `${diaLong(d)} · ${dt.getDate()} ${MO[dt.getMonth()]}`;}
+
+/* ============================ RENDER ============================ */
+const el=id=>document.getElementById(id);
+function render(){renderAlerts();renderKPI();renderView();}
+
+function renderKPI(){
+  const m=metrics();
+  const dleft=Math.max(0,(BUFFER[0]-1)-S.simDay);
+  const dpass=S.simDay;
+  let trend='good',tlab='—';
+  if(S.simDay>0){ if(m.delta< -3){trend='bad';tlab='Atrasado '+Math.abs(m.delta).toFixed(0)+'%';}
+    else if(m.delta>3){trend='good';tlab='Adelantado '+m.delta.toFixed(0)+'%';}
+    else {trend='good';tlab='A tiempo';} }
+  const blocked=m.cnt.Bloqueado||0;
+  const k=[
+    {lab:'Avance total',val:m.realPct.toFixed(1)+'<small>%</small>',bar:m.realPct,note:'ponderado por días de trabajo',cls:''},
+    {lab:'Plan vs real',val:(S.simDay?tlab:'—'),note:S.simDay?`esperado hoy ${m.expPct.toFixed(0)}%`:'mové el día simulado →',cls:trend},
+    {lab:'Tareas',val:m.total,note:`${m.cnt.Listo||0} listas · ${m.cnt['En Proceso']||0} en proceso · ${m.cnt.Pendiente||0} pend.`,cls:''},
+    {lab:'Bloqueadas',val:blocked,note:blocked?'requieren escalamiento':'sin bloqueos',cls:blocked?'bad':'good'},
+    {lab:'Día',val:S.simDay?diaShort(S.simDay):'—',note:S.simDay?`${dleft} días útiles restantes (sin buffer)`:'antes del buffer',cls:dleft<=3&&S.simDay?'warn':''},
+    {lab:'Alertas',val:CUR_ALERTS.length,note:`${CUR_ALERTS.filter(a=>a.sev==='red').length} críticas`,cls:CUR_ALERTS.filter(a=>a.sev==='red').length?'bad':(CUR_ALERTS.length?'warn':'good')},
+  ];
+  el('kpis').innerHTML=k.map(x=>`<div class="kpi ${x.cls}">
+    <div class="lab">${x.lab}</div><div class="val">${x.val}</div>
+    ${x.bar!=null?`<div class="bar"><i style="width:${Math.min(100,x.bar)}%"></i></div>`:''}
+    <div class="note">${x.note}</div></div>`).join('');
+}
+
+let CUR_ALERTS=[];
+function renderAlerts(){
+  CUR_ALERTS=buildAlerts();
+  const A=CUR_ALERTS;
+  const c={red:A.filter(a=>a.sev==='red').length,amber:A.filter(a=>a.sev==='amber').length,blue:A.filter(a=>a.sev==='blue').length};
+  el('alerts').innerHTML=`
+   <div class="hd" id="alHd">
+     <h3>⚠ Tablero de alertas — control automático</h3>
+     <div class="counts">
+       ${c.red?`<span class="cbadge red">${c.red} críticas</span>`:''}
+       ${c.amber?`<span class="cbadge amber">${c.amber} avisos</span>`:''}
+       ${c.blue?`<span class="cbadge blue">${c.blue} atrasos</span>`:''}
+       ${!A.length?`<span class="cbadge blue">sin alertas</span>`:''}
+     </div></div>
+   <div class="body" id="alBody">
+     ${A.length?A.map((a,i)=>`<div class="alert ${a.sev}" data-i="${i}">
+        <div class="dot"></div><div class="txt"><div class="t1">${a.t1}</div><div class="t2">${a.t2}</div></div>
+        <div class="tag">${a.tag}</div></div>`).join(''):
+        `<div class="empty">Sin alertas. El cronograma no tiene bloqueos, cruces de equipo, choques de espacio ni equipos parados con la configuración actual.</div>`}
+   </div>`;
+  el('alBody').onclick=e=>{const r=e.target.closest('.alert');if(!r)return;const a=A[+r.dataset.i];
+    if(a.day){S.simDay=Math.min(NDAYS(),a.day);el('simRange').value=S.simDay;syncSim();}
+    if(a.ref&&a.ref.length){S.view='gantt';setTab('gantt');renderView();setTimeout(()=>highlight(a.ref),60);}
+    else if(a.zone){S.view='zone';setTab('zone');renderView();}
+    else {S.view='team';setTab('team');renderView();}
+  };
+}
+
+function renderView(){
+  const v=S.view;
+  el('colorCtl').style.display=v==='gantt'?'flex':'none';
+  el('filterCtl').style.display=(v==='gantt'||v==='table')?'flex':'none';
+  if(v==='gantt')el('view').innerHTML=ganttHTML();
+  else if(v==='parte')el('view').innerHTML=parteHTML();
+  else if(v==='team')el('view').innerHTML=teamHTML();
+  else if(v==='zone')el('view').innerHTML=zoneHTML();
+  else if(v==='crew')el('view').innerHTML=crewHTML();
+  else if(v==='orden')el('view').innerHTML=ordenHTML();
+  else if(v==='table')el('view').innerHTML=tableHTML();
+  else if(v==='config')el('view').innerHTML=configHTML();
+  wireView();
+}
+
+function dayHeaders(extraCls){
+  const N=NDAYS();let h='';
+  for(let d=1;d<=N;d++){const dt=dateOf(d);const buf=BUFFER.includes(d);const wk=isWknd(d);const tdy=S.simDay===d;
+    h+=`<th class="colhead ${buf?'buf':(wk?'wknd':'')} ${tdy?'today':''} ${d===SUBIDA?'subida':''}"><span class="dl">${diaShort(d)}</span><br>${WD[dt.getDay()]}<br><span class="d">${dt.getDate()}</span></th>`;}
+  return h;
+}
+
+function ganttHTML(){
+  const N=NDAYS();
+  // conflict cells (zone over capacity) for marking — half-day aware
+  const conf={};const BLK0=allBlocks();
+  for(let d=1;d<=N;d++){const zs=[...new Set(BLK0.filter(b=>blkActiveDay(b,d)).map(b=>b.zona))];
+    zs.forEach(z=>{const cap=S.caps[z]??1;const info=zoneInfoDay(z,d,BLK0);
+      if(info.n>cap&&info.teams>1)info.arr.forEach(b=>conf[b.tid+'_'+d]=1);});}
+  // group by frente, preserve seed order, optional fase filter
+  let list=S.tasks.filter(t=>!S.fFase||t.fase===S.fFase);
+  const order=[];const groups={};
+  list.forEach(t=>{if(!groups[t.fase]){groups[t.fase]=[];order.push(t.fase);}groups[t.fase].push(t);});
+  let rows='';
+  order.forEach(fr=>{
+    rows+=`<tr class="grp"><td colspan="${N+1}"><div class="gname">${fr} <span class="gp">· ${groups[fr].length} tareas</span></div></td></tr>`;
+    groups[fr].forEach(t=>{
+      let cells='';
+      for(let d=1;d<=N;d++){const buf=BUFFER.includes(d);const wk=isWknd(d);const tdy=S.simDay===d;const cf=conf[t.id+'_'+d];
+        let bar='';
+        if(d===t.start){const night=/NOCHE/.test(t.turno);
+          if(isPkg(t)){const L=pkgLayout(t);const tot=L.total;
+            bar=`<div class="bar pkg ${t.estado==='Bloqueado'?'blocked':''} ${t.estado==='Listo'?'done':''}" style="left:2px;width:calc(${tot*50}% - 4px)" data-id="${t.id}" title="${esc(t.act)}">`+
+              L.steps.map(s=>{const col=PAL[s.gremio]||'#789';const ngt=s.turno==='NOCHE';
+                const lf=s.start/tot*100,w=s.m/tot*100,tp=(s.lane/s.lanes)*100,hg=(1/s.lanes)*100;
+                return `<div class="seg ${ngt?'segnight':''}" style="left:${lf}%;width:calc(${w}% - 1px);top:${tp}%;height:calc(${hg}% - 1px);background:${col}" title="${esc(s.gremio)}: ${esc(s.act||'')} (${s.m/2}d${ngt?' · noche':''})${s.par?' · a la vez':''}"><span class="seglab" style="color:${textOn(col)}">${(s.gremio||'').slice(0,3)}</span></div>`;}).join('')+
+              `<span class="rsz"></span></div>`;
+          } else {const col=barColor(t);
+            bar=`<div class="bar ${night?'night':''} ${t.estado==='Bloqueado'?'blocked':''} ${t.estado==='Listo'?'done':''}" style="left:2px;width:calc(${t.dias*100}% - 4px);background:${col}" data-id="${t.id}" title="${esc(t.act)}"><div class="fill" style="width:${t.pct}%"></div><span class="lab" style="color:${textOn(col)}">${t.pct}%${t.estado==='Listo'?' ✓':''}</span><span class="rsz"></span></div>`;}
+        }
+        cells+=`<td class="cell ${buf?'buf':(wk?'wknd':'')} ${tdy?'today':''} ${cf?'conf':''}" data-cellid="${t.id}_${d}">${bar}</td>`;
+      }
+      rows+=`<tr class="trow" id="row_${t.id}">
+        <td class="lblcol"><div class="task-l" data-id="${t.id}">
+          <span class="id">${t.id}</span>
+          <span class="swatch" style="background:${barColor(t)}"></span>
+          <span class="nm">${t.act}<br><span class="meta">${isPkg(t)?(t.pasos.length+' pasos · '+t.zona):(t.equipo+' · '+t.turno+' · '+t.zona)}</span></span>
+        </div></td>${cells}</tr>`;
+    });
+  });
+  return `<div class="card"><div class="gscroll"><table class="gtable">
+    <thead><tr><th class="lblcol" style="text-align:left">Frente / actividad (clic para editar)</th>${dayHeaders()}</tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--amber)"></i>buffer Día 22–24</span>
+      <span><i class="swatch" style="background:var(--red)"></i>celda con choque de espacio</span>
+      <span><i class="swatch" style="background:var(--cyan)"></i>día simulado</span>
+      <span>barra rayada = turno noche · contorno rojo = bloqueado · barra apagada = listo</span>
+    </div></div>`;
+}
+
+function teamHTML(){
+  const N=NDAYS();const BLK=allBlocks();
+  const teams=EQUIPOS.filter(e=>BLK.some(b=>b.equipo===e));
+  let rows='';
+  teams.forEach(eq=>{
+    const ebl=BLK.filter(b=>b.equipo===eq);
+    const first=hiDay(Math.min(...ebl.map(b=>b.hi0))),last=hiDay(Math.max(...ebl.map(b=>b.hi1)));
+    const cap=capT(eq);const mon=cap<99;
+    let cells='';let idleDays=0;
+    for(let d=1;d<=N;d++){const buf=BUFFER.includes(d);const tdy=S.simDay===d;
+      const cnt=teamCountDay(eq,d,BLK);
+      const over=mon&&cnt>cap;
+      const idle=mon&&!buf&&!isWknd(d)&&d>=first&&d<=Math.min(last,BUFFER[0]-1)&&cnt===0;
+      if(idle)idleDays++;
+      let chip='';
+      if(cnt){const act=ebl.filter(b=>blkActiveDay(b,d));const col=PAL[eq]||'#789';
+        chip=`<div class="lchip" style="background:${over?'var(--red)':col};color:${textOn(over?'#D15A4A':col)}" title="${act.map(b=>b.tid+' '+b.zona).join(' | ')}">${over?cnt+'!':cnt>1?cnt:''}</div>`;}
+      cells+=`<td class="lcell ${idle?'idle':''} ${over?'over':''} ${tdy?'today':''}" style="${buf?'background:var(--buffer)':''}">${chip}</td>`;
+    }
+    rows+=`<tr class="lane"><td class="lanelbl">${eq}<br><span class="sm">cap ${cap>=99?'∞':cap} · ${ebl.length} frentes${idleDays?` · <span style="color:var(--amber)">${idleDays} parado</span>`:''}</span></td>${cells}</tr>`;
+  });
+  return `<div class="card"><div class="gscroll"><table class="gtable">
+    <thead><tr><th class="lanelbl" style="text-align:left">Equipo</th>${dayHeaders()}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#1a2740;outline:1px solid #2a3a55"></i>rayado = equipo parado (sin frente)</span>
+      <span><i class="swatch" style="background:var(--red)"></i>rojo "N!" = más frentes que cuadrillas (falta una)</span>
+      <span>número = frentes simultáneos del equipo · ajustá cuadrillas en la pestaña "Cuadrillas"</span>
+    </div></div>`;
+}
+
+function zoneHTML(){
+  const N=NDAYS();
+  const zones=ZONAS.filter(z=>allBlocks().some(b=>b.zona===z));
+  let rows='';
+  const BLK=allBlocks();
+  zones.forEach(z=>{
+    const cap=S.caps[z]??1;let cells='';
+    for(let d=1;d<=N;d++){const buf=BUFFER.includes(d);const tdy=S.simDay===d;
+      const info=zoneInfoDay(z,d,BLK);const over=info.n>cap&&info.teams>1;
+      let chip='';
+      if(info.n){chip=`<div class="lchip" style="background:${over?'var(--red)':'var(--cyan-d)'};color:${textOn(over?'#D15A4A':'#2E7E76')}" title="${info.arr.map(b=>b.tid+' '+b.equipo).join(' | ')}">${info.n}</div>`;}
+      cells+=`<td class="lcell ${over?'over':''} ${tdy?'today':''}" style="${buf?'background:var(--buffer)':''}">${chip}</td>`;
+    }
+    rows+=`<tr class="lane"><td class="lanelbl">${z}<br><span class="sm">capacidad ${cap===99?'∞':cap}</span></td>${cells}</tr>`;
+  });
+  return `<div class="card"><div class="gscroll"><table class="gtable">
+    <thead><tr><th class="lanelbl" style="text-align:left">Zona física</th>${dayHeaders()}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="legend"><span><i class="swatch" style="background:var(--red)"></i>rojo = sobre capacidad (choque de espacio)</span>
+    <span>número = frentes simultáneos en la zona · ajustá la capacidad en la pestaña "Reglas"</span></div></div>`;
+}
+
+function parteHTML(){
+  const d=Math.max(1,S.simDay||1);const N=NDAYS();const BLK=allBlocks();
+  const dt=dateOf(d);const buf=BUFFER.includes(d);const wk=isWknd(d);
+  const act=BLK.filter(b=>blkActiveDay(b,d));
+  const by=S.parteBy||'equipo';
+  const teamsWorking=new Set(act.map(b=>b.equipo)).size;
+  const idle=EQUIPOS.filter(e=>{ if(!monT(e))return false; const ebl=BLK.filter(b=>b.equipo===e); if(!ebl.length)return false;
+    const first=hiDay(Math.min(...ebl.map(b=>b.hi0))),last=hiDay(Math.max(...ebl.map(b=>b.hi1)));
+    return !buf&&!wk&&d>=first&&d<=Math.min(last,BUFFER[0]-1)&&!ebl.some(b=>blkActiveDay(b,d)); });
+  const groups={};
+  act.forEach(b=>{const key=by==='equipo'?b.equipo:b.zona;(groups[key]=groups[key]||[]).push(b);});
+  const keys=Object.keys(groups).sort((a,b)=> by==='equipo'? EQUIPOS.indexOf(a)-EQUIPOS.indexOf(b) : ZONAS.indexOf(a)-ZONAS.indexOf(b));
+  const cards=keys.map(k=>{
+    const arr=groups[k];let warn='';
+    if(by==='equipo'){const cap=capT(k);const cnt=teamCountDay(k,d,BLK);if(cap<99&&cnt>cap)warn=`<span class="pill red">⚠ ${cnt} frentes / ${cap} cuadrilla(s)</span>`;}
+    else {const info=zoneInfoDay(k,d,BLK);const cap=S.caps[k]??1;if(info.n>cap&&info.teams>1)warn=`<span class="pill red">⚠ ${info.n} frentes / cap ${cap}</span>`;}
+    const items=arr.map(b=>{const t=getT(b.tid);
+      return `<div class="pd-item" data-id="${b.tid}">
+       <span class="od-slot" style="min-width:62px">${blkSlot(b,d)}</span>
+       <div class="pd-main"><div class="pd-act">${b.name}</div>
+         <div class="pd-meta">${b.tid} · ${by==='equipo'?b.zona:b.equipo} · ${b.turno}${b.paso?' · paso de paquete':''}</div></div>
+       <div class="pd-pct"><div class="pd-bar"><i style="width:${t?t.pct:0}%"></i></div><b>${t?t.pct:0}%</b></div></div>`;}).join('');
+    const col=by==='equipo'?(PAL[k]||'#7aa'):'var(--cyan)';
+    return `<div class="pd-card"><div class="pd-hd"><span class="swatch" style="background:${col}"></span><b>${k}</b>
+       <span class="id">${arr.length} frente(s)</span>${warn}</div>${items}</div>`;
+  }).join('');
+  return `<div class="card" style="padding:0">
+    <div class="pd-top">
+      <div class="pd-nav"><button class="btn ghost" id="pdPrev">◀</button>
+        <div class="pd-day"><b>${diaLong(d)}</b> · ${WD[dt.getDay()]} ${dt.getDate()} ${MO[dt.getMonth()]}${buf?' · <span style="color:var(--amber)">BUFFER</span>':''}${wk?' · <span style="color:var(--ink3)">finde</span>':''}</div>
+        <button class="btn ghost" id="pdNext">▶</button></div>
+      <div class="pd-stats"><span><b>${teamsWorking}</b> equipos</span><span><b>${act.length}</b> frentes</span><span style="color:${idle.length?'var(--amber)':'var(--ink2)'}"><b>${idle.length}</b> parados</span></div>
+      <div class="tabs" style="margin-left:auto"><button class="tab ${by==='equipo'?'on':''}" data-pb="equipo">Por equipo</button><button class="tab ${by==='zona'?'on':''}" data-pb="zona">Por zona</button></div>
+    </div>
+    ${idle.length?`<div class="pd-idle"><b style="color:var(--amber)">Sin frente hoy → reasignar:</b> ${idle.map(e=>`<span class="pill amber">${e}</span>`).join(' ')}</div>`:''}
+    <div class="pd-grid">${act.length?cards:'<div class="empty">No hay frentes activos este día.</div>'}</div>
+  </div>`;
+}
+
+function crewHTML(){
+  const N=NDAYS();
+  const BLK=allBlocks();
+  const teams=EQUIPOS.filter(e=>BLK.some(b=>b.equipo===e));
+  let totalExtra=0;
+  const rows=teams.map(eq=>{
+    const ntasks=BLK.filter(b=>b.equipo===eq).length;
+    const load=[];let peak=0;
+    for(let d=1;d<=N;d++){const l=teamCountDay(eq,d,BLK);load.push(l);if(l>peak)peak=l;}
+    const cap=capT(eq);const flex=cap>=99;
+    let cdays=0;for(let d=1;d<=N;d++){if(!flex&&load[d-1]>cap)cdays++;}
+    const extra=flex?0:Math.max(0,peak-cap);if(!flex)totalExtra+=extra;
+    let verdict,vcls;
+    if(flex){verdict='Flexible · sin límite';vcls='cyan';}
+    else if(cdays===0){verdict=`OK con ${cap}`;vcls='green';}
+    else{verdict=`Faltan ${extra} cuadrilla(s)`;vcls='red';}
+    const spark=load.map((l,i)=>{const over=!flex&&l>cap;const h=peak?(l/peak*100):0;
+      return `<i title="${dlabel(i+1)}: ${l} frentes" style="height:${l?Math.max(16,h):0}%;background:${over?'var(--red)':(l?'var(--cyan-d)':'transparent')}"></i>`;}).join('');
+    const stepper=`<div class="stepper">
+      <button class="sb" data-cap-eq="${eq}" data-d="-1">−</button>
+      <b>${flex?'∞':cap}</b>
+      <button class="sb" data-cap-eq="${eq}" data-d="1">＋</button>
+      <button class="sb flex ${flex?'on':''}" data-cap-eq="${eq}" data-d="flex" title="Flexible / sin límite">∞</button></div>`;
+    return `<tr>
+      <td><b>${eq}</b><br><span class="id">${ntasks} frentes</span></td>
+      <td>${stepper}</td>
+      <td style="text-align:center;font-family:var(--mono)">${peak}</td>
+      <td style="text-align:center;font-family:var(--mono);color:${cdays?'var(--red)':'var(--ink3)'}">${flex?'—':cdays}</td>
+      <td><span class="pill ${vcls}">${verdict}</span></td>
+      <td><div class="spark">${spark}</div></td></tr>`;
+  }).join('');
+  return `<div class="card" style="padding:0">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1;min-width:280px"><div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--cyan)">DECISIÓN DE CUADRILLAS</div>
+        <div style="font-size:12.5px;color:var(--ink2);margin-top:5px;max-width:640px">Cada "＋" simula contratar otra cuadrilla de ese oficio. Subila y mirá caer los cruces; bajala y re-secuenciá. <b style="color:var(--ink)">Pico</b> = frentes máximos a la vez = capacidad para 0 cruces.</div></div>
+      <div style="text-align:right"><div style="font-family:var(--mono);font-size:30px;font-weight:700;color:${totalExtra?'var(--amber)':'var(--green)'}">${totalExtra}</div>
+        <div class="id" style="line-height:1.3">cuadrillas-unidad extra para<br>eliminar TODOS los cruces</div></div></div>
+    <div class="gscroll"><table class="dt">
+      <thead><tr><th>Equipo</th><th>Cuadrillas</th><th>Pico</th><th>Días cruce</th><th>Veredicto</th><th>Carga diaria</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="legend"><span>"∞" = equipo flexible (Subcontrato, Tripulación…): no genera cruces ni alertas de parado. Cada cambio recalcula el tablero; cada cuadrilla extra será una línea del presupuesto.</span></div></div>`;
+}
+
+function ordenHTML(){
+  const BLK=allBlocks();
+  const teams=EQUIPOS.filter(e=>BLK.some(b=>b.equipo===e));
+  if(!teams.length)return '<div class="card"><div class="empty">No hay trabajo asignado todavía.</div></div>';
+  const cur=(S.ordenEq==='__all__'||teams.includes(S.ordenEq))?S.ordenEq:teams[0];
+  const list=cur==='__all__'?teams:[cur];
+  const sheets=list.map(eq=>crewSheetHTML(eq,BLK)).join('');
+  const opts='<option value="__all__"'+(cur==='__all__'?' selected':'')+'>Todas las cuadrillas</option>'+teams.map(e=>`<option ${e===cur?'selected':''}>${e}</option>`).join('');
+  return `<div class="card" style="padding:0">
+    <div class="pd-top noprint"><div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--cyan)">HOJA DE TRABAJO POR CUADRILLA</div>
+      <div class="ctl" style="margin-left:auto;display:flex;gap:10px;align-items:center">Equipo&nbsp;<select id="ordenSel">${opts}</select>
+      <button class="btn primary" id="ordenPrint">🖨 Imprimir</button></div></div>
+    <div class="hoja-wrap">${sheets}</div>
+  </div>`;
+}
+function crewSheetHTML(eq,BLK){
+  const mine=BLK.filter(b=>b.equipo===eq);
+  if(!mine.length)return `<div class="hsheet"><div class="empty">${eq}: sin trabajo asignado.</div></div>`;
+  const myTids=new Set(mine.map(b=>b.tid));
+  const first=hiDay(Math.min(...mine.map(b=>b.hi0))),last=hiDay(Math.max(...mine.map(b=>b.hi1)));
+  const zonas=[...new Set(mine.map(b=>b.zona))];
+  let work=0,pause=0,rows='';
+  for(let d=first;d<=last;d++){
+    const items=mine.filter(b=>blkActiveDay(b,d)).sort((a,b)=>a.hi0-b.hi0);
+    const dt=dateOf(d);const fdw=WDL[dt.getDay()],fdd=dt.getDate()+' '+MO[dt.getMonth()];
+    if(items.length){work++;
+      const tk=items.map(b=>{const hh=horario(b,d);const tl=hh[0],hr=hh[1];const fd=hiDay(b.hi0)===d,ld=hiDay(b.hi1)===d;
+        let hand='';
+        if(b.paso&&b.gg){const prev=fd&&b.g>0?(b.gg[b.g-1]||[]).filter(x=>x!==eq):[];const next=ld&&b.gg[b.g+1]?(b.gg[b.g+1]||[]).filter(x=>x!==eq):[];
+          const ps=[];if(prev.length)ps.push(`<span class="recibe">⟵ recibes de: <b>${prev.join(', ')}</b></span>`);if(next.length)ps.push(`<span class="entrega">entregas a: <b>${next.join(', ')}</b> ⟶</span>`);
+          if(ps.length)hand=`<div class="hhand">${ps.join('')}</div>`;}
+        return `<div class="htask"><span class="hturno ${b.turno==='NOCHE'?'noche':''}">${tl}<span class="hr">${hr}</span></span><span class="hwhat">${esc(b.name)}</span><span class="hwhere">· ${esc(b.zona)}</span>${hand}</div>`;}).join('');
+      rows+=`<div class="hday"><div class="hdate"><div class="dw">${fdw}</div><div class="dd">${fdd}</div></div><div class="hbody">${tk}</div></div>`;
+    } else if(!isWknd(d)){pause++;
+      const waits=[...new Set(BLK.filter(b=>blkActiveDay(b,d)&&myTids.has(b.tid)&&b.equipo!==eq).map(b=>b.equipo))];
+      const reason=waits.length?`en pausa — <b>esperando a ${waits.join(', ')}</b>`:'sin frente este día — disponible para reasignar';
+      rows+=`<div class="hday pause"><div class="hdate"><div class="dw">${fdw}</div><div class="dd">${fdd}</div></div><div class="hbody"><div class="hpause">${reason}</div></div></div>`;
+    }
+  }
+  const fa=dateOf(first),fb=dateOf(last);
+  return `<div class="hsheet">
+    <div class="hhd"><div class="hvessel">M/Y TREASURE · DIQUE 2026</div><div class="hcrew">${esc(eq)}</div>
+      <div class="hsub">Plan de trabajo · ${fa.getDate()} ${MO[fa.getMonth()]} al ${fb.getDate()} ${MO[fb.getMonth()]}</div></div>
+    <div class="hsum"><span class="hchip"><b>${work}</b> días de trabajo</span>${pause?`<span class="hchip warn"><b>${pause}</b> días en pausa</span>`:''}<span class="hchip">zonas: <b>${zonas.join(' · ')}</b></span></div>
+    ${rows}
+    <div class="hfoot">${horarioLeyenda()} · "recibes de / entregas a" = de quién depende tu trabajo</div>
+  </div>`;
+}
+function tableHTML(){
+  let list=S.tasks.filter(t=>!S.fFase||t.fase===S.fFase);
+  const rows=list.map(t=>`<tr data-id="${t.id}">
+    <td class="id">${t.id}</td>
+    <td>${t.act}<br><span class="id">${t.fase}</span></td>
+    <td>${selHTML('eq',EQUIPOS,t.equipo)}</td>
+    <td>${selHTML('tu',TURNOS,t.turno)}</td>
+    <td>${selHTML('zo',ZONAS,t.zona)}</td>
+    <td style="text-align:center">${diaShort(t.start)}</td>
+    <td style="text-align:center">${t.dias}</td>
+    <td><input class="pct" type="number" min="0" max="100" value="${t.pct}" data-f="pct"></td>
+    <td>${selHTML('es',ESTADOS,t.estado)}</td>
+    <td><button class="btn mini" data-act="edit">✎</button> <button class="btn mini ghost" data-act="dup">⧉</button> <button class="btn mini ghost" data-act="del">🗑</button></td>
+  </tr>`).join('');
+  return `<div class="card"><div class="gscroll"><table class="dt">
+    <thead><tr><th>ID</th><th>Actividad</th><th>Equipo</th><th>Turno</th><th>Zona</th><th>Inicio</th><th>Días</th><th>%</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="legend"><span>Editá % y estado directo en la tabla (para el standup). ✎ abre la ficha completa · ⧉ duplica · 🗑 elimina.</span></div></div>`;
+}
+function selHTML(k,opts,val){return `<select data-f="${k}">${opts.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;}
+
+function configHTML(){
+  const cfg=sbCfg()||{};
+  const capRows=ZONAS.map(z=>`<tr data-z="${z}">
+    <td style="padding:6px 10px">${z}</td>
+    <td style="padding:6px 10px"><input type="number" min="1" max="99" value="${S.caps[z]??1}" data-cap="${z}" style="width:70px;text-align:center"></td></tr>`).join('');
+  return `<div class="card" style="padding:18px">
+    <h3 style="margin:0 0 4px">Capacidad física de cada zona</h3>
+    <p style="color:var(--ink2);font-size:12.5px;margin:0 0 12px;max-width:680px">Cuántos frentes (de equipos distintos) caben físicamente a la vez en el mismo espacio. Si se supera → alerta de choque de espacio. Esto es distinto a la capacidad de cuadrillas (cuánta gente tenés de cada oficio), que se ajusta en la pestaña <b>Cuadrillas</b>.</p>
+    <div style="max-width:420px"><table class="dt"><thead><tr><th>Zona</th><th>Capacidad</th></tr></thead><tbody>${capRows}</tbody></table></div>
+    <h3 style="margin:22px 0 4px">Horarios de turno</h3>
+    <p style="color:var(--ink2);font-size:12.5px;margin:0 0 12px;max-width:680px">Qué significa <b>de día</b> y <b>de noche</b> en la obra. Se imprime en la hoja de cada cuadrilla y se muestra al elegir el turno. Cambialo acá una vez y se actualiza en todos lados.</p>
+    <div style="display:grid;grid-template-columns:auto 130px;gap:9px 14px;max-width:360px;align-items:center;font-size:13px">
+      <span>☀️ Día — mañana</span><input data-hor="diaMan" value="${esc((S.horarios||DEF_HOR).diaMan)}" style="text-align:center">
+      <span>☀️ Día — tarde</span><input data-hor="diaTar" value="${esc((S.horarios||DEF_HOR).diaTar)}" style="text-align:center">
+      <span>🌙 Noche — tramo 1</span><input data-hor="nocTar" value="${esc((S.horarios||DEF_HOR).nocTar)}" style="text-align:center">
+      <span>🌙 Noche — tramo 2</span><input data-hor="nocNoc" value="${esc((S.horarios||DEF_HOR).nocNoc)}" style="text-align:center">
+    </div>
+    <h3 style="margin:22px 0 4px">Nube (Supabase) — respaldo automático</h3>
+    <p style="color:var(--ink2);font-size:12.5px;margin:0 0 10px;max-width:680px">Conectado a tu mismo proyecto Supabase del presupuesto. Cada cambio se guarda en la nube y en este navegador a la vez — no tenés que crear nada ni pegar claves. Podés abrir el tablero desde otra compu y traer tus datos con «Bajar de la nube».</p>
+    <div class="id" style="margin:0 0 10px">Estado actual: <b id="cloudst2" style="font-family:var(--mono)"></b></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost" id="sbTest">Probar conexión</button>
+      <button class="btn ghost" id="sbUp">↑ Subir a la nube</button>
+      <button class="btn ghost" id="sbDown">↓ Bajar de la nube</button>
+    </div>
+    <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--ink3);font-size:12px">Cambiar de proyecto (avanzado)</summary>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:9px 12px;max-width:580px;align-items:center;font-size:13px;margin-top:8px">
+        <span>URL del proyecto</span><input id="sbUrl" placeholder="https://xxxxx.supabase.co" value="${esc(cfg.url||'')}">
+        <span>Llave pública (anon)</span><input id="sbKey" type="password" value="${esc(cfg.key||'')}">
+      </div>
+      <button class="btn ghost" id="sbSave" style="margin-top:8px">Guardar y reconectar</button>
+    </details>
+    </div>`;
+}
+
+/* ============================ WIRING ============================ */
+function wireView(){
+  if(S.view==='gantt'){
+    el('view').querySelectorAll('.task-l').forEach(n=>n.onclick=()=>openEdit(n.dataset.id));
+    setupGanttDrag();
+  }
+  if(S.view==='table'){
+    el('view').querySelectorAll('tr[data-id]').forEach(tr=>{
+      const id=tr.dataset.id;
+      tr.querySelectorAll('select[data-f],input[data-f]').forEach(inp=>{
+        inp.onchange=()=>{const t=getT(id);const f=inp.dataset.f;
+          if(f==='eq')t.equipo=inp.value; else if(f==='tu')t.turno=inp.value;
+          else if(f==='zo')t.zona=inp.value; else if(f==='es')t.estado=inp.value;
+          else if(f==='pct'){t.pct=clamp(+inp.value,0,100);if(t.pct===100)t.estado='Listo';if(t.pct>0&&t.pct<100&&t.estado==='Pendiente')t.estado='En Proceso';}
+          commit();};
+      });
+      tr.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
+        const a=b.dataset.act; if(a==='edit')openEdit(id);
+        else if(a==='del'){if(confirm('¿Eliminar '+id+'?')){S.tasks=S.tasks.filter(x=>x.id!==id);commit();}}
+        else if(a==='dup')dupTask(id);
+      });
+    });
+  }
+  if(S.view==='parte'){
+    const set=v=>{S.simDay=clamp(v,1,NDAYS());el('simRange').value=S.simDay;syncSim();};
+    el('pdPrev').onclick=()=>set((S.simDay||1)-1);
+    el('pdNext').onclick=()=>set((S.simDay||1)+1);
+    el('view').querySelectorAll('[data-pb]').forEach(b=>b.onclick=()=>{S.parteBy=b.dataset.pb;renderView();});
+    el('view').querySelectorAll('.pd-item').forEach(n=>n.onclick=()=>openEdit(n.dataset.id));
+  }
+  if(S.view==='crew'){
+    el('view').querySelectorAll('[data-cap-eq]').forEach(b=>b.onclick=()=>{
+      const eq=b.dataset.capEq, d=b.dataset.d, cur=capT(eq);
+      if(d==='flex')S.cap[eq]=cur>=99?1:99;
+      else S.cap[eq]=Math.max(1,Math.min(20,(cur>=99?1:cur)+(+d)));
+      commit();
+    });
+  }
+  if(S.view==='config'){
+    el('view').querySelectorAll('[data-cap]').forEach(inp=>inp.onchange=()=>{S.caps[inp.dataset.cap]=clamp(+inp.value,1,99);commit();});
+    el('view').querySelectorAll('[data-hor]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.hor;S.horarios={...(S.horarios||DEF_HOR)};S.horarios[k]=inp.value.trim()||DEF_HOR[k];commit();});
+    const cs2=el('cloudst2');if(cs2)cs2.textContent={off:'sin conectar',ok:'conectado ✓',saving:'guardando…',error:'sin conexión — revisá'}[SBstate]||'—';
+    const g=el('sbSave');if(g)g.onclick=()=>{const url=el('sbUrl').value.trim(),key=el('sbKey').value.trim();
+      if(!url||!key){alert('Pegá la URL y la llave pública (anon).');return;}
+      localStorage.setItem(SB_CFG_KEY,JSON.stringify({url,key}));sbInit();sbStatus();
+      alert(SB?'Conectado. La primera vez usá «Subir a la nube» para guardar tus datos actuales; o «Bajar» si ya hay datos arriba.':'No se pudo iniciar (revisá URL/llave).');};
+    const tb=el('sbTest');if(tb)tb.onclick=async()=>{if(!sbInit()){alert('Primero guardá URL y llave y conectá.');return;}const d=await sbPull();sbStatus();
+      alert(SBstate==='ok'?('Conexión OK. '+(d?'Hay datos en la nube.':'La nube está vacía — subí tus datos.')):'Falló. Revisá URL/llave y que exista la tabla (corré el SQL de abajo).');};
+    const up=el('sbUp');if(up)up.onclick=async()=>{if(!sbInit()){alert('Conectá primero.');return;}if(!confirm('¿Subir tus datos actuales a la nube? Sobrescribe lo que haya arriba.'))return;const ok=await sbPush();alert(ok?'Subido a la nube.':'No se pudo subir (revisá conexión y tabla).');};
+    const dn=el('sbDown');if(dn)dn.onclick=async()=>{if(!sbInit()){alert('Conectá primero.');return;}const d=await sbPull();if(!d){alert('No hay datos en la nube todavía.');return;}if(!confirm('¿Bajar los datos de la nube y reemplazar lo que ves en pantalla?'))return;
+      if(d.tasks){S.tasks=d.tasks;if(d.caps)S.caps={...DEFAULT_CAP,...d.caps};if(d.cap)S.cap={...DEFAULT_CAPT,...d.cap};if(d.horarios)S.horarios={...DEF_HOR,...d.horarios};commit();alert('Datos de la nube cargados ('+S.tasks.length+' tareas).');}};
+  }
+  if(S.view==='orden'){
+    const sel=el('ordenSel'); if(sel)sel.onchange=()=>{S.ordenEq=sel.value;renderView();};
+    const pb=el('ordenPrint'); if(pb)pb.onclick=()=>window.print();
+  }
+}
+function setupGanttDrag(){
+  const ref=el('view').querySelector('.colhead'); if(!ref)return;
+  const UNIT=ref.getBoundingClientRect().width||34;
+  el('view').querySelectorAll('.bar').forEach(bar=>{
+    bar.addEventListener('pointerdown',e=>{
+      if(e.button)return; e.preventDefault();
+      const id=bar.dataset.id, t=getT(id);
+      const resize=e.target.classList.contains('rsz')&&!isPkg(t);
+      const sx=e.clientX, oStart=t.start, oDias=t.dias, oW=bar.getBoundingClientRect().width;
+      let cols=0, moved=false;
+      try{bar.setPointerCapture(e.pointerId);}catch(_){}
+      bar.style.zIndex=20; bar.style.cursor=resize?'ew-resize':'grabbing';
+      const mv=ev=>{
+        const dx=ev.clientX-sx; cols=Math.round(dx/UNIT);
+        if(Math.abs(dx)>4)moved=true;
+        if(resize){const nd=clamp(oDias+cols,1,60);bar.style.width=(oW+(nd-oDias)*UNIT)+'px';showTip(ev,nd+' día(s)');}
+        else {bar.style.transform=`translateX(${cols*UNIT}px)`;showTip(ev,'inicio '+diaLong(clamp(oStart+cols,1,200)));}
+      };
+      const up=()=>{
+        try{bar.releasePointerCapture(e.pointerId);}catch(_){}
+        document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);
+        hideTip(); bar.style.cursor='grab';
+        if(!moved){openEdit(id);return;}
+        if(resize)t.dias=clamp(oDias+cols,1,60); else t.start=clamp(oStart+cols,1,200);
+        commit();
+      };
+      document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
+    });
+  });
+}
+function showTip(ev,txt){let tip=el('dragTip');if(!tip){tip=document.createElement('div');tip.id='dragTip';tip.className='dragtip';document.body.appendChild(tip);}
+  tip.textContent=txt;tip.style.left=(ev.clientX+14)+'px';tip.style.top=(ev.clientY-12)+'px';tip.style.display='block';}
+function hideTip(){const t=el('dragTip');if(t)t.style.display='none';}
+
+function highlight(ids){ids.forEach(id=>{const r=el('row_'+id);if(r){r.scrollIntoView({block:'center',behavior:'smooth'});r.classList.remove('hl');void r.offsetWidth;r.classList.add('hl');}});}
+function getT(id){return S.tasks.find(t=>t.id===id);}
+function clamp(v,a,b){return Math.max(a,Math.min(b,isNaN(v)?a:v));}
+function commit(){save();render();}
+
+/* ---- edit modal ---- */
+function openEdit(id){
+  const t=id?getT(id):{id:uid(),fase:'Pre-dique y arranque',act:'',equipo:'Fibreros B',turno:'DÍA',start:SUBIDA+1,dias:1,pct:0,estado:'Pendiente',zona:'C100 Exterior',obs:''};
+  const isNew=!id;
+  let pasos=isPkg(t)?JSON.parse(JSON.stringify(t.pasos)):[];
+  let simpleNight=t.turno==='NOCHE';
+  el('modal').innerHTML=`
+    <div class="mh"><h3>${isNew?'Nueva tarea':'Editar '+t.id}</h3><span class="x" id="mx">×</span></div>
+    <div class="mb">
+      <div class="fld full"><label>Actividad / entregable</label><input id="m_act" type="text" value="${esc(t.act)}"></div>
+      <div class="fld full"><label>Frente / fase</label><input id="m_fase" type="text" value="${esc(t.fase)}" list="faselist">
+        <datalist id="faselist">${[...new Set(SEED.map(s=>s.fase))].map(f=>`<option>${f}</option>`).join('')}</datalist></div>
+      <div class="fld"><label>Zona física</label><select id="m_zo">${ZONAS.map(o=>`<option ${o===t.zona?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="fld"><label>Estado</label><select id="m_es">${ESTADOS.map(o=>`<option ${o===t.estado?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="fld"><label>Día de inicio (D0 = subida; previos en negativo)</label><input id="m_start" type="number" min="${1-SUBIDA}" max="${NDAYS()-SUBIDA}" value="${t.start-SUBIDA}"></div>
+      <div class="fld full"><label>% avance</label><div class="rangewrap"><input id="m_pct" type="range" min="0" max="100" value="${t.pct}" style="flex:1"><b id="m_pctv">${t.pct}%</b></div></div>
+      <div class="fld full" style="border-top:1px solid var(--line);padding-top:12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;color:var(--ink)"><input type="checkbox" id="m_ispkg" ${isPkg(t)?'checked':''}> 📦 Es un paquete (varios pasos en secuencia, distintos gremios)</label></div>
+      <div class="fld" id="m_simplewrap" style="display:${isPkg(t)?'none':''}"><label>Equipo</label><select id="m_eq">${EQUIPOS.map(o=>`<option ${o===t.equipo?'selected':''}>${o}</option>`).join('')}</select></div>
+      <div class="fld" id="m_simplewrap2" style="display:${isPkg(t)?'none':''}"><label>Turno</label><button type="button" id="m_tu" class="turnobtn ${simpleNight?'noche':''}">${simpleNight?'🌙 De noche':'☀️ De día'}</button><span class="id" style="margin-top:5px;line-height:1.4">${horarioLeyenda()}</span></div>
+      <div class="fld" id="m_diaswrap" style="display:${isPkg(t)?'none':''}"><label>Duración (días)</label><input id="m_dias" type="number" min="0.5" step="0.5" max="60" value="${t.dias||1}"></div>
+      <div class="fld full" id="m_pkgwrap" style="display:${isPkg(t)?'block':'none'}">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+          <select id="m_tpl"><option value="">— usar plantilla —</option>${Object.keys(PLANTILLAS).map(k=>`<option>${k}</option>`).join('')}</select>
+          <button class="btn mini" id="m_addpaso" type="button">＋ paso</button>
+          <span class="id" id="m_pkgdur"></span>
+        </div>
+        <div id="m_pasos"></div>
+        <div class="id" style="margin-top:6px;line-height:1.5">Elegí la <b>duración</b> de cada paso. <b>🌙</b> = turno de noche. <b>→ después</b> = espera al paso de arriba; <b>∥ a la vez</b> = arranca junto con él (mismo entregable, dos gremios). La mañana/tarde la calcula el sistema solo.<br><b>Horarios:</b> ${horarioLeyenda()}</div>
+      </div>
+      <div class="fld full"><label>Obs. / motivo de bloqueo</label><textarea id="m_obs">${esc(t.obs)}</textarea></div>
+    </div>
+    <div class="mf">
+      <div>${isNew?'':'<button class="btn ghost" id="m_del">🗑 Eliminar</button>'}</div>
+      <div style="display:flex;gap:8px"><button class="btn ghost" id="m_cancel">Cancelar</button><button class="btn primary" id="m_save">Guardar</button></div>
+    </div>`;
+  el('scrim').classList.add('on');
+  const pr=el('m_pct');pr.oninput=()=>el('m_pctv').textContent=pr.value+'%';
+  el('mx').onclick=el('m_cancel').onclick=closeModal;
+  {const tb=el('m_tu');if(tb)tb.onclick=()=>{simpleNight=!simpleNight;tb.className='turnobtn '+(simpleNight?'noche':'');tb.textContent=simpleNight?'🌙 De noche':'☀️ De día';};}
+  const DURS=[['½ día',1],['1 día',2],['1½ días',3],['2 días',4],['3 días',6],['4 días',8],['5 días',10]];
+  function renderPasos(){
+    const wrap=el('m_pasos');
+    wrap.innerHTML=pasos.length?pasos.map((p,i)=>{
+      const m=Math.max(1,p.medios||2);
+      const dopts=DURS.map(([lbl,v])=>`<option value="${v}" ${v===m?'selected':''}>${lbl}</option>`).join('')+(DURS.some(d=>d[1]===m)?'':`<option value="${m}" selected>${m/2} días</option>`);
+      const night=p.turno==='NOCHE';
+      const par=i>0&&p.par;
+      const seq= i===0? '<span class="pstep-ini">inicio</span>'
+        : `<button class="pstep-seq ${par?'par':''}" data-pp="${i}" type="button" title="${par?'arranca junto con el paso de arriba':'espera a que termine el de arriba'}">${par?'∥ a la vez':'→ después'}</button>`;
+      return `<div class="pstep ${par?'isk':''}" data-i="${i}">
+        <span class="pstep-n">${i+1}</span>
+        <select data-pf="gremio">${EQUIPOS.map(o=>`<option ${o===p.gremio?'selected':''}>${o}</option>`).join('')}</select>
+        <input type="text" data-pf="act" value="${esc(p.act||'')}" placeholder="qué se hace">
+        <select data-pf="medios" title="duración">${dopts}</select>
+        <button class="pstep-tog ${night?'on':''}" data-pn="${i}" type="button" title="${night?'turno de noche (clic para día)':'turno de día (clic para noche)'}">🌙</button>
+        ${seq}
+        <button class="pstep-x" data-prm="${i}" type="button">✕</button></div>`;}).join('')
+      :'<div class="id" style="padding:6px">Sin pasos — agregá uno o elegí una plantilla.</div>';
+    const tot=pasos.length?pkgMedios({pasos}):0;
+    el('m_pkgdur').textContent=pasos.length?`dura ${tot/2} día(s) en total`:'';
+    wrap.querySelectorAll('[data-pf]').forEach(inp=>inp.onchange=()=>{const i=+inp.closest('.pstep').dataset.i;const f=inp.dataset.pf;
+      pasos[i][f]= f==='medios'? Math.max(1,+inp.value||1) : inp.value; renderPasos();});
+    wrap.querySelectorAll('[data-pn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pn;pasos[i].turno=pasos[i].turno==='NOCHE'?'DÍA':'NOCHE';renderPasos();});
+    wrap.querySelectorAll('[data-pp]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pp;pasos[i].par=!pasos[i].par;renderPasos();});
+    wrap.querySelectorAll('[data-prm]').forEach(b=>b.onclick=()=>{pasos.splice(+b.dataset.prm,1);renderPasos();});
+  }
+  if(isPkg(t))renderPasos();
+  el('m_ispkg').onchange=()=>{const on=el('m_ispkg').checked;
+    el('m_pkgwrap').style.display=on?'block':'none';
+    ['m_simplewrap','m_simplewrap2','m_diaswrap'].forEach(x=>el(x).style.display=on?'none':'');
+    if(on&&!pasos.length){pasos=[{gremio:t.equipo||'Carpinteros A',act:'',medios:2,turno:'DÍA',par:false}];}
+    if(on)renderPasos();};
+  el('m_tpl').onchange=()=>{const k=el('m_tpl').value;if(k&&PLANTILLAS[k]){pasos=JSON.parse(JSON.stringify(PLANTILLAS[k]));renderPasos();el('m_tpl').value='';}};
+  el('m_addpaso').onclick=()=>{const last=pasos[pasos.length-1];pasos.push({gremio:last?last.gremio:(t.equipo||'Carpinteros A'),act:'',medios:2,turno:'DÍA',par:false});renderPasos();};
+  if(!isNew)el('m_del').onclick=()=>{if(confirm('¿Eliminar '+t.id+'?')){S.tasks=S.tasks.filter(x=>x.id!==t.id);closeModal();commit();}};
+  el('m_save').onclick=()=>{
+    const ispkg=el('m_ispkg').checked && pasos.length>0;
+    const nt={...t,act:el('m_act').value.trim()||'(sin nombre)',fase:el('m_fase').value.trim()||'OTROS',
+      zona:el('m_zo').value,estado:el('m_es').value,
+      start:clamp((+el('m_start').value)+SUBIDA,1,200),pct:clamp(+el('m_pct').value,0,100),obs:el('m_obs').value.trim()};
+    if(ispkg){nt.pasos=pasos.map((p,i)=>({gremio:p.gremio,act:(p.act||'').trim(),medios:Math.max(1,+p.medios||2),turno:p.turno||'DÍA',par:i>0&&!!p.par,pct:p.pct||0}));
+      nt.equipo=nt.pasos[0].gremio;nt.turno=nt.pasos[0].turno;nt.dias=Math.ceil(nt.pasos.reduce((s,p)=>s+p.medios,0)/2);}
+    else{nt.pasos=[];nt.equipo=el('m_eq').value;nt.turno=simpleNight?'NOCHE':'DÍA';nt.dias=clamp(+el('m_dias').value,0.5,60);}
+    if(nt.pct===100&&nt.estado!=='Listo')nt.estado='Listo';
+    if(isNew)S.tasks.push(nt); else {const i=S.tasks.findIndex(x=>x.id===t.id);S.tasks[i]=nt;}
+    closeModal();commit();
+  };
+}
+function dupTask(id){const t=getT(id);const c={...t,id:uid(),act:t.act+' (copia)',pct:0,estado:'Pendiente',obs:''};
+  const i=S.tasks.findIndex(x=>x.id===id);S.tasks.splice(i+1,0,c);commit();}
+function closeModal(){el('scrim').classList.remove('on');}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+el('scrim').onclick=e=>{if(e.target===el('scrim'))closeModal();};
+
+/* ---- tabs / sim / color / filter ---- */
+function setTab(v){S.view=v;el('tabs').querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
+el('tabs').onclick=e=>{const b=e.target.closest('.tab');if(!b)return;
+  if(b.dataset.v==='parte'&&!S.simDay){S.simDay=SUBIDA+1;el('simRange').value=SUBIDA+1;}
+  setTab(b.dataset.v);
+  if(b.dataset.v==='parte')syncSim(); else renderView();};
+el('colorBy').onchange=e=>{S.colorBy=e.target.value;renderView();};
+el('fFase').onchange=e=>{S.fFase=e.target.value;renderView();};
+function syncSim(){const d=S.simDay;const lbl=el('simLbl');
+  lbl.textContent=d?dlabel(d):'—';render();}
+el('simRange').oninput=e=>{S.simDay=+e.target.value;syncSim();};
+
+/* ---- header buttons ---- */
+el('addBtn').onclick=()=>openEdit(null);
+el('alHd')&&(el('alHd').onclick=()=>{});
+el('resetBtn').onclick=()=>{if(confirm('¿Restaurar el cronograma original (87 tareas) y borrar tus cambios guardados?')){
+  S.tasks=JSON.parse(JSON.stringify(SEED));S.caps={...DEFAULT_CAP};S.cap={...DEFAULT_CAPT};S.horarios={...DEF_HOR};commit();}};
+el('jsonBtn').onclick=()=>{const blob=new Blob([JSON.stringify({tasks:S.tasks,caps:S.caps,cap:S.cap},null,2)],{type:'application/json'});
+  dl(blob,'treasure_dique_backup.json');};
+el('impBtn').onclick=()=>el('impFile').click();
+el('impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(o.tasks){S.tasks=o.tasks;if(o.caps)S.caps=o.caps;if(o.cap)S.cap=o.cap;if(o.horarios)S.horarios={...DEF_HOR,...o.horarios};commit();alert('Importado: '+S.tasks.length+' tareas.');}}catch(err){alert('Archivo inválido');}};
+  r.readAsText(f);};
+el('xlsxBtn').onclick=exportXLSX;
+function dl(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+function exportXLSX(){
+  const head=['ID','Frente','Actividad','Equipo','Turno','Inicio (día)','F. inicio','Días','F. fin','% avance','Estado','Zona','Obs/Bloqueo'];
+  const data=[head];
+  S.tasks.forEach(t=>{const fi=dateOf(t.start),ff=dateOf(endOf(t));
+    data.push([t.id,t.fase,t.act,t.equipo,t.turno,t.start,fmt(fi),t.dias,fmt(ff),t.pct,t.estado,t.zona,t.obs]);});
+  const m=metrics();
+  data.push([]);data.push(['AVANCE TOTAL PONDERADO',m.realPct.toFixed(1)+'%']);
+  data.push(['Tareas',m.total,'Listas',m.cnt.Listo||0,'En proceso',m.cnt['En Proceso']||0,'Pendientes',m.cnt.Pendiente||0,'Bloqueadas',m.cnt.Bloqueado||0]);
+  try{
+    const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=head.map((h,i)=>({wch:i===2?42:i===11?18:i===12?26:12}));
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Cronograma');
+    XLSX.writeFile(wb,'TREASURE_Dique2026_cronograma.xlsx');
+  }catch(e){ // fallback CSV
+    const csv=data.map(r=>r.map(c=>`"${(c==null?'':c).toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+    dl(new Blob(['\ufeff'+csv],{type:'text/csv'}),'TREASURE_Dique2026_cronograma.csv');
+  }
+}
+function fmt(d){return `${d.getDate()} ${MO[d.getMonth()]}`;}
+
+/* populate fase filter */
+[...new Set(SEED.map(s=>s.fase))].forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;el('fFase').appendChild(o);});
+
+/* ============================ INIT ============================ */
+(async function(){
+  sbInit();sbStatus();
+  let cloud=null;
+  if(SB){cloud=await sbPull();sbStatus();}
+  const cloudEmpty=SB&&!cloud&&SBstate==='ok';
+  const saved=cloud||await load();
+  if(saved&&saved.tasks&&saved.tasks.length){S.tasks=saved.tasks;if(saved.caps)S.caps={...DEFAULT_CAP,...saved.caps};if(saved.cap)S.cap={...DEFAULT_CAPT,...saved.cap};if(saved.horarios)S.horarios={...DEF_HOR,...saved.horarios};
+    document.getElementById('lastsave').textContent=cloud?'datos de la nube':'sesión restaurada';
+    if(cloud){try{localStorage.setItem(KEY,snapshot());}catch(e){}}}
+  else {S.tasks=JSON.parse(JSON.stringify(SEED));}
+  if(cloudEmpty){try{await sbPush();}catch(e){}}
+  sbStatus();
+  render();
+})();
+</script>
+</body>
+</html>
