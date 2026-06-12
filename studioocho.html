@@ -1112,21 +1112,20 @@ function generarEntrega(){
   }, 250);
 }
 function deliverRestore(P){
-  try{
-    if(P.inputs){ for(var k in P.inputs){ var e=document.getElementById(k); if(e!=null) e.value=P.inputs[k]; } }
-    if(P.st){ for(var s in P.st){ st[s]=P.st[s]; } }
-    try{ if((document.getElementById('ta-a')||{}).value){ run(); } }catch(e){}
-    try{ render(); }catch(e){}
-    try{ renderProforma(); }catch(e){}
-    try{ updatePFDoc(); }catch(e){}
-    try{ generarSintesis(); }catch(e){}
-    document.body.classList.add('url-cliente');
-    try{ setClienteMode(true); }catch(e){}
-    try{ portadaShow(); }catch(e){}
-  }catch(e){}
+  try{ if(P&&P.inputs){ for(var k in P.inputs){ var e=document.getElementById(k); if(e!=null) e.value=P.inputs[k]; } } }catch(e){}
+  try{ if(P&&P.st){ for(var s in P.st){ st[s]=P.st[s]; } } }catch(e){}
+  document.body.classList.add('url-cliente');
+  try{ setClienteMode(true); }catch(e){}
+  try{ if((document.getElementById('ta-a')||{}).value){ run(); } }catch(e){}
+  try{ render(); }catch(e){}
+  try{ renderProforma(); }catch(e){}
+  try{ updatePFDoc(); }catch(e){}
+  try{ generarSintesis(); }catch(e){}
+  try{ setClienteMode(true); }catch(e){}
+  try{ portadaShow(); }catch(e){}
 }
-function encState(P){ return btoa(unescape(encodeURIComponent(JSON.stringify(P)))); }
-function decState(b){ return JSON.parse(decodeURIComponent(escape(atob(b)))); }
+function encState(P){ return btoa(unescape(encodeURIComponent(JSON.stringify(P)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function decState(b){ b=String(b).replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='='; return JSON.parse(decodeURIComponent(escape(atob(b)))); }
 function snapEssential(){
   var o={};
   ['ta-a','ta-b'].forEach(function(id){ var e=document.getElementById(id); if(e) o[id]=e.value; });
@@ -1159,12 +1158,20 @@ function toggleCliente(){
   if(on){ var p=document.getElementById('portada'); if(p){ p.classList.add('gone'); setTimeout(function(){ p.style.display='none'; },700); } document.body.classList.remove('portada-up'); }
   else { try{ portadaShow(); }catch(e){} }
 }
-try{ if(/[?&]cliente(=|&|$)/.test(location.search)){ document.body.classList.add('url-cliente'); setClienteMode(true); } }catch(e){}
-try{
-  if(location.hash && /[#&]c=/.test(location.hash)){ var _b=location.hash.replace(/^[\s\S]*?[#&]c=/,'').split('&')[0]; deliverRestore(decState(_b)); }
-  else if(window.__DELIVER__){ deliverRestore(JSON.parse(window.__DELIVER__)); }
-  else { portadaShow(); }
-}catch(e){ try{ portadaShow(); }catch(_){} }
+function _bootCliente(){
+  try{ if(/[?&]cliente(=|&|$)/.test(location.search)){ document.body.classList.add('url-cliente'); setClienteMode(true); } }catch(e){}
+  try{
+    if(location.hash && /[#&]c=/.test(location.hash)){
+      var _b=location.hash.replace(/^[\s\S]*?[#&]c=/,'').split('&')[0];
+      var _P=null; try{ _P=decState(_b); }catch(err){ _P=null; }
+      if(_P){ deliverRestore(_P); }
+      else { alert('El enlace llegó incompleto o dañado. Vuelve a generarlo desde la página y cópialo COMPLETO (todo el texto del enlace).'); portadaShow(); }
+    }
+    else if(window.__DELIVER__){ try{ deliverRestore(JSON.parse(window.__DELIVER__)); }catch(e){ portadaShow(); } }
+    else { portadaShow(); }
+  }catch(e){ try{ portadaShow(); }catch(_){} }
+}
+if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', _bootCliente); } else { setTimeout(_bootCliente,0); }
 function switchTab(name,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('panel-'+name).classList.add('on');
