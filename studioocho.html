@@ -642,6 +642,7 @@
   @media print{ .tab{display:none} .chap h2{color:#5a4f3c} .chap .ce,.tab b,.traduce .tk{color:#9a7320} .traduce{background:#faf6ec;border-color:#caa14e;color:#1a1712} }
   /* diagramas de concepto (lámina 3) */
   .cdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:8px 0 4px}
+  .cdside{color:var(--gold);font-size:.9em;font-weight:400;opacity:.85}
   .cdcard{border:1px solid var(--border);background:var(--panel);border-radius:6px;padding:12px 12px 13px}
   .cdsvg{width:100%;aspect-ratio:200/130;margin-bottom:9px;background:rgba(0,0,0,.18);border-radius:4px}
   .cdsvg svg{width:100%;height:100%;display:block}
@@ -715,7 +716,7 @@
   body.cliente-mode .controls-col,
   body.cliente-mode .pfform,
   body.cliente-mode .diag-intro,
-  body.cliente-mode #location,
+  body.cliente-mode .maprot,
   body.cliente-mode .aitabs,
   body.cliente-mode #intake{display:none!important}
   body.cliente-mode .layout{display:block}
@@ -1814,7 +1815,7 @@ function facadeExposure(lat,faceAz){
     flux+=cosInc; wAlt+=s.alt*cosInc; if(h<11)am+=cosInc; else if(h>13)pm+=cosInc; else noon+=cosInc;}}
   return{flux,meanAlt:flux?wAlt/flux:0,am,pm,noon};
 }
-const DIRS=['N','NE','E','SE','S','SO','O','NO'];
+const DIRS=['Norte','Noreste','Este','Sureste','Sur','Suroeste','Oeste','Noroeste'];
 function dirName(az){return DIRS[Math.round(((az%360)+360)%360/45)%8];}
 // azimut de la fachada (normal exterior) tras rotación; N=arriba de pantalla
 function facadeAz(e,c){const n=inwardNormal(e,c);const ox=-n.x,oy=-n.y; // exterior
@@ -1875,7 +1876,8 @@ function buildSVG(){
 
   // rotación
   const c0=centroid(verts0);
-  const R=p=>({x:p.x,y:p.y});
+  const _rotDeg=(((360-(st.north||0))%360)+360)%360;
+  const R=p=>rotatePt(p,c0,_rotDeg);
   const verts=verts0.map(R), bpoly=bu.poly.map(R), bbands=bands.map(b=>b.map(R));
   const es=edges(verts);
 
@@ -1884,9 +1886,9 @@ function buildSVG(){
   const minX=Math.min(...allX),maxX=Math.max(...allX),minY=Math.min(...allY),maxY=Math.max(...allY);
   const w=maxX-minX,h=maxY-minY,scale=Math.min((SVG_W-2*PAD)/w,(SVG_W-2*PAD)/h);
   const H=h*scale+2*PAD;
-  const sx=p=>PAD+(p.x-minX)*scale, sy=p=>PAD+(maxY-p.y)*scale;
+  const sx=p=>PAD+(p.x-minX)*scale, sy=p=>PAD+(p.y-minY)*scale;
   const path=pts=>pts.map((p,i)=>(i?'L':'M')+sx(p).toFixed(1)+' '+sy(p).toFixed(1)).join(' ')+' Z';
-  _xf={scale,minX,minY,maxY,PAD,c0,rot:0};
+  _xf={scale,minX,minY,maxY,PAD,c0,rotDeg:_rotDeg};
   const es0=edges(verts0); // para largos reales en metros
 
   let svg=`<svg viewBox="0 0 ${SVG_W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg">`;
@@ -1936,7 +1938,7 @@ function buildSVG(){
   });
 
   // flecha norte (siempre arriba) + cota de frente
-  svg+=`<g transform="translate(${SVG_W-30},30) rotate(${st.north||0})"><line x1="0" y1="14" x2="0" y2="-10" stroke="var(--gold)" stroke-width="1.4"/><path d="M0 -14 L4 -6 L-4 -6 Z" fill="var(--gold)"/><text x="0" y="26" text-anchor="middle" font-size="9" fill="var(--gold)" font-family="var(--mono)">N</text></g>`;
+  svg+=`<g transform="translate(${SVG_W-30},30)"><line x1="0" y1="14" x2="0" y2="-10" stroke="var(--gold)" stroke-width="1.4"/><path d="M0 -14 L4 -6 L-4 -6 Z" fill="var(--gold)"/><text x="0" y="26" text-anchor="middle" font-size="9" fill="var(--gold)" font-family="var(--mono)">N</text></g>`;
 
   // manijas de vértice (modo personalizado)
   if(st.type==='custom'){ verts.forEach((p,i)=>{
@@ -2130,8 +2132,9 @@ function attachVertexDrag(){
 function svgPointToModel(svg,cx,cy){
   const rect=svg.getBoundingClientRect(), disp=rect.width/SVG_W;
   const px=(cx-rect.left)/disp, py=(cy-rect.top)/disp;
-  const rmx=(px-_xf.PAD)/_xf.scale+_xf.minX, rmy=_xf.maxY-(py-_xf.PAD)/_xf.scale;
-  return {x:rmx,y:rmy};
+  const rmx=(px-_xf.PAD)/_xf.scale+_xf.minX, rmy=(py-_xf.PAD)/_xf.scale+_xf.minY;
+  const inv=rotatePt({x:rmx,y:rmy},_xf.c0,-(_xf.rotDeg||0));
+  return {x:inv.x,y:inv.y};
 }
 if(typeof document!=='undefined'&&document.addEventListener){
   document.addEventListener('pointermove',e=>{ if(_dragI<0||st.type!=='custom'||!_xf)return;
@@ -3091,6 +3094,13 @@ function zoningSVG(rooms, floorKey, stairMode){ return ''; }
 function switchSyn(k){ st.synTab=k; generarSintesis(); }
 function conceptDiagrams(info, circ, pisos){
   const {faces,wa}=info, up=(pisos>=2);
+  const _vehTxt=(((document.getElementById('ta-a')||{}).value||'')+' '+((document.getElementById('ta-b')||{}).value||'')).toLowerCase();
+  const _hasMoto=/\bmoto/.test(_vehTxt), _hasCar=/(carro|camioneta|coche|jeep|pickup|pick-up|4x4|veh[ií]culo|\bauto\b)/.test(_vehTxt);
+  const veh=_hasCar&&!_hasMoto?'auto':(_hasCar&&_hasMoto?'ambos':'moto');
+  const vehN=veh==='moto'?'la moto':veh==='ambos'?'el carro y la moto':'el carro';
+  const vehLbl=veh==='moto'?'moto':veh==='ambos'?'auto+moto':'auto';
+  const vehPark=veh==='moto'?'tu moto se parquea':veh==='ambos'?'tu carro y tu moto se parquean':'el auto se parquea';
+  const _vehGlyph=veh==='moto'?`<circle cx="32" cy="77" r="3.2" fill="none" stroke="var(--vista)" stroke-width="1.3"/><circle cx="46" cy="77" r="3.2" fill="none" stroke="var(--vista)" stroke-width="1.3"/><path d="M32 77 L40 71 L46 77 M40 71 L44 68" fill="none" stroke="var(--vista)" stroke-width="1.3"/>`:`<rect x="30" y="66" width="18" height="11" rx="2" fill="none" stroke="var(--vista)" stroke-width="1.5"/><circle cx="35" cy="78" r="1.6" fill="var(--vista)"/><circle cx="43" cy="78" r="1.6" fill="var(--vista)"/>`;
   const sc=f=>(f.hasVista?3:f.label==='Libre'?2:0)+(f.wind==='barlovento'?1.5:0)+(f.sun==='difícil'?-2.5:f.sun==='suave'?.6:.2);
   const social=faces.slice().sort((a,b)=>sc(b)-sc(a))[0];
   const harsh=faces.filter(f=>f.sun==='difícil').sort((a,b)=>b.rel-a.rel)[0];
@@ -3102,8 +3112,14 @@ function conceptDiagrams(info, circ, pisos){
   const ind=dirName(wa.intake.az), outd=dirName(wa.exhaust.az);
   const prog=window.CLIENTE&&window.CLIENTE.program, hasAlq=!!(prog&&prog.spaces&&prog.spaces.alquiler);
   const calleF=faces.find(f=>f.label==='Calle')||faces[0], cd=dirName(calleF.az);
-  const coolDirs=[...new Set(faces.filter(f=>f.sun!=='difícil').sort((a,b)=>sc(b)-sc(a)).map(f=>dirName(f.az)))];
-  const coolTxt = coolDirs.length>=2?`al <b>${coolDirs[0]}</b> y al <b>${coolDirs[1]}</b>`:(coolDirs.length?`al <b>${coolDirs[0]}</b>`:'a tu mejor cara');
+  let _vn=0; const _vnum={};
+  faces.forEach(f=>{ if(f.label==='Vecino'){ _vn++; _vnum[f.i]=_vn; } });
+  const sideRef=f=>{ if(!f)return''; if(f.label==='Calle')return'la calle'; if(f.label==='Libre')return'el lado abierto'; if(f.label==='Vecino')return'vecino '+(_vnum[f.i]||''); return'lado '+((f.i==null?0:f.i)+1); };
+  const withSide=f=> (!f) ? '' : dirName(f.az)+' <span class="cdside">('+sideRef(f)+')</span>';
+  const sdR=withSide(social), hdR=harsh?withSide(harsh):'', indR=withSide(wa.intake), outdR=withSide(wa.exhaust);
+  const _coolF=faces.filter(f=>f.sun!=='difícil').sort((a,b)=>sc(b)-sc(a)); const _cseen=new Set(); const _coolP=[];
+  _coolF.forEach(f=>{ const k=dirName(f.az); if(!_cseen.has(k)){_cseen.add(k);_coolP.push(f);} });
+  const coolTxt = _coolP.length>=2?`al <b>${withSide(_coolP[0])}</b> y al <b>${withSide(_coolP[1])}</b>`:(_coolP.length?`al <b>${withSide(_coolP[0])}</b>`:'a tu mejor cara');
   const _ciB=(st.labels.indexOf('Calle')>=0?st.labels.indexOf('Calle'):0);
   const aPB=area(buildable(info.verts0,st.setbacks,_ciB,(st.adosado||[])).poly);
   const aUP=area(buildable(info.verts0,st.setbacks,_ciB,[]).poly);
@@ -3113,8 +3129,8 @@ function conceptDiagrams(info, circ, pisos){
 
   // ----- partido en una frase -----
   const partido = harsh
-    ? `Una casa que le da la espalda al sol del <b>${hd}</b> y se abre hacia el <b>${sd}</b>, ${socialDesc}${brisa?', por donde corre la brisa':''}.`
-    : `Una casa que se abre hacia el <b>${sd}</b>, ${socialDesc}${brisa?', recibiendo la brisa':''}, con el sol siempre bajo control.`;
+    ? `Una casa que le da la espalda al sol del <b>${hdR}</b> y se abre hacia el <b>${sdR}</b>, ${socialDesc}${brisa?', por donde corre la brisa':''}.`
+    : `Una casa que se abre hacia el <b>${sdR}</b>, ${socialDesc}${brisa?', recibiendo la brisa':''}, con el sol siempre bajo control.`;
 
   // ----- silueta REAL del lote (zonificación) -----
   function lotHeroSVG(){
@@ -3145,17 +3161,17 @@ function conceptDiagrams(info, circ, pisos){
   const c5=`<svg viewBox="0 0 200 130"><circle cx="40" cy="32" r="11" fill="none" stroke="var(--gold)" stroke-width="2"/><g stroke="var(--gold)" stroke-width="1.5"><line x1="40" y1="13" x2="40" y2="18"/><line x1="23" y1="22" x2="27" y2="26"/><line x1="57" y1="22" x2="53" y2="26"/><line x1="19" y1="40" x2="25" y2="40"/></g><line x1="48" y1="42" x2="70" y2="60" stroke="var(--gold)" stroke-width="1.1" stroke-dasharray="3 3"/><line x1="50" y1="38" x2="74" y2="54" stroke="var(--gold)" stroke-width="1.1" stroke-dasharray="3 3"/><rect x="76" y="56" width="96" height="50" fill="var(--sand)" opacity="0.08" stroke="var(--border)"/><line x1="76" y1="56" x2="76" y2="106" stroke="var(--vecino)" stroke-width="3"/><line x1="66" y1="56" x2="92" y2="56" stroke="var(--gold)" stroke-width="2.5"/><path d="M76 56 l9 0 l-9 15 z" fill="#000" opacity="0.28"/><text x="79" y="50" fill="var(--vecino)" font-size="7" font-family="monospace">${hd}</text><text x="126" y="85" fill="var(--dim)" font-size="8" font-family="monospace" text-anchor="middle">a la sombra</text></svg>`;
   const c6=`<svg viewBox="0 0 200 130"><rect x="24" y="18" width="152" height="94" rx="3" fill="var(--vista)" opacity="0.12"/><rect x="24" y="18" width="152" height="94" rx="3" fill="none" stroke="var(--border)"/><rect x="52" y="40" width="96" height="52" rx="2" fill="var(--sand)" opacity="0.14" stroke="var(--gold)"/><circle cx="38" cy="30" r="4" fill="var(--vista)" opacity="0.6"/><circle cx="162" cy="100" r="4" fill="var(--vista)" opacity="0.6"/><circle cx="38" cy="100" r="3.5" fill="var(--vista)" opacity="0.5"/><text x="100" y="69" fill="var(--sand)" font-size="8.5" font-family="monospace" text-anchor="middle">casa</text></svg>`;
   const c7=`<svg viewBox="0 0 200 130"><rect x="24" y="24" width="152" height="82" rx="3" fill="var(--sand)" opacity="0.08" stroke="var(--border)"/><line x1="24" y1="24" x2="24" y2="106" stroke="var(--gold)" stroke-width="3"/><rect x="30" y="30" width="44" height="70" rx="2" fill="var(--vista)" opacity="0.22" stroke="var(--vista)"/><rect x="84" y="30" width="86" height="70" rx="2" fill="var(--sand)" opacity="0.1" stroke="var(--border)"/><rect x="20" y="55" width="6" height="18" fill="var(--gold)"/><rect x="20" y="80" width="6" height="14" fill="var(--vista)"/><text x="52" y="98" fill="var(--vista)" font-size="7.5" font-family="monospace" text-anchor="middle">alquiler</text><text x="127" y="68" fill="var(--sand)" font-size="8" font-family="monospace" text-anchor="middle">tu casa</text></svg>`;
-  const c8=`<svg viewBox="0 0 200 130"><rect x="24" y="18" width="152" height="94" rx="3" fill="rgba(196,180,154,.04)" stroke="var(--border)"/><line x1="24" y1="18" x2="24" y2="112" stroke="var(--gold)" stroke-width="3"/><rect x="56" y="40" width="92" height="54" rx="2" fill="var(--sand)" opacity="0.12" stroke="var(--gold)"/><rect x="24" y="62" width="32" height="20" fill="var(--gold)" opacity="0.18"/><rect x="30" y="66" width="18" height="11" rx="2" fill="none" stroke="var(--vista)" stroke-width="1.5"/><circle cx="35" cy="78" r="1.6" fill="var(--vista)"/><circle cx="43" cy="78" r="1.6" fill="var(--vista)"/><text x="102" y="70" fill="var(--sand)" font-size="8.5" font-family="monospace" text-anchor="middle">casa</text><text x="40" y="104" fill="var(--vista)" font-size="7" font-family="monospace" text-anchor="middle">auto</text></svg>`;
+  const c8=`<svg viewBox="0 0 200 130"><rect x="24" y="18" width="152" height="94" rx="3" fill="rgba(196,180,154,.04)" stroke="var(--border)"/><line x1="24" y1="18" x2="24" y2="112" stroke="var(--gold)" stroke-width="3"/><rect x="56" y="40" width="92" height="54" rx="2" fill="var(--sand)" opacity="0.12" stroke="var(--gold)"/><rect x="24" y="62" width="32" height="20" fill="var(--gold)" opacity="0.18"/>${_vehGlyph}<text x="102" y="70" fill="var(--sand)" font-size="8.5" font-family="monospace" text-anchor="middle">casa</text><text x="40" y="104" fill="var(--vista)" font-size="7" font-family="monospace" text-anchor="middle">${vehLbl}</text></svg>`;
 
   const PRIM=[
-    [lotHeroSVG(),'De la calle al refugio','Lo social se queda al frente, cerca de la calle; los dormitorios, al fondo, en lo más privado.',`entras y la zona de estar te recibe abierta ${socialW} (al ${sd}); la intimidad queda atrás, lejos de la vista de la calle.`,'Privacidad + tu mejor vista'],
-    [c5,'El sol, bajo control', harsh?`La cara <b>${hd}</b> recibe el sol fuerte de la ${hw}.`:'El sol de Galápagos cae casi vertical y pega fuerte al este y al oeste.',`ahí van muros, aleros y ventanas chicas; los ventanales grandes van ${coolTxt}.`,'Menos calor, menos energía'],
+    [lotHeroSVG(),'De la calle al refugio','Lo social se queda al frente, cerca de la calle; los dormitorios, al fondo, en lo más privado.',`entras y la zona de estar te recibe abierta ${socialW}, al ${sdR}; la intimidad queda atrás, lejos de la vista de la calle.`,'Privacidad + tu mejor vista'],
+    [c5,'El sol, bajo control', harsh?`La cara <b>${hdR}</b> recibe el sol fuerte de la ${hw}.`:'El sol de Galápagos cae casi vertical y pega fuerte al este y al oeste.',`ahí van muros, aleros y ventanas chicas; los ventanales grandes van ${coolTxt}.`,'Menos calor, menos energía'],
   ];
   const SEC=[
     [up?c2u:c2s, up?'Abajo se vive, arriba se descansa':'Todo en una planta', up?`Tu casa es de <b>${pisos} pisos</b>.`:'Tu casa es de una sola planta.', up?'la vida en común queda abajo, abierta al jardín, y los dormitorios suben — más vista y privacidad. El principal, lo más alto.':'todo fluye a un solo nivel, sin escaleras: cómodo para cualquier edad.', up?'Vista + privacidad arriba':'Accesible, sin gradas'],
-    [c4,'El aire cruza la casa',`El aire entra por el <b>${ind}</b> y sale por el <b>${outd}</b>.`,`la sala, el comedor y la cocina van en un solo espacio pasante, sin tabiques que corten la brisa.`,'Fresco sin aire acondicionado'],
+    [c4,'El aire cruza la casa',`El aire entra por el <b>${indR}</b> y sale por el <b>${outdR}</b>.`,`la sala, el comedor y la cocina van en un solo espacio pasante, sin tabiques que corten la brisa.`,'Fresco sin aire acondicionado'],
     [c6,'El retiro es tu patio','El espacio que la norma te obliga a dejar libre.',`no se desperdicia: se vuelve jardín y patio que meten luz y aire a la casa.`,'Más casa sin más m² construidos'],
-    [c8,'Por dónde entras y el carro',`Se entra desde la calle (al <b>${cd}</b>).`,`el auto se parquea en el retiro de adelante, sin invadir la casa ni el jardín.`,'Llegas y parqueas directo'],
+    [c8,`Por dónde entras y ${vehN}`,`Se entra desde la calle (al <b>${cd}</b>).`,`${vehPark} en el retiro de adelante, sin invadir la casa ni el jardín.`,'Llegas y parqueas directo'],
   ];
   if(hasAlq) SEC.push([c7,'Una puerta aparte para rentar',`Entrada propia desde la calle (al ${cd}).`,`rentas sin que nadie cruce tu zona íntima, con medidor aparte.`,'Ingreso extra, privacidad intacta']);
 
