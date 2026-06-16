@@ -4,14 +4,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#EBE0C8;--panel:#F6EEDC;--panel-2:#E5D9BF;--line:#D6C9AE;--ink:#352A1E;--ink-dim:#6E6149;--ink-faint:#9A8B72;--amber:#C2901F;--copper:#A85B2C;--good:#6E7A3A;--bad:#B04A2E;--radius:10px}
+  :root{--bg:#EBE0C8;--panel:#F6EEDC;--panel-2:#E5D9BF;--line:#D6C9AE;--ink:#2E2417;--ink-dim:#5A4E38;--ink-faint:#7D6E52;--amber:#C2901F;--copper:#A85B2C;--good:#6E7A3A;--bad:#B04A2E;--radius:10px}
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:radial-gradient(1200px 600px at 80% -10%,rgba(194,144,31,.06),transparent 60%),var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif;font-size:14px;line-height:1.45;padding:22px 18px 60px;min-height:100vh}
   .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
   .wrap{max-width:1080px;margin:0 auto}
   .top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:12px}
   .brand{display:flex;align-items:baseline;gap:12px}
-  .mark{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:30px;line-height:.9}.mark .dot{color:var(--amber)}
+  .mark{font-family:"Inter",system-ui,sans-serif;font-weight:700;font-size:24px;line-height:1;letter-spacing:-.02em}.mark .dot{color:var(--amber)}
   .tagline{color:var(--ink-dim);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
   .tabs{display:flex;gap:5px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:4px;flex-wrap:wrap}
   .tab{border:none;background:transparent;color:var(--ink-dim);font-family:inherit;font-size:13px;font-weight:500;padding:9px 14px;border-radius:8px;cursor:pointer;transition:all .15s}
@@ -25,7 +25,7 @@
   .mode{display:none}.mode.active{display:block}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
   .card-h{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line)}
-  .card-h h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:19px}.card-h .hint{font-size:10.5px;color:var(--ink-faint)}
+  .card-h h2{font-family:"Inter",system-ui,sans-serif;font-weight:600;font-size:16px;letter-spacing:-.01em;color:var(--ink)}.card-h .hint{font-size:11px;color:var(--ink-dim)}
   .field{padding:11px 14px}
   label.fl{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px}
   select,input[type=number],input[type=date],input[type=text]{width:100%;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:14px}
@@ -57,7 +57,7 @@
   .cabtile .cn{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-dim)}.cabtile .gu{font-size:13px;font-weight:500;margin-top:2px}
   .cabtile .tt{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px;color:var(--amber);margin-top:6px}
   .nowserv{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--amber);border-radius:var(--radius);padding:13px 16px;margin-bottom:12px}
-  .nowserv .who{font-family:"Cormorant Garamond",serif;font-size:23px;font-weight:600}
+  .nowserv .who{font-family:"Inter",system-ui,sans-serif;font-size:20px;font-weight:600;letter-spacing:-.01em}
   .nowserv .who small{display:block;font-family:"Inter";font-size:11px;color:var(--ink-dim);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
   .nowserv .rt{display:flex;align-items:center;gap:14px}.nowserv .bt{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:24px;color:var(--amber)}
   .famchips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
@@ -75,7 +75,7 @@
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
   .modal-overlay.show{display:flex}
   .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:460px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:90vh;overflow:auto}
-  .modal h2{font-family:"Cormorant Garamond",serif;font-size:24px}
+  .modal h2{font-family:"Inter",system-ui,sans-serif;font-size:20px;font-weight:700;letter-spacing:-.01em}
   .modal .msub{color:var(--ink-dim);font-size:13px;margin-bottom:14px}
   .modal svg{width:20px;height:20px;vertical-align:-4px}
   .modal .bigcheck svg{width:50px;height:50px}
@@ -90,7 +90,7 @@
   .ro-ic svg{width:20px;height:20px;color:var(--copper)}
   .routeopt.on .ro-ic{background:rgba(194,144,31,.22)}.routeopt.on .ro-ic svg{color:var(--amber)}
   .ro-txt{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
-  .ro-txt b{font-family:"Cormorant Garamond",serif;font-size:19px;font-weight:600;line-height:1.05}
+  .ro-txt b{font-family:"Inter",system-ui,sans-serif;font-size:16px;font-weight:600;line-height:1.15;letter-spacing:-.01em}
   .ro-txt small{color:var(--ink-dim);font-size:11.5px;letter-spacing:.01em}
   .ro-n{flex-shrink:0;text-align:center;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:19px;color:var(--amber);line-height:1}
   .ro-n i{display:block;font-style:normal;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-family:"Inter",sans-serif;font-weight:500;margin-top:3px}
@@ -233,7 +233,7 @@
   #loginOverlay{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:20000;padding:20px}
   #loginOverlay.show{display:flex}
   .login-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:380px;width:100%;padding:30px 26px;text-align:center}
-  .login-mark{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:38px;line-height:1}
+  .login-mark{font-family:"Inter",system-ui,sans-serif;font-weight:700;font-size:30px;line-height:1;letter-spacing:-.02em}
   .login-sub{color:var(--ink-dim);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin:4px 0 22px}
   .login-q{font-size:13px;color:var(--ink-dim);margin-bottom:12px}
   .login-names{display:flex;flex-direction:column;gap:9px}
@@ -284,7 +284,7 @@
 </style>
 <style id="pagesize"></style></head>
 <body><div class="wrap">
-  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 39</b></div></div>
+  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 42</b></div></div>
     <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button></div></div>
   <div class="switcher" id="rolebar"><span>Rol</span><div id="roleBtns" style="display:flex;gap:7px;flex-wrap:wrap"></div><span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px"></span></div>
   <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select></div>
@@ -809,7 +809,7 @@ function invAvg(){const tot={};cruises.forEach(c=>{(c.charges||[]).forEach(ch=>{
 function invOnHand(c,b){const iv=invState(c),vals=["dir","bar","adm"].map(r=>cval(b,r,iv)).filter(x=>x!=null);return vals.length?vals.reduce((a,x)=>a+x,0)/vals.length:null;}
 function invRepoCard(){const c=AC(),avg=invAvg();let items=[];bodega.forEach(b=>{const mn=(avg[b.id]||0)*1.5;if(mn<=0)return;const hay=invOnHand(c,b);if(hay==null)return;if(hay<mn)items.push({b:b,hay:hay,mn:mn});});items.sort((x,y)=>(x.hay/x.mn)-(y.hay/y.mn));
  if(!items.length)return '<div class="card"><div class="card-h"><h2 style="font-size:15px;display:flex;align-items:center;gap:9px"><span class="catico">'+ICON.bell+'</span><span>Reposici\u00f3n</span></h2><span class="hint">todo en nivel \u00b7 nada por acabarse</span></div></div>';
- const rows=items.map(o=>{const crit=o.hay<o.mn*0.5,sug=Math.max(0,o.mn-o.hay);return '<tr><td class="l"><span class="nm">'+o.b.name+'</span></td><td class="num" style="color:'+(crit?'#B04A2E':'#C2901F')+';font-weight:700">'+r2(o.hay)+'</td><td class="num" style="color:var(--ink-faint)">'+r2(o.mn)+'</td><td class="num" style="color:var(--amber);font-weight:600">'+Math.ceil(sug-0.0001)+'</td></tr>';}).join("");
+ const rows=items.map(o=>{const crit=o.hay<o.mn*0.5,sug=Math.max(0,o.mn-o.hay);return '<tr><td class="l"><span class="nm">'+o.b.name+'</span></td><td class="num" style="color:'+(crit?'#B04A2E':'#C2901F')+';font-weight:700">'+r2(o.hay)+'</td><td class="num" style="color:var(--ink-dim);font-weight:500">'+r2(o.mn)+'</td><td class="num" style="color:var(--amber);font-weight:600">'+Math.ceil(sug-0.0001)+'</td></tr>';}).join("");
  return '<div class="card"><div class="card-h"><h2 style="font-size:15px;display:flex;align-items:center;gap:9px"><span class="catico">'+ICON.bell+'</span><span>Reposici\u00f3n \u2014 se est\u00e1 acabando</span></h2><span class="hint">'+items.length+' productos \u00b7 m\u00ednimo = consumo \u00d7 1.5</span></div><table><thead><tr><th class="l">Producto</th><th>Hay</th><th>M\u00ednimo</th><th>Subir</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
 function invCharts(){const c=AC(),iv=invState(c),vta=invVenta(c),avg=invAvg(),total=bodega.length;const cnt={dir:invDone("dir",iv),bar:invDone("bar",iv),adm:invDone("adm",iv)};
  const ml='font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 7px';
