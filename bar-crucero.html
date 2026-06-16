@@ -259,12 +259,35 @@
   .kp:active{transform:scale(.94);border-color:var(--amber)}
   .kpgo{background:var(--amber);color:#1b1410;border-color:var(--amber)}
   .pin-back{margin-top:16px;background:none;border:none;color:var(--ink-dim);font-family:inherit;font-size:13px;cursor:pointer}
-</style><style id="pagesize"></style></head>
+  .pedtabs{display:flex;gap:8px;margin-bottom:8px}
+  .pedhelp{font-size:12.5px;color:var(--ink-faint);margin:0 0 12px;padding:0 2px}
+  .pedsec{font-size:13px;font-weight:700;color:var(--ink-dim);margin:16px 2px 8px}
+  .peddate{font-size:12px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;margin:16px 2px 8px}
+  .pedhead{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+  .pedscope{display:flex;gap:8px;margin:4px 0 12px}
+  .pedmonth{font-size:16px;font-weight:700;color:var(--ink);margin:22px 2px 4px}
+  .pedcru{font-size:12.5px;font-weight:700;color:var(--copper);margin:10px 2px 8px}
+  .pedsearch{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--ink);font-size:14px;margin-bottom:12px;box-sizing:border-box}
+  .pedtab{flex:1;padding:11px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-dim);border-radius:10px;font-weight:600;cursor:pointer;font-size:14px}
+  .pedtab.on{background:var(--amber);color:#1b1410;border-color:var(--amber)}
+  .pedrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--panel)}
+  .pedrow.has{border-color:var(--amber);background:var(--panel-2)}
+  .pedrow .nm{font-weight:600;font-size:14px;display:block}
+  .pedrow-stock{font-size:12px;color:var(--ink-faint)}
+  .pedstep{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .stepbtn{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+  .stepbtn:active{transform:scale(.92);border-color:var(--amber)}
+  .pedqty{min-width:34px;text-align:center;font-size:18px;font-weight:700;font-family:"JetBrains Mono",monospace}
+  .pedcat{padding:11px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
+  .pedfoot{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 2px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+  .pedfoot .act{margin:0}
+</style>
+<style id="pagesize"></style></head>
 <body><div class="wrap">
-  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 22</b></div></div>
+  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 35</b></div></div>
     <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button></div></div>
   <div class="switcher" id="rolebar"><span>Rol</span><div id="roleBtns" style="display:flex;gap:7px;flex-wrap:wrap"></div><span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px"></span></div>
-  <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-faint);cursor:pointer"><input type="checkbox" id="pendOnly" style="width:auto;min-width:0;margin:0"> solo pendientes SRI</label></div>
+  <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select></div>
   <div class="banner" id="banner"></div>
 
   <div class="mode" id="mode-zarpe">
@@ -288,10 +311,7 @@
   <div class="mode" id="mode-cuentas">
     <div class="kpis" id="kpis"></div>
     <div class="card"><div class="card-h"><h2>Cuentas por cabina (folios)</h2><span class="hint">para el contable · con servicio e IVA</span></div>
-      <div class="field" style="border-bottom:1px solid var(--line)"><label class="fl" for="adminEmail">Correo de la administradora (para enviar la factura)</label><input type="text" id="adminEmail" placeholder="administradora@correo.com"></div>
-      <div class="field" style="border-bottom:1px solid var(--line)"><label class="fl" for="invSign">Firma de la factura (familia / capitán / tripulación)</label><input type="text" id="invSign" placeholder="p. ej. With love — the Terán family, Captain ___ &amp; crew"></div>
-      <div class="field" style="border-bottom:1px solid var(--line)"><label class="fl" for="invPay">Mensaje de pago al huésped (cómo se paga a bordo)</label><input type="text" id="invPay" placeholder="Charged to your cabin — settled at reception before you go ashore."></div>
-      <div id="foliosList"></div>
+      <div class="note" style="margin:6px 0 2px">Para enviarle la factura al cliente, usa ✉ Enviar en su cabina: se genera el PDF y eliges Mail o WhatsApp. Solo si el cliente lo pide.</div><div id="foliosList"></div>
       <div class="vfoot" style="justify-content:flex-start;gap:9px"><button class="act ghost" id="printAllBtn">Imprimir todos (PDF)</button><button class="act ghost" id="csvFoliosBtn">Detalle \u00b7 due\u00f1a</button></div></div>
     <div class="card" id="taxCard"><div class="card-h"><h2>Resumen de impuestos</h2><span class="hint">el total ya incluye servicio e IVA</span></div>
       <table><thead><tr><th class="l">Concepto</th><th>Subtotal</th><th>Servicio 10%</th><th>IVA 15%</th><th>Total</th></tr></thead><tbody id="taxBody"></tbody></table></div>
@@ -331,6 +351,7 @@
 <div id="invOverlay"><div class="inv-topbar"><button class="act ghost" id="invPrintBtn">Imprimir</button><button class="act ghost" id="invCloseBtn">Cerrar</button></div><div id="invSheet"></div></div>
 <div id="loginOverlay"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script>
 const routes=[{letter:"A",name:"Bartolomé",nights:4,from:"Baltra",to:"San Cristóbal"},{letter:"B",name:"Española",nights:4,from:"San Cristóbal",to:"Baltra"},{letter:"C",name:"Isabela",nights:6,from:"Santa Cruz",to:"Baltra"}];
 const inventory=[{"id": "CC", "name": "Cerveza Club", "fam": "Cerveza", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "CCR", "name": "Cerveza Corona", "fam": "Cerveza", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "CP", "name": "Cerveza Pilsener", "fam": "Cerveza", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "CSA", "name": "Cerveza Stella Artois", "fam": "Cerveza", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "WWBBCPL", "name": "Botella De Vino Blanco De Blancas", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCDCS", "name": "Botella De Vino Cabernet Sauvignon", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRODAN", "name": "Botella De Vino Calvet Rose D Anjou", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCDCAR", "name": "Botella De Vino Carmenere", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WWCHCD", "name": "Botella De Vino Chardonnay", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCPLMA", "name": "Botella De Vino Cordero De Piel De Lobo Malbec", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWBN24", "name": "Botella De Vino Espumante Blue Nun 24K", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWCCB", "name": "Botella De Vino Espumante Calvet Celebration Brut", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWCCBRO", "name": "Botella De Vino Espumante Calvet Celebration Brut Rosé", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWCTDS", "name": "Botella De Vino Espumante Concha Y Toro Demi Sec", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWVDVICE", "name": "Botella De Vino Espumante Vdv Ice", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWVDVR", "name": "Botella De Vino Espumante Vdv Ice Rosé", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWVIBR", "name": "Botella De Vino Espumante Vilarnau Brut", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "SWVIDE", "name": "Botella De Vino Espumante Vilarnay Demi Sec", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRFV", "name": "Botella De Vino Faustino V Reserva", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCDMAL", "name": "Botella De Vino Malbec", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCDME", "name": "Botella De Vino Merlot", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCDPN", "name": "Botella De Vino Pinot Noir", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCSCT", "name": "Botella De Vino Reservado Cabernert Sauvignon", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRMECT", "name": "Botella De Vino Reservado Merlot", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WWRSCT", "name": "Botella De Vino Reservado Sauvignon", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WROMC", "name": "Botella De Vino Rosé Maison Castel", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WWSBCD", "name": "Botella De Vino Sauvignon Blanc", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WRCDSY", "name": "Botella De Vino Syrah", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "VCATC", "name": "Botella Vino De La Casa", "fam": "Vino", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "CWRRCSCT", "name": "Copa De Vino Reservado Cabernet Sauvignon", "fam": "Vino", "fmt": "Copa", "size": 1, "loaded": 12}, {"id": "CWWRMCT", "name": "Copa De Vino Reservado Merlot", "fam": "Vino", "fmt": "Copa", "size": 1, "loaded": 12}, {"id": "CWWRSCT", "name": "Copa De Vino Reservado Sauvignon", "fam": "Vino", "fmt": "Copa", "size": 1, "loaded": 12}, {"id": "COVIATC", "name": "Copas De Vino", "fam": "Vino", "fmt": "Copa", "size": 1, "loaded": 12}, {"id": "MSWHTD", "name": "Mini Botella  Vino Espumante Henkell Trocken Dry", "fam": "Vino", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MSWHTPI", "name": "Mini Botella  Vino Espumante Henkell Trocken Piccolo", "fam": "Vino", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MSWICER", "name": "Mini Botella  Vino Espumante Vdv Ice Rose", "fam": "Vino", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MWWCSB", "name": "Mini Botella De Vino Calvet Sauvignon Blanc", "fam": "Vino", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MROWA", "name": "Mini Botella Vino Adobe Reserva Rosé", "fam": "Vino", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MSWICE", "name": "Mini Botella Vino Espumante Vdv Ice", "fam": "Vino", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "BA", "name": "Amareto Bols", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "DA", "name": "Amareto Disarono", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "AP", "name": "Aperol", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "BC", "name": "Boltons Curacao", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "BG", "name": "Boltons Granadina", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "BM", "name": "Boltons Menta", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "CMAN", "name": "Botella De Caña Manabita", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "PDC", "name": "Botella De Pisco Don Camilo", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WB", "name": "Botella De Whiskey Buchanans", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WJA", "name": "Botella De Whiskey Johnnie Azul", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WJN", "name": "Botella De Whiskey Johnnie Negro", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WJR", "name": "Botella De Whiskey Johnnie Rojo", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WJV", "name": "Botella De Whiskey Johnnie Verde", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "GBOM", "name": "Botella Gin Bombay", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "GHEN", "name": "Botella Gin Hendricks", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "GTAN", "name": "Botella Gin Tanqueray", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "RBA", "name": "Botella Ron Bacardi", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "RHC", "name": "Botella Ron Havana Club", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "RSM", "name": "Botella Ron San Miguel", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "VSMIR", "name": "Botella Smirnoff", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "VAB", "name": "Botella Vodka Absolut", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "VSKY", "name": "Botella Vodka Sky", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WEW", "name": "Botella Whiskey Evan Williams", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "WJD", "name": "Botella Whiskey Jack Daniels", "fam": "Licor", "fmt": "Botella", "size": 1, "loaded": 6}, {"id": "CAM", "name": "Campari", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "DCINR", "name": "Cinzano Rosso", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "DCOG", "name": "Cognac Hennessy", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "DCON", "name": "Cointreau", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "CDC", "name": "Cold'S Cacao", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "CDP", "name": "Cold'S Piña Colada", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "CTS", "name": "Cold'S Triple Sec", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "FR77", "name": "French 77", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "DGANR", "name": "Gancia Rosso", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "KAH", "name": "Kahlúa", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "MRWRCA", "name": "Mini Botella Adobe Reserva Carmenere", "fam": "Licor", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MWWRCH", "name": "Mini Botella Adobe Reserva Chardonnay", "fam": "Licor", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MRWCSCD", "name": "Mini Botella Cabernet Sauvignon", "fam": "Licor", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "MRWCAME", "name": "Mini Botella Calvet Merlot", "fam": "Licor", "fmt": "Mini botella", "size": 1, "loaded": 6}, {"id": "PL", "name": "Pallini Lemoncello", "fam": "Licor", "fmt": "Servido/Trago", "size": 1, "loaded": 12}, {"id": "SVAB", "name": "Shot  Vodka Absolut", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SBOM", "name": "Shot Gin Bombay", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SHEN", "name": "Shot Gin Hendricks", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "STAN", "name": "Shot Gin Tanqueray", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SRBS", "name": "Shot Ron Bacardi", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SRHC", "name": "Shot Ron Havana Club", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SRSM", "name": "Shot Ron San Miguel", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "STDJB", "name": "Shot Tequila Don Julio Blanco", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "STDJR", "name": "Shot Tequila Don Julio Reposado", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "STECH", "name": "Shot Tequila El Charro", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "STJC", "name": "Shot Tequila Jose Cuervo", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SVSKY", "name": "Shot Vodka Sky", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SVSMIR", "name": "Shot Vodka Smirnoff", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWB", "name": "Shot Whiskey Buchanans", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWEW", "name": "Shot Whiskey Evan Williams", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWJD", "name": "Shot Whiskey Jack Daniels", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWHA", "name": "Shot Whiskey Johnnie Azul", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWJN", "name": "Shot Whiskey Johnnie Negro", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWJR", "name": "Shot Whiskey Johnnie Rojo", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "SWJV", "name": "Shot Whiskey Johnnie Verde", "fam": "Licor", "fmt": "Shot", "size": 1, "loaded": 24}, {"id": "TDJB", "name": "Tequila Don Julio Blanco", "fam": "Licor", "fmt": "Botella (?)", "size": 1, "loaded": 12}, {"id": "TDJR", "name": "Tequila Don Julio Reposado", "fam": "Licor", "fmt": "Botella (?)", "size": 1, "loaded": 12}, {"id": "TECH", "name": "Tequila El Charro", "fam": "Licor", "fmt": "Botella (?)", "size": 1, "loaded": 12}, {"id": "TJC", "name": "Tequila Jose Cuervo", "fam": "Licor", "fmt": "Botella (?)", "size": 1, "loaded": 12}, {"id": "CCO", "name": "Coke Cola Original", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "CCZ", "name": "Coke Cola Zero", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "FANTA", "name": "Fanta", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "FV", "name": "Fioravanti", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "GA", "name": "Ginger Ale", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "GB", "name": "Ginger Beer", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "GUI", "name": "Guitig", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "IT", "name": "Ice Tea", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "IC", "name": "Inka Cola", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "SP", "name": "Sprite", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}, {"id": "TW", "name": "Tonic Water", "fam": "Bebida", "fmt": "Unidad", "size": 1, "loaded": 24}];
@@ -445,8 +466,7 @@ function renderSwitcher(){
   if(!years.includes(selectedYear))selectedYear=ac.embark.slice(0,4);
   let monthsInYear=[...new Set(cruises.filter(c=>c.embark.slice(0,4)===selectedYear).map(c=>c.embark.slice(5,7)))].sort();
   if(selectedMonth==null||!monthsInYear.includes(selectedMonth))selectedMonth=(ac.embark.slice(0,4)===selectedYear?ac.embark.slice(5,7):monthsInYear[0]);
-  const pendOnly=(document.getElementById("pendOnly")||{}).checked;
-  let inFilter=cruises.filter(c=>c.embark.slice(0,4)===selectedYear&&c.embark.slice(5,7)===selectedMonth&&(!pendOnly||!cruiseSriDone(c)));
+  let inFilter=cruises.filter(c=>c.embark.slice(0,4)===selectedYear&&c.embark.slice(5,7)===selectedMonth);
   document.getElementById("yearSel").innerHTML=years.map(y=>'<option value="'+y+'" '+(y===selectedYear?"selected":"")+'>'+y+'</option>').join("");
   document.getElementById("monthSel").innerHTML=monthsInYear.map(m=>'<option value="'+m+'" '+(m===selectedMonth?"selected":"")+'>'+MES[+m-1]+'</option>').join("");
   document.getElementById("cruiseSel").innerHTML=inFilter.length?inFilter.map(c=>{const d=parseDate(c.embark);return '<option value="'+c.id+'" '+(c.id===activeId?"selected":"")+'>'+d.getDate()+' · '+routes[c.route].name+(c.closed?"":" · en curso")+(cruiseSriDone(c)?" · SRI ✓":" · pend.")+'</option>';}).join(""):'<option>— sin cruceros pendientes —</option>';
@@ -496,18 +516,63 @@ function folioText(n){const c=AC().cabins.find(x=>x.n===n),e=embarkDate(),d=addD
   g.forEach(dg=>{L.push("  Noche "+dg.night+" · "+dg.date+":");dg.items.forEach(it=>L.push("    "+it.qty+"x "+it.name+" — "+money(it.sub)));});
   L.push("","Subtotal: "+money(b),"Servicio 10%: "+money(sv),"IVA 15%: "+money(iv),"TOTAL: "+money(t),"","Estado: PAGADO","","Favor emitir la factura a este huésped.");
   return L.join("\n");}
-function sendFolio(n){const c=AC().cabins.find(x=>x.n===n);AC().paid=AC().paid||{};AC().paid[n]=true;const to=(document.getElementById("adminEmail").value||"").trim();if(!to)toast("Tip: pon el correo de la administradora arriba");const subj="Factura "+cruiseCode()+" · Cabina "+n+" · "+c.guest;window.location.href="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(folioText(n));renderFolios();toast("Cabina "+n+" <b>pagada</b> · correo a la administradora");}
+function pdfBlobFolio(n){
+ var c=AC().cabins.find(function(x){return x.n===n;}),e=embarkDate(),d=addDays(e,AC().nights),g=dayGroups(n);
+ var jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF; var doc=new jsPDF({unit:"pt",format:"a4"});
+ var y=56,L=40,R=555;
+ doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Treasure of Galapagos",L,y);y+=18;
+ doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(120);
+ doc.text("Onboard account / Cuenta de a bordo",L,y);y+=22;
+ doc.setTextColor(30);doc.setFontSize(11);
+ doc.text("Cruise: "+cruiseCode()+"   Route: "+routes[AC().route].name,L,y);y+=15;
+ doc.text("Cabin "+n+" - "+c.guest+" - "+c.pax+" pax",L,y);y+=15;
+ doc.text("Embark "+fmtY(e)+"  to  Disembark "+fmtY(d),L,y);y+=20;
+ doc.setDrawColor(210);doc.line(L,y,R,y);y+=16;
+ doc.setFont("helvetica","bold");doc.text("Detail",L,y);y+=16;doc.setFont("helvetica","normal");
+ g.forEach(function(dg){
+   doc.setTextColor(120);doc.setFontSize(9.5);doc.text("Night "+dg.night+" - "+dg.date,L,y);y+=13;
+   doc.setTextColor(30);doc.setFontSize(10.5);
+   dg.items.forEach(function(it){doc.text(it.qty+"x  "+it.name,L+12,y);doc.text(money(it.sub),R,y,{align:"right"});y+=13;if(y>770){doc.addPage();y=56;}});
+   y+=4;
+ });
+ var b=0,sv=0,iv=0,t=0;cabinLines(n).forEach(function(l){b+=l.base;sv+=l.serv;iv+=l.iva;t+=l.sub;});
+ y+=6;doc.setDrawColor(210);doc.line(L,y,R,y);y+=16;
+ function tot(lbl,val,bold){doc.setFont("helvetica",bold?"bold":"normal");doc.text(lbl,L,y);doc.text(val,R,y,{align:"right"});y+=15;}
+ tot("Subtotal",money(b));tot("Service 10%",money(sv));tot("VAT 15%",money(iv));
+ doc.setFontSize(12);tot("TOTAL",money(t),true);doc.setFontSize(10);
+ y+=12;doc.setTextColor(120);doc.setFont("helvetica","italic");
+ doc.text("With gratitude - the family & crew of the Treasure of Galapagos",L,y);
+ try{return doc.output("blob");}catch(e){return new Blob([doc.output("arraybuffer")],{type:"application/pdf"});}
+}
+async function shareFolio(n){
+ var c=AC().cabins.find(function(x){return x.n===n;});
+ var JS=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF||null;
+ if(!JS){toast("No se carg\u00f3 el generador de PDF \u00b7 revisa la conexi\u00f3n");return;}
+ toast("Generando PDF\u2026");
+ var blob; try{blob=pdfBlobFolio(n);}catch(e){toast("Error al generar el PDF");try{alert("Detalle del error PDF: "+((e&&e.message)||e));}catch(_){}return;}
+ var fname="Invoice-"+cruiseCode()+"-Cabin"+n+".pdf";
+ var file=new File([blob],fname,{type:"application/pdf"});
+ var subj="Your invoice - Treasure of Galapagos - Cabin "+n;
+ var msg="Dear "+(c.guest||"guest")+", thank you for sailing with us aboard the Treasure of Galapagos. Please find your invoice attached.";
+ var canF=!!(navigator.canShare&&navigator.canShare({files:[file]}));
+ if(canF){
+   try{ await navigator.share({files:[file],title:subj,text:msg}); return; }
+   catch(e){ if(e&&e.name==="AbortError")return; }
+ }
+ try{var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},900);toast(canF?"PDF descargado":"Compartir no disponible en este dispositivo \u00b7 PDF descargado para adjuntarlo al correo");}catch(e2){toast("No se pudo compartir ni descargar el PDF");}
+}
 function renderFolios(){const ac=activeCabins(),paidMap=AC().paid||{},apMap=AC().approved||{},canPay=(role==="director"||role==="dueno"),canTax=(role==="admin"||role==="dueno");
   document.getElementById("foliosList").innerHTML=ac.map(c=>{const a=cabinAgg(c.n),ap=!!apMap[c.n],pd=!!paidMap[c.n];
     const fc=role==="dueno"?('base '+money(a.base)+' + serv '+money(a.serv)+' + IVA '+money(a.iva)):role==="admin"?('base '+money(a.base+a.serv)+' + IVA '+money(a.iva)):(c.pax+' pax');
     const pills=(ap?'<span class="pill ok" style="margin-right:6px">\u2713 Aprobado</span>':'')+(pd?'<span class="pill ok" style="margin-right:6px">\u2713 Pagado</span>':'');
-    let btns='<button class="act ghost" data-n="'+c.n+'" style="padding:7px 12px;font-size:12.5px">Revisar</button>';
+    let btns='<button class="act ghost" data-n="'+c.n+'" style="padding:7px 12px;font-size:12.5px">Revisar</button><button class="act ghost" data-em="'+c.n+'" style="padding:7px 12px;font-size:12.5px;margin-left:6px">✉ Enviar</button>';
     if(canPay){if(!ap)btns+='<button class="act" data-ap="'+c.n+'" style="padding:7px 12px;font-size:12.5px;margin-left:6px">Aprobar</button>';else if(!pd)btns+='<button class="act" data-pd="'+c.n+'" style="padding:7px 12px;font-size:12.5px;margin-left:6px">Pagado</button>';}
     return '<div class="frow" data-row="'+c.n+'" style="cursor:pointer"><div><span class="fg">Cabina '+c.n+' \u00b7 '+c.guest+'</span> <span class="fc">'+fc+'</span></div><div style="display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px 0">'+pills+'<span class="ft">'+money(a.total)+'</span>'+btns+'</div></div>';}).join("");
   document.querySelectorAll("#foliosList .frow").forEach(r=>r.addEventListener("click",e=>{if(e.target.closest("button"))return;openInvPreview(+r.dataset.row);}));
   document.querySelectorAll("#foliosList button[data-n]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();openInvPreview(+b.dataset.n);}));
   document.querySelectorAll("#foliosList button[data-ap]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();AC().approved=AC().approved||{};AC().approved[+b.dataset.ap]=true;renderFolios();toast("Cabina "+b.dataset.ap+" <b>aprobada</b>");}));
   document.querySelectorAll("#foliosList button[data-pd]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();AC().paid=AC().paid||{};AC().paid[+b.dataset.pd]=toISO(new Date());renderFolios();toast("Cabina "+b.dataset.pd+" <b>pagada</b>");}));
+  document.querySelectorAll("#foliosList button[data-em]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();shareFolio(+b.dataset.em);}));
   document.getElementById("taxCard").style.display=canTax?"":"none";
   document.getElementById("csvFoliosBtn").style.display=(role==="dueno")?"":"none";}
 function renderTax(){let t={b:0,s:0,i:0,g:0};AC().charges.forEach(ch=>{const L=lineCalc(ch);t.b+=L.base;t.s+=L.serv;t.i+=L.iva;t.g+=L.gross;});document.getElementById("taxBody").innerHTML='<tr class="taxrow tot"><td class="l">Total del crucero</td><td class="num">'+money(t.b)+'</td><td class="num">'+money(t.s)+'</td><td class="num">'+money(t.i)+'</td><td class="num">'+money(t.g)+'</td></tr>';}
@@ -679,7 +744,7 @@ document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>setM
 document.getElementById("cruiseSel").addEventListener("change",e=>switchCruise(e.target.value));
 document.getElementById("yearSel").addEventListener("change",e=>{selectedYear=e.target.value;selectedMonth=null;renderSwitcher();switchCruise(document.getElementById("cruiseSel").value);});
 document.getElementById("monthSel").addEventListener("change",e=>{selectedMonth=e.target.value;renderSwitcher();switchCruise(document.getElementById("cruiseSel").value);});
-document.getElementById("pendOnly").addEventListener("change",()=>{renderSwitcher();switchCruise(document.getElementById("cruiseSel").value);});
+
 document.getElementById("rutaSel").addEventListener("change",e=>{const r=+e.target.value;AC().route=r;AC().nights=routes[r].nights;renderBanner();renderNocheLabel();syncZarpeInputs();});
 document.getElementById("embarque").addEventListener("change",e=>{AC().embark=e.target.value;renderBanner();renderNocheLabel();});
 document.getElementById("invCarryBtn").addEventListener("click",()=>{const c=AC();const s=[...cruises].sort((a,b)=>a.embark<b.embark?-1:1);const i=s.findIndex(x=>x.id===c.id);if(i<=0){toast("No hay crucero anterior");return;}const pc=(s[i-1].inv&&s[i-1].inv.counts)||{};const st=invState(c);let n=0;bodega.forEach(b=>{const vals=["dir","bar","adm"].map(r=>cval(b,r,{counts:pc})).filter(x=>x!=null);if(vals.length){st.ini[b.id]=r2(vals.reduce((a,x)=>a+x,0)/vals.length);n++;}});renderInv();toast(n?("<b>"+n+"</b> iniciales cargados del crucero anterior"):"El crucero anterior no tiene conteos");});
@@ -799,7 +864,7 @@ var pedidos=[]; var pedDraft=null;
 async function loadPedidos(){
  if(!supa)return; var c=AC(); if(!c)return;
  try{
-  var p=await supa.from("pedidos").select("id,estado,creado_en,creado_por").eq("crucero_id",c.id).order("creado_en",{ascending:false});
+  var qy=supa.from("pedidos").select("id,estado,creado_en,creado_por,crucero_id").order("creado_en",{ascending:false}); if(pedScope!=="todos")qy=qy.eq("crucero_id",c.id); var p=await qy;
   if(p.error||!p.data){pedidos=[];}
   else{
    var ids=p.data.map(function(x){return x.id;}); var items=[];
@@ -853,42 +918,67 @@ async function recibirPedido(pe){
  }catch(e){toast("Error al recibir");}
 }
 function pedInitDraft(){ pedDraft={}; var c=AC(),avg=invAvg(); bodega.forEach(function(b){var mn=(avg[b.id]||0)*1.5; if(mn<=0)return; var hay=invOnHand(c,b); if(hay==null||hay>=mn)return; pedDraft[b.id]=Math.ceil(mn-hay-0.0001);}); }
-function pedSet(pid,v){pedDraft[pid]=Math.max(0,+v||0);}
-function pedDel(pid){delete pedDraft[pid];renderPed();}
-function pedAdd(){var s=document.getElementById("pedAddSel"),q=document.getElementById("pedAddQty");if(!s)return;var pid=s.value,qty=Math.max(1,+q.value||1);pedDraft[pid]=(pedDraft[pid]||0)+qty;renderPed();}
+var pedCatOpen={}; var pedSearch="";
+function pedRepoItems(){var c=AC(),avg=invAvg(),items=[];bodega.forEach(function(b){var mn=(avg[b.id]||0)*1.5;if(mn<=0)return;var hay=invOnHand(c,b);if(hay==null||hay>=mn)return;items.push({b:b,hay:hay,mn:mn});});items.sort(function(x,y){return (x.hay/x.mn)-(y.hay/y.mn);});return items;}
+function pedRowHTML(b,stockHTML){var q=pedDraft[b.id]||0;return '<div class="pedrow'+(q>0?' has':'')+'" data-pid="'+b.id+'"><div><span class="nm">'+b.name+'</span>'+(stockHTML||'')+'</div><div class="pedstep"><button class="stepbtn" onclick="pedStep(\''+b.id+'\',-1)">\u2212</button><span class="pedqty" data-pqid="'+b.id+'">'+q+'</span><button class="stepbtn" onclick="pedStep(\''+b.id+'\',1)">+</button></div></div>';}
+function pedStep(pid,d){var nv=Math.max(0,(pedDraft[pid]||0)+d);pedDraft[pid]=nv;document.querySelectorAll('[data-pqid="'+pid+'"]').forEach(function(e){e.textContent=nv;});document.querySelectorAll('.pedrow[data-pid="'+pid+'"]').forEach(function(r){r.classList.toggle("has",nv>0);});pedFootUpd();}
+function pedFootUpd(){var n=0,u=0;Object.keys(pedDraft||{}).forEach(function(k){var q=+pedDraft[k]||0;if(q>0){n++;u+=q;}});var el=document.getElementById("pedFootInfo");if(el)el.textContent=n+(n===1?" producto":" productos")+" \u00b7 "+u+" uds";}
+function pedToggleCat(cat){pedCatOpen[cat]=!pedCatOpen[cat];var el=document.getElementById("pedList");if(el)el.innerHTML=pedListHTML();}
+function pedSearchSet(v){pedSearch=v;var el=document.getElementById("pedList");if(el)el.innerHTML=pedListHTML();}
 function pedEnviar(){
  var rows=[];Object.keys(pedDraft||{}).forEach(function(pid){var qty=+pedDraft[pid];if(qty>0){var b=bodega.find(function(x){return x.id===pid;});if(b)rows.push({producto_id:pid,nombre:b.name,unidad:b.unit||"u",cantidad_pedida:qty});}});
  if(!rows.length){toast("Agrega al menos un producto");return;}
- crearPedido(rows).then(function(){pedDraft=null;});
+ crearPedido(rows).then(function(){pedDraft=null;pedSearch="";});
+}
+function pedFootHTML(){var n=0,u=0;Object.keys(pedDraft||{}).forEach(function(k){var q=+pedDraft[k]||0;if(q>0){n++;u+=q;}});return '<div class="pedfoot"><span id="pedFootInfo" style="font-weight:600">'+n+(n===1?" producto":" productos")+' \u00b7 '+u+' uds</span><button class="act" onclick="pedEnviar()">Enviar pedido al director</button></div>';}
+function pedListHTML(){
+ var q=(pedSearch||"").trim().toLowerCase(), body="";
+ if(q){
+   var matches=bodega.filter(function(b){return b.name.toLowerCase().indexOf(q)>=0;});
+   return matches.length?matches.map(function(b){return pedRowHTML(b);}).join(""):'<div class="card" style="padding:14px;color:var(--ink-faint)">Sin resultados para \u201c'+pedSearch+'\u201d.</div>';
+ }
+ var items=pedRepoItems();
+ if(items.length){
+   body+='<div class="pedsec" style="color:#C2901F">Por acabarse \u00b7 '+items.length+'</div>';
+   body+=items.map(function(o){var crit=o.hay<o.mn*0.5;var col=crit?"#B04A2E":"#C2901F";var s='<span class="pedrow-stock" style="color:'+col+'">Quedan '+r2(o.hay)+'</span>';return pedRowHTML(o.b,s);}).join("");
+ }
+ body+='<div class="pedsec">Agregar de la bodega</div>';
+ var cats=[];bodega.forEach(function(b){if(cats.indexOf(b.cat)<0)cats.push(b.cat);});
+ body+=cats.map(function(cat){var open=pedCatOpen[cat];var prods=bodega.filter(function(b){return b.cat===cat;});var inner=open?prods.map(function(b){return pedRowHTML(b);}).join(""):"";return '<div class="pedcat" onclick="pedToggleCat(\''+cat+'\')"><span style="display:flex;align-items:center;gap:9px"><span class="catico">'+ICON[catIcon[cat]||"boxes"]+'</span>'+cat+'</span><span class="hint">'+(open?"\u25be":"\u25b8")+' '+prods.length+'</span></div>'+inner;}).join("");
+ return body;
 }
 function pedArmarHTML(){
  if(pedDraft==null)pedInitDraft();
- var rows=Object.keys(pedDraft).map(function(pid){var b=bodega.find(function(x){return x.id===pid;});if(!b)return"";return '<tr><td class="l"><span class="nm">'+b.name+'</span></td><td class="num"><input type="number" min="0" value="'+pedDraft[pid]+'" data-pid="'+pid+'" oninput="pedSet(this.dataset.pid,this.value)" style="width:64px;text-align:center"></td><td><button class="act ghost" style="padding:4px 9px;font-size:12px" onclick="pedDel(\''+pid+'\')">quitar</button></td></tr>';}).join("");
- var opts=bodega.map(function(b){return '<option value="'+b.id+'">'+b.name+'</option>';}).join("");
- return '<div class="card"><div class="card-h"><h2 style="font-size:15px">Armar pedido</h2><span class="hint">crucero '+AC().id+'</span></div>'
-   +'<table><thead><tr><th class="l">Producto</th><th>Cantidad</th><th></th></tr></thead><tbody>'+(rows||'<tr><td colspan="3" style="color:var(--ink-faint);padding:10px">Nada por acabarse. Agrega productos abajo si quieres pedir algo.</td></tr>')+'</tbody></table>'
-   +'<div class="vfoot" style="gap:8px;flex-wrap:wrap;align-items:center"><span class="hint">Agregar a mano:</span><select id="pedAddSel" style="flex:1;min-width:150px;padding:8px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:8px">'+opts+'</select><input id="pedAddQty" type="number" min="1" value="1" style="width:60px;text-align:center"><button class="act ghost" onclick="pedAdd()">Agregar</button></div>'
-   +'<div class="vfoot"><button class="act" onclick="pedEnviar()">Enviar pedido al director</button></div></div>';
+ var search='<input id="pedSearch" class="pedsearch" type="text" placeholder="Buscar producto para agregar\u2026" value="'+(pedSearch||"")+'" oninput="pedSearchSet(this.value)">';
+ return '<div class="card-h" style="padding:2px 2px 10px"><h2 style="font-size:15px">Armar pedido</h2><span class="hint">crucero '+AC().id+'</span></div>'+search+'<div id="pedList">'+pedListHTML()+'</div>'+pedFootHTML();
+}
+var pedOpen={}; var pedScope="crucero";
+function pedTogglePed(id){pedOpen[id]=!pedOpen[id];renderPed();}
+function pedEstChip(estado){
+ var L={solicitado:"Solicitado",aprobado:"Aprobado",rechazado:"Rechazado",comprado:"Comprado",recibido:"Recibido"};
+ var C={solicitado:"#C2901F",aprobado:"#378ADD",rechazado:"#B04A2E",comprado:"#6E7A3A",recibido:"#2e6b3a"};
+ return '<span style="background:'+(C[estado]||"#888")+';color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">'+(L[estado]||estado)+'</span>';
 }
 function pedCardHTML(pe){
- var estLabel={solicitado:"Solicitado",aprobado:"Aprobado",rechazado:"Rechazado",comprado:"Comprado",recibido:"Recibido"};
- var estColor={solicitado:"#C2901F",aprobado:"#378ADD",rechazado:"#B04A2E",comprado:"#6E7A3A",recibido:"#2e6b3a"};
- var fecha=(pe.creado_en||"").slice(0,16).replace("T"," ");
+ var hora=(pe.creado_en||"").slice(11,16); var whenTxt=(pedScope==="todos")?(pedFmtDayShort((pe.creado_en||"").slice(0,10))+" \u00b7 "+hora):(hora||"Pedido");
+ var open=!!pedOpen[pe.id];
+ var nlines=pe.items.length;
+ var head='<div class="pedhead" onclick="pedTogglePed(\''+pe.id+'\')"><div><span style="font-weight:600">'+whenTxt+'</span> <span class="hint">\u00b7 '+(nlines?nlines+" productos":"sin l\u00edneas")+'</span></div><div style="display:flex;align-items:center;gap:10px">'+pedEstChip(pe.estado)+'<span class="hint" style="font-size:15px">'+(open?"\u25be":"\u25b8")+'</span></div></div>';
+ if(!open)return '<div class="card" data-ped="'+pe.id+'" style="padding:12px 14px;margin-bottom:8px">'+head+'</div>';
  var canBuy=(role==="admin"||role==="dueno");
  var itemsRows=pe.items.map(function(it){
    var compCell;
    if(pe.estado==="aprobado"&&canBuy){compCell='<input type="number" min="0" value="'+(it.cantidad_comprada||it.cantidad_pedida)+'" data-it="'+it.id+'" class="pedComp" style="width:60px;text-align:center">';}
    else if(it.cantidad_comprada){compCell='<span style="color:var(--ink-faint)">'+r2(it.cantidad_comprada)+'</span>';}
-   else{compCell='<span style="color:var(--ink-faint)">—</span>';}
+   else{compCell='<span style="color:var(--ink-faint)">\u2014</span>';}
    return '<tr><td class="l"><span class="nm">'+it.nombre+'</span></td><td class="num">'+r2(it.cantidad_pedida)+'</td><td class="num">'+compCell+'</td></tr>';
  }).join("");
- if(!pe.items.length)itemsRows='<tr><td colspan="3" style="color:var(--bad);padding:10px;font-size:12px">\u26a0 Este pedido no tiene l\u00edneas cargadas. Revisa los permisos de pedido_items en Supabase y crea un pedido nuevo.</td></tr>';
+ if(!nlines)itemsRows='<tr><td colspan="3" style="color:var(--bad);padding:10px;font-size:12px">\u26a0 Este pedido no tiene l\u00edneas cargadas. Revisa permisos de pedido_items en Supabase y crea un pedido nuevo.</td></tr>';
  var actions=pedActions(pe);
- return '<div class="card" data-ped="'+pe.id+'"><div class="card-h"><h2 style="font-size:14px">Pedido · '+fecha+'</h2><span style="background:'+(estColor[pe.estado]||"#888")+';color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">'+(estLabel[pe.estado]||pe.estado)+'</span></div>'
-   +'<table><thead><tr><th class="l">Producto</th><th>Pedido</th><th>Comprado</th></tr></thead><tbody>'+itemsRows+'</tbody></table>'
-   +(actions?'<div class="vfoot" style="gap:8px">'+actions+'</div>':'')+'</div>';
+ return '<div class="card" data-ped="'+pe.id+'"><div style="padding:12px 14px">'+head+'</div><table><thead><tr><th class="l">Producto</th><th>Pedido</th><th>Comprado</th></tr></thead><tbody>'+itemsRows+'</tbody></table>'+(actions?'<div class="vfoot" style="gap:8px">'+actions+'</div>':'')+'</div>';
 }
 function pedActions(pe){
+ if(pe.crucero_id&&typeof AC==="function"&&AC()&&pe.crucero_id!==AC().id)return "";
  if(role==="bartender"&&(pe.estado==="solicitado"||pe.estado==="rechazado"))return '<button class="act ghost" onclick="borrarPedido(\''+pe.id+'\')">Borrar pedido</button>';
  if(role==="director"&&pe.estado==="solicitado")return '<button class="act" onclick="setEstado(\''+pe.id+'\',\'aprobado\')">Aprobar</button><button class="act ghost" onclick="setEstado(\''+pe.id+'\',\'rechazado\')">Rechazar</button>';
  if((role==="admin"||role==="dueno")&&pe.estado==="aprobado")return '<button class="act" onclick="pedComprar(\''+pe.id+'\')">Marcar comprado</button>';
@@ -907,9 +997,28 @@ async function borrarPedido(id){
 }
 function pedComprar(id){var map={};document.querySelectorAll('.card[data-ped="'+id+'"] .pedComp').forEach(function(inp){map[inp.dataset.it]=Math.max(0,+inp.value||0);});guardarCompra(id,map);}
 function pedRecibir(id){var pe=pedidos.find(function(x){return x.id===id;});if(pe)recibirPedido(pe);}
+function pedFmtDay(d){var m=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];var p=d.split("-");if(p.length<3)return d;return (+p[2])+" "+m[(+p[1])-1]+" "+p[0];}
+function pedScopeSet(scope){pedScope=scope;if(supa){loadPedidos();}else{renderPed();}}
+function pedCruLabel(cid){var c=(typeof cruises!=="undefined"&&cruises.find)?cruises.find(function(x){return x.id===cid;}):null;return (cid||"?")+(c&&c.route?(" \u00b7 "+c.route):"");}
+function pedFmtMonth(mk){var M=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];var p=(mk||"").split("-");if(p.length<2)return mk;return M[(+p[1])-1]+" "+p[0];}
+function pedFmtDayShort(d){var m=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];var p=(d||"").split("-");if(p.length<3)return d;return (+p[2])+" "+m[(+p[1])-1];}
+function pedDayGroup(list){var out="",lastDay="";list.forEach(function(pe){var day=(pe.creado_en||"").slice(0,10);if(day&&day!==lastDay){lastDay=day;out+='<div class="peddate">'+pedFmtDay(day)+'</div>';}out+=pedCardHTML(pe);});return out;}
 function pedListaHTML(){
- if(!pedidos.length)return '<div class="card"><div class="card-h"><h2 style="font-size:15px">Pedidos del crucero</h2></div><div style="padding:12px;color:var(--ink-faint)">Todavía no hay pedidos para este crucero.</div></div>';
- return '<div class="card-h" style="padding:4px 2px 10px"><h2 style="font-size:15px">Pedidos del crucero</h2><span class="hint">'+pedidos.length+'</span></div>'+pedidos.map(function(pe){return pedCardHTML(pe);}).join("");
+ var toggle='<div class="pedscope"><button class="pedtab'+(pedScope==="crucero"?" on":"")+'" onclick="pedScopeSet(\'crucero\')">Este crucero</button><button class="pedtab'+(pedScope==="todos"?" on":"")+'" onclick="pedScopeSet(\'todos\')">Todos</button></div>';
+ if(!pedidos.length)return toggle+'<div class="card"><div style="padding:12px;color:var(--ink-faint)">Todav\u00eda no hay pedidos'+(pedScope==="todos"?".":" para este crucero.")+'</div></div>';
+ var head='<div class="card-h" style="padding:2px 2px 6px"><h2 style="font-size:15px">Pedidos</h2><span class="hint">'+pedidos.length+' \u00b7 toca uno para ver el detalle</span></div>';
+ var body="";
+ if(pedScope==="todos"){
+   var months={},morder=[];
+   pedidos.forEach(function(pe){var mk=(pe.creado_en||"").slice(0,7);if(!months[mk]){months[mk]=[];morder.push(mk);}months[mk].push(pe);});
+   morder.forEach(function(mk){
+     body+='<div class="pedmonth">'+pedFmtMonth(mk)+'</div>';
+     var groups={},corder=[];
+     months[mk].forEach(function(pe){var cid=pe.crucero_id||"?";if(!groups[cid]){groups[cid]=[];corder.push(cid);}groups[cid].push(pe);});
+     corder.forEach(function(cid){body+='<div class="pedcru">'+pedCruLabel(cid)+'</div>'+groups[cid].map(function(pe){return pedCardHTML(pe);}).join("");});
+   });
+ } else { body=pedDayGroup(pedidos); }
+ return toggle+head+body;
 }
 function renderPed(){
  var bb=document.getElementById("pedBody"); if(!bb)return;
