@@ -237,7 +237,11 @@
   .login-sub{color:var(--ink-dim);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin:4px 0 22px}
   .login-q{font-size:13px;color:var(--ink-dim);margin-bottom:12px}
   .login-names{display:flex;flex-direction:column;gap:9px}
-  .loginname{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:13px;font-family:inherit;font-size:15px;cursor:pointer}
+  .loginname{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:12px 15px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;transition:background .12s}
+  .loginname:hover{background:var(--line)}
+  .loginname b{font-size:16px;font-weight:600}
+  .loginname i{font-style:normal;font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em}
+  .login-empty{font-size:13px;color:var(--ink-dim);padding:16px;line-height:1.6}
   .loginname:hover{border-color:var(--amber)}
   .pin-input{width:100%;text-align:center;letter-spacing:.3em;font-size:22px;font-family:"JetBrains Mono",monospace;background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
   .login-err{color:var(--bad);font-size:12px;min-height:16px;margin-bottom:8px}
@@ -281,11 +285,31 @@
   .pedcat{padding:11px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
   .pedfoot{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:12px 2px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
   .pedfoot .act{margin:0}
+
+  .eq-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .eq-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 14px}
+  .eq-info b{font-size:15px;font-weight:600;display:block}
+  .eq-info i{font-style:normal;font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em}
+  .eq-acts{display:flex;gap:6px}
+  .eq-form{display:flex;flex-direction:column;gap:6px;padding:4px 2px}
+  .eq-lb{font-size:11.5px;color:var(--ink-dim);margin-top:6px;font-weight:500}
+  .eq-in{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 12px;font-family:inherit;font-size:15px;color:var(--ink)}
+  .eq-formbtns{display:flex;gap:8px;margin-top:12px}
+
+  .pedmsg{font-size:12.5px;padding:8px 12px;border-radius:8px;margin-top:8px;font-weight:500;line-height:1.4}
+  .pedmsg.turn{background:rgba(194,144,31,.16);color:#8a6410;border:1px solid rgba(194,144,31,.4)}
+  .pedmsg.wait{background:var(--panel-2);color:var(--ink-dim)}
+  .pedmsg.done{background:rgba(110,122,58,.16);color:#4f5a26;border:1px solid rgba(110,122,58,.35)}
+  .pedmsg.bad{background:rgba(176,74,46,.12);color:var(--bad)}
+  .pedby{color:var(--ink-faint);font-weight:400}
+  .card.pedturn{border:1.5px solid var(--amber);box-shadow:0 0 0 3px rgba(194,144,31,.10)}
+  .tab{position:relative}
+  .tabbadge{position:absolute;top:3px;right:3px;min-width:17px;height:17px;background:var(--bad);color:#fff;border-radius:9px;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1}
 </style>
 <style id="pagesize"></style></head>
 <body><div class="wrap">
   <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo</div></div>
-    <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button></div></div>
+    <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button><button class="tab" data-m="equipo">Equipo</button></div></div>
   <div class="switcher" id="rolebar"><span>Rol</span><div id="roleBtns" style="display:flex;gap:7px;flex-wrap:wrap"></div><span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px"></span></div>
   <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select></div>
   <div class="banner" id="banner"></div>
@@ -333,6 +357,10 @@
 
   <div class="mode" id="mode-pedidos">
     <div id="pedBody"></div>
+  </div>
+
+  <div class="mode" id="mode-equipo">
+    <div id="equipoBody"></div>
   </div>
 
   <div class="mode" id="mode-panel">
@@ -393,7 +421,7 @@ const ICON={
   cart:SVG('<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11h10l2-8H6"/>')
 };
 const famIcon={"Cóctel":"cocktail","Cerveza":"beer","Vino":"wine","Licor":"bottle","Bebida":"soda","Souvenir":"gift","Servicio":"bell"};
-const tabIcon={zarpe:"anchor",servicio:"cocktail",cuentas:"receipt",sri:"clipboard",inventario:"boxes",pedidos:"cart",panel:"chart"};
+const tabIcon={zarpe:"anchor",servicio:"cocktail",cuentas:"receipt",sri:"clipboard",inventario:"boxes",pedidos:"cart",panel:"chart",equipo:"crown"};
 const catIcon={"VINOS":"wine","MINI WINES":"wine","VINOS ESPUMANTES":"champagne","GIN":"highball","TEQUILA":"shot","WHISKY":"rocks","RON":"bottle","VODKA":"bottle","CERVEZA":"beer","BEBIDAS SOFT":"soda","DIGESTIFS / APERITIFS":"rocks","OTROS LICORES":"bottle","PARA COCTAIL":"cocktail"};
 let invOpen={};let invOpenK={};
 const roleIcon={director:"clipboard",bartender:"cocktail",admin:"receipt",dueno:"crown"};
@@ -476,7 +504,7 @@ function renderBanner(){const e=embarkDate(),d=addDays(e,AC().nights);document.g
 function syncZarpeInputs(){const sel=document.getElementById("rutaSel");sel.innerHTML=routes.map((r,i)=>'<option value="'+i+'">'+r.letter+' · '+r.name+' · '+r.nights+'n</option>').join("");sel.value=AC().route;document.getElementById("embarque").value=AC().embark;document.getElementById("nights").value=AC().nights;}
 
 function renderSetup(){document.getElementById("paxHint").textContent=activeCabins().length+" cabinas · "+paxTotal()+" pax";document.getElementById("csetup").innerHTML=AC().cabins.map((c,i)=>'<div class="crow '+(c.active!==false?"":"off")+'"><input class="chk" type="checkbox" '+(c.active!==false?"checked":"")+' data-i="'+i+'" data-f="active"><span class="cn">Cabina '+c.n+'</span><input type="text" value="'+c.guest+'" data-i="'+i+'" data-f="guest"><input class="pax num" type="number" min="0" max="4" value="'+c.pax+'" data-i="'+i+'" data-f="pax"></div>').join("");
-  document.querySelectorAll("#csetup [data-f]").forEach(el=>el.addEventListener("change",e=>{const i=+e.target.dataset.i,f=e.target.dataset.f,cb=AC().cabins[i];if(f==="active")cb.active=e.target.checked;else if(f==="pax")cb.pax=Math.max(0,+e.target.value||0);else cb.guest=e.target.value;renderBanner();renderSetup();}));}
+  document.querySelectorAll("#csetup [data-f]").forEach(el=>el.addEventListener("change",e=>{const i=+e.target.dataset.i,f=e.target.dataset.f,cb=AC().cabins[i];if(f==="active")cb.active=e.target.checked;else if(f==="pax")cb.pax=Math.max(0,+e.target.value||0);else cb.guest=e.target.value;renderBanner();renderSetup();if(typeof saveCruiseSoon==="function")saveCruiseSoon();}));}
 function provObjetivo(p,s){const sold=unitsSold(p.id);const pace=AC().current>0?sold/AC().current:0;return Math.ceil(pace*AC().nights*(1+s));}
 function renderProvision(){const s=(+document.getElementById("safety").value||0)/100;let tot=0;const list=inventory.map(p=>{const obj=provObjetivo(p,s),sob=carryover[p.id]||0,subir=Math.max(0,obj-sob);return{p,obj,sob,subir};}).filter(x=>x.obj>0);
   document.getElementById("provBody").innerHTML=list.map(x=>{tot+=x.subir;return '<tr><td class="l"><div class="prod"><span class="nm">'+x.p.name+'</span></div></td><td class="l"><span class="cat">'+x.p.fam+'</span></td><td class="num">'+x.obj+'</td><td class="l"><input class="tinp" type="number" min="0" value="'+x.sob+'" data-id="'+x.p.id+'"></td><td class="num" style="color:var(--amber);font-weight:700">'+x.subir+'</td></tr>';}).join("")||'<tr><td class="l" colspan="5" style="color:var(--ink-faint);padding:14px">Aún no hay consumo para proyectar.</td></tr>';
@@ -503,8 +531,8 @@ function renderOrder(){const cab=selectedCabin,night=AC().current,g=groupedDay(c
   let dayTot=0;const rows=ids.map(id=>{const r=rcp(id),sub=r.price*g[id];dayTot+=sub;return '<div class="osum-row"><span class="onm">'+r.name+'</span><span class="osub">'+money(sub)+'</span><div class="qstep"><button class="qbtn" data-act="dec" data-id="'+id+'">−</button><span class="qn">'+g[id]+'</span><button class="qbtn" data-act="inc" data-id="'+id+'">+</button></div></div>';}).join("");
   const cabT=cabinTotal(cab);
   document.getElementById("orderSummary").innerHTML=(ids.length?rows:'<div class="osum-empty">Aún no has cargado nada esta noche.<br>Toca un trago abajo para empezar.</div>')+'<div class="osum-foot"><div><div class="ol">Total de hoy</div><div class="ov">'+money(dayTot)+'</div></div><div style="text-align:right"><div class="ol">Cuenta de la cabina</div><div class="ov">'+money(cabT)+'</div></div></div>';
-  document.querySelectorAll("#orderSummary .qbtn").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.act==="inc"){const r=rcp(b.dataset.id);const sh=r.ing.find(i=>currentU(i.id)<i.ml);if(sh){toast("Se acabó <b>"+byId(sh.id).name+"</b>");return;}addItem(cab,b.dataset.id,night);}else decItem(cab,b.dataset.id,night);renderServicio();}));}
-function addCharge(rid){const r=rcp(rid),short=r.ing.find(i=>currentU(i.id)<i.ml);if(short){toast("Se acabó <b>"+byId(short.id).name+"</b>");return;}addItem(selectedCabin,rid,AC().current);renderServicio();toast("<b>"+r.name+"</b> +1 → Cabina "+selectedCabin);}
+  document.querySelectorAll("#orderSummary .qbtn").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.act==="inc"){const r=rcp(b.dataset.id);const sh=r.ing.find(i=>currentU(i.id)<i.ml);if(sh){toast("Se acabó <b>"+byId(sh.id).name+"</b>");return;}addItem(cab,b.dataset.id,night);}else decItem(cab,b.dataset.id,night);renderServicio();if(typeof saveCruiseSoon==="function")saveCruiseSoon();}));}
+function addCharge(rid){const r=rcp(rid),short=r.ing.find(i=>currentU(i.id)<i.ml);if(short){toast("Se acabó <b>"+byId(short.id).name+"</b>");return;}addItem(selectedCabin,rid,AC().current);renderServicio();toast("<b>"+r.name+"</b> +1 → Cabina "+selectedCabin);if(typeof saveCruiseSoon==="function")saveCruiseSoon();}
 function renderServicio(){renderNocheLabel();renderCovChip();renderCabRow();renderNow();renderOrder();renderFamChips();renderDrinks();}
 
 function renderKpis(){const a=aggCharges(AC().charges);const conConsumo=activeCabins().filter(c=>cabinTotal(c.n)>0).length;
@@ -689,7 +717,7 @@ function renderFolios(){const ac=activeCabins(),paidMap=AC().paid||{},apMap=AC()
   document.querySelectorAll("#foliosList .frow").forEach(r=>r.addEventListener("click",e=>{if(e.target.closest("button"))return;openInvPreview(+r.dataset.row);}));
   document.querySelectorAll("#foliosList button[data-n]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();openInvPreview(+b.dataset.n);}));
   document.querySelectorAll("#foliosList button[data-ap]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();AC().approved=AC().approved||{};AC().approved[+b.dataset.ap]=true;renderFolios();toast("Cabina "+b.dataset.ap+" <b>aprobada</b>");}));
-  document.querySelectorAll("#foliosList button[data-pd]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();AC().paid=AC().paid||{};AC().paid[+b.dataset.pd]=toISO(new Date());renderFolios();toast("Cabina "+b.dataset.pd+" <b>pagada</b>");}));
+  document.querySelectorAll("#foliosList button[data-pd]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();AC().paid=AC().paid||{};AC().paid[+b.dataset.pd]=toISO(new Date());renderFolios();toast("Cabina "+b.dataset.pd+" <b>pagada</b>");if(typeof saveCruiseSoon==="function")saveCruiseSoon();}));
   document.querySelectorAll("#foliosList button[data-em]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();shareFolio(+b.dataset.em);}));
   document.getElementById("taxCard").style.display=canTax?"":"none";
   document.getElementById("csvFoliosBtn").style.display=(role==="dueno")?"":"none";}
@@ -732,7 +760,7 @@ function newCruiseModal(){const nr=({0:1,1:2,2:0})[AC().route];draft={route:nr,e
   document.getElementById("mEmbark").addEventListener("change",e=>{draft.embark=e.target.value;document.getElementById("mwhen").innerHTML=whenLine();});
   document.getElementById("mOpen").addEventListener("click",doOpenCruise);
   document.getElementById("mCancel").addEventListener("click",closeModal);}
-function doOpenCruise(){const r=draft.route,emb=draft.embark;if(!emb){toast("Elige la fecha de embarque");return;}const e=parseDate(emb),yy=String(e.getFullYear()).slice(2),mm=String(e.getMonth()+1).padStart(2,"0"),dd=String(e.getDate()).padStart(2,"0");let base="TOG-"+yy+mm+dd+"-"+routes[r].letter,id=base,k=1;while(cruises.some(c=>c.id===id))id=base+"-"+(++k);const cabs=[];for(let i=1;i<=9;i++)cabs.push({n:i,guest:"Cabina "+i,pax:i<=7?2:1,active:true});const cr={id:id,route:r,embark:emb,nights:routes[r].nights,pax:cabs.reduce((s,c)=>s+c.pax,0),cabins:cabs,charges:[],current:1,closed:false,counts:{},paid:{}};cruises.push(cr);activeId=id;selectedYear=String(e.getFullYear());selectedMonth=mm;selectedCabin=1;expandedCabin=null;cr.current=autoNight(cr);renderMode();
+function doOpenCruise(){const r=draft.route,emb=draft.embark;if(!emb){toast("Elige la fecha de embarque");return;}const e=parseDate(emb),yy=String(e.getFullYear()).slice(2),mm=String(e.getMonth()+1).padStart(2,"0"),dd=String(e.getDate()).padStart(2,"0");let base="TOG-"+yy+mm+dd+"-"+routes[r].letter,id=base,k=1;while(cruises.some(c=>c.id===id))id=base+"-"+(++k);const cabs=[];for(let i=1;i<=9;i++)cabs.push({n:i,guest:"Cabina "+i,pax:i<=7?2:1,active:true});const cr={id:id,route:r,embark:emb,nights:routes[r].nights,pax:cabs.reduce((s,c)=>s+c.pax,0),cabins:cabs,charges:[],current:1,closed:false,counts:{},paid:{}};cruises.push(cr);activeId=id;selectedYear=String(e.getFullYear());selectedMonth=mm;selectedCabin=1;expandedCabin=null;cr.current=autoNight(cr);renderMode();if(typeof saveCruise==="function")saveCruise(cr);
   openModal('<div style="text-align:center"><div class="bigcheck" style="color:var(--good);margin-bottom:6px">'+ICON.check+'</div><h2>¡Crucero abierto!</h2><div class="msub">'+id+' · Ruta '+routes[r].name+' · '+routes[r].nights+' noches · '+cr.pax+' pax</div><button class="bigbtn" id="mGo">'+ICON.cocktail+'Empezar a tomar pedidos</button><button class="bigbtn sec" id="mEditCab">Ajustar cabinas y huéspedes</button></div>');
   document.getElementById("mGo").addEventListener("click",()=>{closeModal();setMode("servicio");});
   document.getElementById("mEditCab").addEventListener("click",closeModal);
@@ -742,7 +770,7 @@ function closeCruiseModal(){if(AC().closed){toast("Este crucero ya está cerrado
   openModal('<h2>Cerrar '+cruiseCode()+'</h2><div class="msub">Revisa antes de cerrar. Después pasa al histórico.</div><div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:6px"><div><div class="mlabel" style="margin:0">Facturado</div><div style="font-family:JetBrains Mono;font-weight:700;font-size:22px;color:var(--amber)">'+money(a.total)+'</div></div><div><div class="mlabel" style="margin:0">Cabinas</div><div style="font-size:22px;font-weight:700">'+cabs.length+'</div></div><div><div class="mlabel" style="margin:0">Pax</div><div style="font-size:22px;font-weight:700">'+paxTotal()+'</div></div></div><div class="mlabel">Cobros: '+paidN+' de '+cabs.length+' pagadas</div><div class="paidbar"><div style="width:'+pct+'%"></div></div>'+warn+'<button class="bigbtn" id="mCloseDo" style="margin-top:14px">'+ICON.flag+'Cerrar crucero</button><button class="bigbtn sec" id="mCloseCancel">Cancelar</button>');
   document.getElementById("mCloseDo").addEventListener("click",doCloseCruise);
   document.getElementById("mCloseCancel").addEventListener("click",closeModal);}
-function doCloseCruise(){AC().closed=true;AC().current=AC().nights;const id=cruiseCode(),a=aggCharges(AC().charges);renderMode();
+function doCloseCruise(){AC().closed=true;AC().current=AC().nights;const id=cruiseCode(),a=aggCharges(AC().charges);renderMode();if(typeof saveCruise==="function")saveCruise(AC());
   openModal('<div style="text-align:center"><div class="bigcheck" style="color:var(--good);margin-bottom:6px">'+ICON.check+'</div><h2>Crucero cerrado</h2><div class="msub">'+id+' · '+money(a.total)+' facturado · ya está en el histórico</div><button class="bigbtn" id="mNew">＋ Abrir nuevo crucero</button><button class="bigbtn sec" id="mDone">Listo</button></div>');
   document.getElementById("mNew").addEventListener("click",()=>{closeModal();newCruiseModal();});
   document.getElementById("mDone").addEventListener("click",closeModal);
@@ -854,7 +882,7 @@ function renderInvKPI(){const c=AC(),iv=invState(c),vta=invVenta(c);document.get
  document.getElementById("invNote").innerHTML="Los tres cuentan a ciegas. <b style=\"color:#C2901F\">Ámbar</b> = los conteos no coinciden. Merma = esperado \u2212 promedio de los conteos. La <b>Venta</b> sale sola de los cargos del bar.";
  document.querySelectorAll("#invBody .tinp").forEach(inp=>inp.addEventListener("change",e=>{const b=e.target.dataset.b,v=e.target.value,st=invState(AC());st.ini[b]=v===""?0:(+v);renderInv();}));document.querySelectorAll("#invBody [data-invcat]").forEach(hd=>hd.addEventListener("click",()=>{invOpenK[hd.dataset.invcat]=!invOpenK[hd.dataset.invcat];renderInv();}));}
 function exportInvCSV(){const c=AC(),iv=invState(c),vta=invVenta(c);const rows=[["Crucero","Categoria","Producto","Detalle","Unidad","Inicial","Venta","Esperado","Dir","Bar","Adm","Merma","Discrepancia"]];bodega.forEach(b=>{const ini=+iv.ini[b.id]||0,ing=+iv.ing[b.id]||0,cor=+iv.cor[b.id]||0,ven=vta[b.id]||0,esp=ini+ing-ven-cor;const d=cval(b,"dir",iv),ba=cval(b,"bar",iv),ad=cval(b,"adm",iv);const pres=[d,ba,ad].filter(x=>x!=null);const ref=pres.length?pres.reduce((a,x)=>a+x,0)/pres.length:null;const merma=ref==null?"":r2(esp-ref);const disc=pres.length>1&&(Math.max.apply(null,pres)-Math.min.apply(null,pres))>0.05?"SI":"";rows.push([cruiseCode(),b.cat,b.name,b.det||"",b.unit==="btl"?"botella":"unidad",ini,r2(ven),r2(esp),d==null?"":r2(d),ba==null?"":r2(ba),ad==null?"":r2(ad),merma,disc]);});downloadFile(cruiseCode()+"_inventario_KPI.csv",toCsv(rows));}
-function renderMode(){renderSwitcher();renderBanner();if(mode==="zarpe"){syncZarpeInputs();renderSetup();renderZarpeState();}else if(mode==="servicio"){renderServicio();}else if(mode==="cuentas"){renderKpis();renderFolios();renderTax();}else if(mode==="inventario"){renderInv();}else if(mode==="pedidos"){renderPed();}else if(mode==="sri"){renderSRI();}else if(mode==="panel"){renderPanel();}}
+function renderMode(){renderSwitcher();renderBanner();if(mode==="zarpe"){syncZarpeInputs();renderSetup();renderZarpeState();}else if(mode==="servicio"){renderServicio();}else if(mode==="cuentas"){renderKpis();renderFolios();renderTax();}else if(mode==="inventario"){renderInv();}else if(mode==="pedidos"){renderPed();}else if(mode==="sri"){renderSRI();}else if(mode==="panel"){renderPanel();}else if(mode==="equipo"){renderEquipo();}}
 function switchCruise(id){activeId=id;expandedCabin=null;AC().current=autoNight(AC());const a=activeCabins();selectedCabin=a.length?a[0].n:1;renderMode();}
 function toast(m){const t=document.getElementById("toast");t.innerHTML=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2400);}
 
@@ -876,7 +904,7 @@ document.getElementById("sriExportBtn").addEventListener("click",exportSRICSV);
 document.getElementById("openCruiseBtn").addEventListener("click",newCruiseModal);
 document.getElementById("closeCruiseBtn").addEventListener("click",closeCruiseModal);
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
-const roleTabs={director:["zarpe","servicio","cuentas","inventario","pedidos"],bartender:["servicio","inventario","pedidos"],admin:["sri","inventario","pedidos"],dueno:["zarpe","servicio","cuentas","sri","inventario","pedidos","panel"]};
+const roleTabs={director:["zarpe","servicio","cuentas","inventario","pedidos"],bartender:["servicio","inventario","pedidos"],admin:["sri","inventario","pedidos","equipo"],dueno:["zarpe","servicio","cuentas","sri","inventario","pedidos","panel","equipo"]};
 const roleName={director:"Director de crucero",bartender:"Bartender",admin:"Administradora",dueno:"Dueña"};
 const roleDesc={director:"arma el crucero · toma el pedido · pasa la cuenta",bartender:"registra el consumo · maneja inventario",admin:"factura al SRI · verifica inventario",dueno:"acceso total + panel gerencial"};
 let role="dueno";
@@ -884,15 +912,21 @@ function applyRole(){const allowed=roleTabs[role];document.querySelectorAll(".ta
 function renderRoleBtns(){document.getElementById("roleBtns").innerHTML=Object.keys(roleName).map(r=>'<button class="rolebtn '+(r===role?"on":"")+'" data-r="'+r+'">'+ICON[roleIcon[r]]+'<span>'+roleName[r]+'</span></button>').join("");document.querySelectorAll("#roleBtns .rolebtn").forEach(b=>b.addEventListener("click",()=>{role=b.dataset.r;renderRoleBtns();applyRole();}));}
 document.querySelectorAll(".tab").forEach(t=>{t.innerHTML=ICON[tabIcon[t.dataset.m]]+'<span>'+t.textContent+'</span>';});
 cruises.forEach(c=>{c.inv=c.inv||{};c.inv.ini=c.inv.ini||{};c.inv.ing=c.inv.ing||{};c.inv.cor=c.inv.cor||{};c.inv.counts={dir:{},bar:{},adm:{}};});var __ac=cruises.find(c=>!c.closed)||cruises[cruises.length-1];if(__ac){__ac.inv.ini=Object.assign({},invStart);__ac.inv.counts={dir:Object.assign({},invStart),bar:Object.assign({},invStart),adm:Object.assign({},invStart)};}
-function __boot(){document.getElementById("rolebar").innerHTML='<span>Sesi\u00f3n</span> <b style="margin:0 8px">'+(window.__sessName||"")+'</b> <button id="logoutBtn" class="rolebtn">Salir</button> <span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px;margin-left:8px"></span>';var __lb=document.getElementById("logoutBtn");if(__lb)__lb.addEventListener("click",doLogout);AC().current=autoNight(AC());renderSwitcher();applyRole();setMode("servicio");applyRole();if(typeof loadConteos==="function")loadConteos();if(typeof loadPedidos==="function")loadPedidos();}
+async function __boot(){document.getElementById("rolebar").innerHTML='<span>Sesi\u00f3n</span> <b style="margin:0 8px">'+(window.__sessName||"")+'</b> <button id="logoutBtn" class="rolebtn">Salir</button> <span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px;margin-left:8px"></span>';var __lb=document.getElementById("logoutBtn");if(__lb)__lb.addEventListener("click",doLogout);
+ // Fijar la pestaña correcta ANTES de cargar la nube, para evitar parpadeo de otra pestaña
+ mode="servicio";
+ var __ov=document.getElementById("loginOverlay");
+ if(typeof loadCruises==="function"){ try{ await loadCruises(); }catch(e){} }
+ AC().current=autoNight(AC());renderSwitcher();applyRole();setMode("servicio");applyRole();if(typeof loadConteos==="function")loadConteos();if(typeof loadPedidos==="function")loadPedidos();
+ if(__ov)__ov.classList.remove("show");}
 
 function reviewBlock(c){const its=[];AC().charges.forEach((x,gi)=>{if(x.cabin===c.n)its.push({gi:gi,x:x});});its.sort((a,b)=>a.x.night-b.x.night);let t=0,lastN=null,rows="";its.forEach(o=>{const r=rcp(o.x.drinkId),L=lineCalc(o.x),sk=!!o.x.skip;if(!sk)t+=L.gross;if(o.x.night!==lastN){lastN=o.x.night;rows+='<div class="rv-day">'+nightDate(o.x.night)+'</div>';}rows+='<div class="rv-row'+(sk?' off':'')+'" data-ci="'+o.gi+'"><span class="rv-x">\u2715</span><span class="rv-nm">'+o.x.qty+'\u00d7 '+r.name+'</span><span class="rv-amt">'+money(L.gross)+'</span></div>';});if(!its.length)rows='<div class="rv-empty">No bar charges.</div>';const ap=!!(AC().approved||{})[c.n],pd=!!(AC().paid||{})[c.n];let act;if(!ap)act='<button class="rv-approve" data-act="ap">Approve</button>';else act='<span class="rv-ok">\u2713 Approved</span>'+(pd?'<span class="rv-ok"> \u00b7 \u2713 Paid</span>':'');return '<div class="rv"><div class="rv-h">Review with your guest \u2014 tap a line to remove anything they won\u2019t pay for</div>'+rows+'<div class="rv-total"><span>Total to pay</span><span>'+money(t)+'</span></div><div class="rv-act">'+act+'</div></div>';}
-function renderInvOverlay(n){const c=AC().cabins.find(x=>x.n===n),e=embarkDate(),d=addDays(e,AC().nights);document.getElementById("invSheet").innerHTML='<div class="inv-sheet">'+folioBlock(c,e,d,"keepsake")+'</div>'+reviewBlock(c);document.querySelectorAll("#invSheet .rv-row").forEach(r=>r.addEventListener("click",function(){const ci=+r.dataset.ci;AC().charges[ci].skip=!AC().charges[ci].skip;renderInvOverlay(n);renderFolios();}));document.querySelectorAll("#invSheet [data-act]").forEach(b=>b.addEventListener("click",function(){if(b.dataset.act==="ap")invApprove();else invPay();}));}
+function renderInvOverlay(n){const c=AC().cabins.find(x=>x.n===n),e=embarkDate(),d=addDays(e,AC().nights);document.getElementById("invSheet").innerHTML='<div class="inv-sheet">'+folioBlock(c,e,d,"keepsake")+'</div>'+reviewBlock(c);document.querySelectorAll("#invSheet .rv-row").forEach(r=>r.addEventListener("click",function(){const ci=+r.dataset.ci;AC().charges[ci].skip=!AC().charges[ci].skip;renderInvOverlay(n);renderFolios();if(typeof saveCruiseSoon==="function")saveCruiseSoon();}));document.querySelectorAll("#invSheet [data-act]").forEach(b=>b.addEventListener("click",function(){if(b.dataset.act==="ap")invApprove();else invPay();}));}
 function openInvPreview(n){window.__invMode={t:"one",n:n};renderInvOverlay(n);document.getElementById("invOverlay").classList.add("show");}
 function openInvPreviewAll(){const e=embarkDate(),d=addDays(e,AC().nights);document.getElementById("invSheet").innerHTML=activeCabins().map(c=>'<div class="inv-sheet">'+folioBlock(c,e,d,"keepsake")+'</div>').join("");window.__invMode={t:"all"};document.getElementById("invOverlay").classList.add("show");}
 function closeInvPreview(){document.getElementById("invOverlay").classList.remove("show");}
-function invApprove(){const m=window.__invMode;if(!m||m.t!=="one")return;AC().approved=AC().approved||{};AC().approved[m.n]=!AC().approved[m.n];renderFolios();const ap=AC().approved[m.n];if(ap){closeInvPreview();toast("Cabina "+m.n+" <b>aprobada</b>");}else{renderInvOverlay(m.n);toast("Cabina "+m.n+" aprobaci\u00f3n quitada");}}
-function invPay(){const m=window.__invMode;if(!m||m.t!=="one")return;if(!(AC().approved||{})[m.n]){toast("Primero <b>Aprobar</b> con el pasajero");return;}AC().paid=AC().paid||{};AC().paid[m.n]=AC().paid[m.n]?null:toISO(new Date());renderFolios();renderInvOverlay(m.n);toast("Cabina "+m.n+(AC().paid[m.n]?" <b>pagada</b>":" pago quitado"));}
+function invApprove(){const m=window.__invMode;if(!m||m.t!=="one")return;AC().approved=AC().approved||{};AC().approved[m.n]=!AC().approved[m.n];renderFolios();const ap=AC().approved[m.n];if(ap){closeInvPreview();toast("Cabina "+m.n+" <b>aprobada</b>");}else{renderInvOverlay(m.n);toast("Cabina "+m.n+" aprobaci\u00f3n quitada");}if(typeof saveCruiseSoon==="function")saveCruiseSoon();}
+function invPay(){const m=window.__invMode;if(!m||m.t!=="one")return;if(!(AC().approved||{})[m.n]){toast("Primero <b>Aprobar</b> con el pasajero");return;}AC().paid=AC().paid||{};AC().paid[m.n]=AC().paid[m.n]?null:toISO(new Date());renderFolios();renderInvOverlay(m.n);toast("Cabina "+m.n+(AC().paid[m.n]?" <b>pagada</b>":" pago quitado"));if(typeof saveCruiseSoon==="function")saveCruiseSoon();}
 function invPrintNow(){const sheets=[].slice.call(document.querySelectorAll("#invSheet .invoice"));if(!sheets.length){window.print();return;}let maxRows=0;sheets.forEach(el=>{const r=el.querySelectorAll(".inv-line").length+el.querySelectorAll(".inv-day").length;if(r>maxRows)maxRows=r;el.style.zoom="";});const a5=maxRows<=9;const uW=a5?483:718,uH=a5?718:1047;document.getElementById("pagesize").textContent="@page{size:"+(a5?"A5":"A4")+";margin:10mm}";sheets.forEach(el=>{const z=Math.max(0.7,Math.min(1,uW/el.scrollWidth,uH/el.scrollHeight));el.style.zoom=z;});window.print();sheets.forEach(el=>el.style.zoom="");}
 document.getElementById("invCloseBtn").addEventListener("click",closeInvPreview);
 document.getElementById("invPrintBtn").addEventListener("click",invPrintNow);
@@ -909,6 +943,47 @@ const LOGIN=[
 ];
 const ROLEKEY={director:"dir",bartender:"bar",admin:"adm"};
 let supa=null; try{ if(window.supabase&&window.supabase.createClient) supa=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
+let PERSONAS=[]; // equipo cargado desde Supabase
+async function loadPersonas(){
+  if(!supa){ PERSONAS=[]; return PERSONAS; }
+  try{ var r=await supa.from("personas").select("id,nombre,pin,rol,activo").eq("activo",true).order("nombre",{ascending:true});
+    if(!r.error&&r.data) PERSONAS=r.data; }catch(e){}
+  return PERSONAS;
+}
+
+// ===== CRUCEROS EN LA NUBE =====
+let __cloudReady=false;
+async function loadCruises(){
+  if(!supa) return false;
+  try{
+    var r=await supa.from("cruceros").select("id,data").order("id",{ascending:false});
+    if(r.error){ console.error("loadCruises",r.error); return false; }
+    if(r.data && r.data.length){
+      cruises = r.data.map(function(row){ return row.data; });
+      // ensure active id valid
+      if(!cruises.some(function(c){return c.id===activeId;})) activeId=cruises[0].id;
+    } else {
+      // No cruises in cloud yet: push the current in-memory one as the first
+      if(cruises.length) await saveCruise(cruises[0]);
+    }
+    __cloudReady=true;
+    return true;
+  }catch(e){ console.error("loadCruises ex",e); return false; }
+}
+let __saveTimers={};
+function saveCruiseSoon(cr){ // debounce to avoid spamming on rapid edits
+  cr=cr||AC(); if(!cr) return;
+  var id=cr.id;
+  if(__saveTimers[id]) clearTimeout(__saveTimers[id]);
+  __saveTimers[id]=setTimeout(function(){ saveCruise(cr); }, 600);
+}
+async function saveCruise(cr){
+  cr=cr||AC(); if(!cr||!supa) return;
+  try{
+    var r=await supa.from("cruceros").upsert({id:cr.id,data:cr,actualizado_en:new Date().toISOString()},{onConflict:"id"});
+    if(r.error) console.error("saveCruise",r.error);
+  }catch(e){ console.error("saveCruise ex",e); }
+}
 let __pinName=null;
 let __pinVal="";
 var ANIM={turtle:'<svg width="130" height="78" viewBox="0 0 130 78"><path d="M22 46 q43 -34 84 0 q-42 20 -84 0 z" fill="#6E7A3A"/><circle cx="110" cy="42" r="9" fill="#6E7A3A"/><path d="M34 52 l-9 13M58 58 l-5 15M80 58 l5 15M100 52 l9 13" stroke="#6E7A3A" stroke-width="7" stroke-linecap="round"/></svg>',booby:'<svg width="124" height="58" viewBox="0 0 124 58"><path d="M8 32 q34 -26 52 -4 q18 -22 56 4 q-28 8 -56 2 q-28 6 -52 -2 z" fill="#A85B2C"/><path d="M58 30 l7 16M66 30 l7 16" stroke="#378ADD" stroke-width="4" stroke-linecap="round"/></svg>',iguana:'<svg width="156" height="44" viewBox="0 0 156 44"><path d="M10 26 q40 -6 70 -2 l44 -3 l22 5 l-22 5 l-44 -3 q-30 4 -70 -2 z" fill="#5a5240"/><path d="M28 20 l4 -7 6 7 5 -7 6 7 5 -7 6 7" stroke="#5a5240" stroke-width="2" fill="none"/></svg>',sealion:'<svg width="142" height="66" viewBox="0 0 142 66"><path d="M12 50 q22 -34 60 -24 q34 8 52 30 q-22 -4 -42 -2 q-34 2 -70 -4 z" fill="#A85B2C"/><circle cx="120" cy="32" r="6" fill="#A85B2C"/></svg>',penguin:'<svg width="56" height="80" viewBox="0 0 56 80"><ellipse cx="28" cy="46" rx="18" ry="30" fill="#2C241B"/><ellipse cx="28" cy="50" rx="10" ry="22" fill="#EBE0C8"/><circle cx="28" cy="15" r="11" fill="#2C241B"/><path d="M28 17 l10 3 -10 3z" fill="#C9781A"/><path d="M20 72 l-6 6M36 72 l6 6" stroke="#C9781A" stroke-width="4" stroke-linecap="round"/></svg>',fish:'<svg width="72" height="40" viewBox="0 0 72 40"><path d="M6 20 q24 -16 46 0 q-24 16 -46 0z" fill="#C9781A"/><path d="M52 20 l16 -11 0 22z" fill="#C9781A"/><circle cx="18" cy="17" r="2" fill="#2C241B"/></svg>',crab:'<svg width="78" height="50" viewBox="0 0 78 50"><ellipse cx="39" cy="30" rx="20" ry="12" fill="#B04A2E"/><path d="M19 28 q-12 -2 -15 -13M59 28 q12 -2 15 -13" stroke="#B04A2E" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M24 40 l-10 8M32 43 l-6 7M46 43 l6 7M54 40 l10 8" stroke="#B04A2E" stroke-width="3" stroke-linecap="round"/><circle cx="31" cy="22" r="3" fill="#2C241B"/><circle cx="47" cy="22" r="3" fill="#2C241B"/></svg>',frigate:'<svg width="124" height="54" viewBox="0 0 124 54"><path d="M8 28 q34 -24 54 -8 q22 -18 54 -6 q-26 10 -52 6 l-9 14 -6 -12 q-24 4 -41 6z" fill="#2C241B"/></svg>'};
@@ -931,7 +1006,7 @@ function galaBg(){
 }
 function pinDots(){var d=document.getElementById("pinDots");if(!d)return;var n=Math.max(6,__pinVal.length),h="";for(var i=0;i<n;i++)h+='<i class="'+(i<__pinVal.length?"on":"")+'"></i>';d.innerHTML=h;}
 function loginHTML(){
- var names=LOGIN.map(function(u,i){return '<button class="loginname" data-i="'+i+'">'+u.n+'</button>';}).join("");
+ var names=PERSONAS.length? PERSONAS.map(function(u,i){return '<button class="loginname" data-i="'+i+'"><b>'+u.nombre+'</b><i>'+roleName[u.rol]+'</i></button>';}).join("") : '<div class="login-empty">No hay personas registradas todav\u00eda.<br>Entra como Due\u00f1a para crear tu equipo.</div>';
  var keys=["1","2","3","4","5","6","7","8","9","back","0","go"];
  var kb=keys.map(function(k){if(k==="back")return '<button class="kp" data-k="back">\u232b</button>';if(k==="go")return '<button class="kp kpgo" data-k="go">\u2713</button>';return '<button class="kp" data-k="'+k+'">'+k+'</button>';}).join("");
  return galaBg()
@@ -940,21 +1015,21 @@ function loginHTML(){
   +'<div id="loginStep2" style="display:none"><div class="login-q" id="loginWho"></div><div class="pin-dots" id="pinDots"></div><div class="login-err" id="loginErr"></div><div class="keypad">'+kb+'</div><button class="pin-back" id="pinBack">\u2039 Cambiar de persona</button></div>'
   +'<div class="login-note" id="loginNote"></div></div>';
 }
-function showLogin(){
+async function showLogin(){
+ await loadPersonas();
  var o=document.getElementById("loginOverlay");o.innerHTML=loginHTML();o.classList.add("show");
- document.querySelectorAll("#loginOverlay .loginname").forEach(function(b){b.addEventListener("click",function(){__pinName=+b.dataset.i;__pinVal="";if(!supa){role=LOGIN[__pinName].rol;window.__sessName=LOGIN[__pinName].n;document.getElementById("loginOverlay").classList.remove("show");__boot();return;}document.getElementById("loginStep1").style.display="none";document.getElementById("loginStep2").style.display="";document.getElementById("loginWho").textContent="Hola, "+LOGIN[__pinName].n;document.getElementById("loginErr").textContent="";pinDots();});});
- document.querySelectorAll("#loginOverlay .kp").forEach(function(b){b.addEventListener("click",function(){var k=b.dataset.k;if(k==="back"){__pinVal=__pinVal.slice(0,-1);}else if(k==="go"){doPinLogin();return;}else{if(__pinVal.length<12)__pinVal+=k;}document.getElementById("loginErr").textContent="";pinDots();if(k!=="back"&&k!=="go"&&__pinVal.length===6){doPinLogin();}});});
+ document.querySelectorAll("#loginOverlay .loginname").forEach(function(b){b.addEventListener("click",function(){__pinName=+b.dataset.i;__pinVal="";var p=PERSONAS[__pinName];document.getElementById("loginStep1").style.display="none";document.getElementById("loginStep2").style.display="";document.getElementById("loginWho").textContent="Hola, "+p.nombre;document.getElementById("loginErr").textContent="";pinDots();});});
+ document.querySelectorAll("#loginOverlay .kp").forEach(function(b){b.addEventListener("click",function(){var k=b.dataset.k;if(k==="back"){__pinVal=__pinVal.slice(0,-1);}else if(k==="go"){doPinLogin();return;}else{if(__pinVal.length<12)__pinVal+=k;}document.getElementById("loginErr").textContent="";pinDots();if(k!=="back"&&k!=="go"&&u_autolen()&&__pinVal.length===u_autolen()){doPinLogin();}});});
  var back=document.getElementById("pinBack");if(back)back.addEventListener("click",function(){__pinVal="";document.getElementById("loginStep2").style.display="none";document.getElementById("loginStep1").style.display="";});
  if(!supa){var nn=document.getElementById("loginNote");if(nn)nn.innerHTML="Sin conexi\u00f3n a la nube en esta vista. \u00c1brelo en tu sitio publicado para entrar.";}
 }
-async function doPinLogin(){
- if(__pinName==null)return;var u=LOGIN[__pinName];var pin=__pinVal;var err=document.getElementById("loginErr");
- if(!supa){err.textContent="Sin conexi\u00f3n a Supabase.";return;}
- if(pin.length<6){err.textContent="El PIN tiene m\u00ednimo 6 d\u00edgitos.";return;}
- try{var res=await supa.auth.signInWithPassword({email:u.email,password:pin});
-   if(res.error){err.textContent="PIN incorrecto.";__pinVal="";pinDots();return;}
-   window.__uid=res.data.user&&res.data.user.id;role=u.rol;window.__sessName=u.n;document.getElementById("loginOverlay").classList.remove("show");__boot();
- }catch(e){err.textContent="Error de conexi\u00f3n.";__pinVal="";pinDots();}
+function u_autolen(){var u=PERSONAS[__pinName];return u&&u.pin?String(u.pin).length:0;}
+function doPinLogin(){
+ if(__pinName==null)return;var u=PERSONAS[__pinName];var pin=__pinVal;var err=document.getElementById("loginErr");
+ if(!u){err.textContent="Selecciona tu nombre.";return;}
+ if(pin.length<4){err.textContent="El PIN tiene m\u00ednimo 4 d\u00edgitos.";return;}
+ if(String(pin)!==String(u.pin)){err.textContent="PIN incorrecto.";__pinVal="";pinDots();return;}
+ role=u.rol;window.__sessName=u.nombre;window.__personaId=u.id;__boot();
 }
 async function doLogout(){ try{ if(supa) await supa.auth.signOut(); }catch(e){} window.__sessName=null; showLogin(); }
 async function loadConteos(){
@@ -970,7 +1045,7 @@ async function saveConteos(appRole){
  var k=ROLEKEY[appRole]; if(!k){toast("Tu rol no registra conteo");return;}
  if(!supa){toast("Sin conexi\u00f3n: no se pudo guardar");return;}
  var c=AC(),st=invState(c),vals=st.counts[k]||{},rows=[];
- bodega.forEach(function(b){var v=vals[b.id];if(v!=null)rows.push({crucero_id:c.id,producto_id:b.id,rol:k,cantidad:v,tipo:"cierre"});});
+ bodega.forEach(function(b){var v=vals[b.id];if(v!=null)rows.push({crucero_id:c.id,producto_id:b.id,rol:k,cantidad:v,tipo:"cierre",persona:window.__sessName||null});});
  if(!rows.length){toast("No hay nada que guardar todav\u00eda");return;}
  try{ var res=await supa.from("conteos").insert(rows);
    if(res.error){toast("No se pudo guardar: "+res.error.message);return;}
@@ -979,6 +1054,23 @@ async function saveConteos(appRole){
 }
 /* ===== MÓDULO PEDIDOS (Supabase, por crucero) ===== */
 var pedidos=[]; var pedDraft=null;
+// Cuenta pedidos que requieren acci\u00f3n del rol actual (para la campanita)
+function pedPendientesParaMi(){
+  if(!pedidos||!pedidos.length)return 0;
+  var n=0; pedidos.forEach(function(pe){
+    // solo del crucero activo
+    if(pe.crucero_id&&typeof AC==="function"&&AC()&&pe.crucero_id!==AC().id)return;
+    if(pedIsMyTurn(pe)&&pe.estado!=="rechazado")n++;
+  });
+  return n;
+}
+// Pinta el n\u00famero en la pesta\u00f1a Pedidos
+function updatePedBadge(){
+  var tab=document.querySelector('.tab[data-m="pedidos"]'); if(!tab)return;
+  var n=pedPendientesParaMi();
+  var old=tab.querySelector(".tabbadge"); if(old)old.remove();
+  if(n>0){ var b=document.createElement("span"); b.className="tabbadge"; b.textContent=n; tab.appendChild(b); }
+}
 async function loadPedidos(){
  if(!supa)return; var c=AC(); if(!c)return;
  try{
@@ -990,6 +1082,7 @@ async function loadPedidos(){
    pedidos=p.data.map(function(pe){pe.items=items.filter(function(i){return i.pedido_id===pe.id;});return pe;});
   }
   if(mode==="pedidos")renderPed();
+  if(typeof updatePedBadge==="function")updatePedBadge();
  }catch(e){}
 }
 async function crearPedido(rows){
@@ -997,7 +1090,7 @@ async function crearPedido(rows){
  if(!rows.length){toast("No hay nada en el pedido");return;}
  var c=AC();
  try{
-  var ins=await supa.from("pedidos").insert({crucero_id:c.id,estado:"solicitado",creado_por:window.__uid||null}).select("id").single();
+  var ins=await supa.from("pedidos").insert({crucero_id:c.id,estado:"solicitado",creado_por:window.__uid||null,persona:window.__sessName||null}).select("id").single();
   if(ins.error||!ins.data){toast("No se pudo crear: "+(ins.error?ins.error.message:""));return;}
   var pid=ins.data.id;
   var its=rows.map(function(r){return {pedido_id:pid,producto_id:r.producto_id,nombre:r.nombre,unidad:r.unidad,cantidad_pedida:r.cantidad_pedida,cantidad_comprada:0};});
@@ -1026,7 +1119,7 @@ async function recibirPedido(pe){
   var conteoRows=[],movs=[];
   pe.items.forEach(function(it){
    var q=(+it.cantidad_comprada>0)?+it.cantidad_comprada:+it.cantidad_pedida; if(!(q>0))return;
-   roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso"}); });
+   roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso",persona:window.__sessName||null}); });
    movs.push({crucero_id:c.id,producto_id:it.producto_id,tipo:"ingreso",cantidad:q,creado_por:window.__uid||null});
   });
   if(conteoRows.length){var cc=await supa.from("conteos").insert(conteoRows); if(cc.error){toast("Error al sumar al inventario: "+cc.error.message);return;}}
@@ -1081,8 +1174,11 @@ function pedCardHTML(pe){
  var hora=(pe.creado_en||"").slice(11,16); var whenTxt=(pedScope==="todos")?(pedFmtDayShort((pe.creado_en||"").slice(0,10))+" \u00b7 "+hora):(hora||"Pedido");
  var open=!!pedOpen[pe.id];
  var nlines=pe.items.length;
+ var sm=pedStatusMsg(pe);
+ var smBanner='<div class="pedmsg '+sm.cls+'">'+sm.txt+(pe.persona&&pe.estado==="solicitado"?' <span class="pedby">\u00b7 pidi\u00f3 '+pe.persona+'</span>':"")+'</div>';
+ var mineTurn=pedIsMyTurn(pe)&&pe.estado!=="rechazado";
  var head='<div class="pedhead" onclick="pedTogglePed(\''+pe.id+'\')"><div><span style="font-weight:600">'+whenTxt+'</span> <span class="hint">\u00b7 '+(nlines?nlines+" productos":"sin l\u00edneas")+'</span></div><div style="display:flex;align-items:center;gap:10px">'+pedEstChip(pe.estado)+'<span class="hint" style="font-size:15px">'+(open?"\u25be":"\u25b8")+'</span></div></div>';
- if(!open)return '<div class="card" data-ped="'+pe.id+'" style="padding:12px 14px;margin-bottom:8px">'+head+'</div>';
+ if(!open)return '<div class="card'+(mineTurn?' pedturn':'')+'" data-ped="'+pe.id+'" style="padding:12px 14px;margin-bottom:8px">'+head+smBanner+'</div>';
  var canBuy=(role==="admin"||role==="dueno");
  var itemsRows=pe.items.map(function(it){
    var compCell;
@@ -1093,15 +1189,40 @@ function pedCardHTML(pe){
  }).join("");
  if(!nlines)itemsRows='<tr><td colspan="3" style="color:var(--bad);padding:10px;font-size:12px">\u26a0 Este pedido no tiene l\u00edneas cargadas. Revisa permisos de pedido_items en Supabase y crea un pedido nuevo.</td></tr>';
  var actions=pedActions(pe);
- return '<div class="card" data-ped="'+pe.id+'"><div style="padding:12px 14px">'+head+'</div><table><thead><tr><th class="l">Producto</th><th>Pedido</th><th>Comprado</th></tr></thead><tbody>'+itemsRows+'</tbody></table>'+(actions?'<div class="vfoot" style="gap:8px">'+actions+'</div>':'')+'</div>';
+ return '<div class="card'+(mineTurn?' pedturn':'')+'" data-ped="'+pe.id+'"><div style="padding:12px 14px">'+head+smBanner+'</div><table><thead><tr><th class="l">Producto</th><th>Pedido</th><th>Comprado</th></tr></thead><tbody>'+itemsRows+'</tbody></table>'+(actions?'<div class="vfoot" style="gap:8px">'+actions+'</div>':'')+'</div>';
 }
 function pedActions(pe){
  if(pe.crucero_id&&typeof AC==="function"&&AC()&&pe.crucero_id!==AC().id)return "";
- if(role==="bartender"&&(pe.estado==="solicitado"||pe.estado==="rechazado"))return '<button class="act ghost" onclick="borrarPedido(\''+pe.id+'\')">Borrar pedido</button>';
- if(role==="director"&&pe.estado==="solicitado")return '<button class="act" onclick="setEstado(\''+pe.id+'\',\'aprobado\')">Aprobar</button><button class="act ghost" onclick="setEstado(\''+pe.id+'\',\'rechazado\')">Rechazar</button>';
- if((role==="admin"||role==="dueno")&&pe.estado==="aprobado")return '<button class="act" onclick="pedComprar(\''+pe.id+'\')">Marcar comprado</button>';
- if((role==="admin"||role==="dueno")&&pe.estado==="comprado")return '<button class="act" onclick="pedRecibir(\''+pe.id+'\')">Marcar recibido · suma a inventario</button>';
+ var mine=pedIsMyTurn(pe);
+ // BAR
+ if(role==="bartender"){
+   if(pe.estado==="solicitado"||pe.estado==="rechazado")return '<button class="act ghost" onclick="borrarPedido(\''+pe.id+'\')">Borrar pedido</button>';
+   if(pe.estado==="comprado")return '<button class="act" onclick="pedRecibir(\''+pe.id+'\')">\u2713 Recib\u00ed todo \u00b7 subir a inventario</button>';
+ }
+ // DIRECTOR
+ if(role==="director"&&pe.estado==="solicitado")return '<button class="act" onclick="setEstado(\''+pe.id+'\',\'aprobado\')">\u2713 Aprobar</button><button class="act ghost" onclick="setEstado(\''+pe.id+'\',\'rechazado\')">Rechazar</button>';
+ // ADMIN / DUE\u00d1A
+ if((role==="admin"||role==="dueno")&&pe.estado==="aprobado")return '<button class="act" onclick="pedComprar(\''+pe.id+'\')">\u2713 Marqu\u00e9 lo comprado \u00b7 avisar al bar</button>';
  return "";
+}
+// ¿Es el turno de este rol para actuar sobre el pedido?
+function pedIsMyTurn(pe){
+ if(role==="director")return pe.estado==="solicitado";
+ if(role==="admin"||role==="dueno")return pe.estado==="aprobado";
+ if(role==="bartender")return pe.estado==="comprado"||pe.estado==="rechazado";
+ return false;
+}
+// Mensaje didáctico de estado según quién mira
+function pedStatusMsg(pe){
+ var e=pe.estado;
+ var mine=pedIsMyTurn(pe);
+ var who={solicitado:"el Director",aprobado:"Administraci\u00f3n",comprado:"el Bar"};
+ if(e==="solicitado"){ return mine?{cls:"turn",txt:"\uD83D\uDC49 TE TOCA: revisar y aprobar"}:{cls:"wait",txt:"\u23F3 Esperando que el Director apruebe"}; }
+ if(e==="aprobado"){ return mine?{cls:"turn",txt:"\uD83D\uDC49 TE TOCA: comprar lo aprobado"}:{cls:"wait",txt:"\u23F3 Aprobado \u00b7 esperando que Administraci\u00f3n compre"}; }
+ if(e==="comprado"){ return mine?{cls:"turn",txt:"\uD83D\uDC49 TE TOCA: verificar que lleg\u00f3 y subir a inventario"}:{cls:"wait",txt:"\u23F3 Comprado \u00b7 esperando que el Bar reciba"}; }
+ if(e==="recibido"){ return {cls:"done",txt:"\u2705 Recibido y sumado al inventario"}; }
+ if(e==="rechazado"){ return {cls:"bad",txt:"\u2716 Rechazado por el Director"}; }
+ return {cls:"",txt:e};
 }
 async function borrarPedido(id){
  if(!supa){toast("Sin conexión");return;}
@@ -1147,12 +1268,66 @@ function renderPed(){
  bb.innerHTML=html;
 }
 
+
+// ===== EQUIPO (gestión de personas) =====
+function renderEquipo(){
+  var bd=document.getElementById("equipoBody"); if(!bd)return;
+  if(role!=="dueno"&&role!=="admin"){bd.innerHTML='<div class="card"><div class="card-h"><h2>Equipo</h2></div><div class="note" style="margin:12px">Solo la Due\u00f1a o la Oficina pueden gestionar el equipo.</div></div>';return;}
+  if(!supa){bd.innerHTML='<div class="card"><div class="card-h"><h2>Equipo</h2></div><div class="note" style="margin:12px">Sin conexi\u00f3n a la nube en esta vista. \u00c1brelo en tu sitio publicado para gestionar el equipo.</div></div>';return;}
+  var rolesSel=[["bartender","Bartender"],["director","Director de crucero"],["admin","Oficina / Administraci\u00f3n"],["dueno","Due\u00f1a"]];
+  var opts=rolesSel.map(function(r){return '<option value="'+r[0]+'">'+r[1]+'</option>';}).join("");
+  var rows=PERSONAS.length? PERSONAS.map(function(p){
+    return '<div class="eq-row"><div class="eq-info"><b>'+p.nombre+'</b><i>'+roleName[p.rol]+'</i></div>'
+      +'<div class="eq-acts"><button class="act ghost" data-eqed="'+p.id+'">Editar</button>'
+      +'<button class="act ghost" data-eqdel="'+p.id+'" style="color:var(--bad)">Quitar</button></div></div>';
+  }).join("") : '<div class="note" style="margin:8px 0">A\u00fan no hay personas. Agrega la primera abajo.</div>';
+  bd.innerHTML=''
+    +'<div class="card"><div class="card-h"><h2>Equipo a bordo</h2><span class="hint">'+PERSONAS.length+' persona'+(PERSONAS.length===1?"":"s")+'</span></div>'
+      +'<div class="eq-list">'+rows+'</div></div>'
+    +'<div class="card"><div class="card-h"><h2 id="eqFormTitle">Agregar persona</h2></div>'
+      +'<div class="eq-form">'
+        +'<label class="eq-lb">Nombre</label><input id="eqNombre" class="eq-in" placeholder="Ej. Mar\u00eda P\u00e9rez">'
+        +'<label class="eq-lb">Rol</label><select id="eqRol" class="eq-in">'+opts+'</select>'
+        +'<label class="eq-lb">PIN (4 a 8 d\u00edgitos)</label><input id="eqPin" class="eq-in" inputmode="numeric" placeholder="Ej. 4821" maxlength="8">'
+        +'<div class="eq-formbtns"><button class="act" id="eqSave">Guardar</button><button class="act ghost" id="eqCancel" style="display:none">Cancelar</button></div>'
+        +'<div class="login-err" id="eqErr"></div>'
+      +'</div></div>';
+  // edit/delete bindings
+  bd.querySelectorAll("[data-eqed]").forEach(function(b){b.addEventListener("click",function(){equipoEdit(b.dataset.eqed);});});
+  bd.querySelectorAll("[data-eqdel]").forEach(function(b){b.addEventListener("click",function(){equipoDelete(b.dataset.eqdel);});});
+  var sv=document.getElementById("eqSave"); if(sv)sv.addEventListener("click",equipoSave);
+  var cn=document.getElementById("eqCancel"); if(cn)cn.addEventListener("click",function(){__eqEditId=null;renderEquipo();});
+}
+let __eqEditId=null;
+function equipoEdit(id){var p=PERSONAS.find(function(x){return x.id===id;});if(!p)return;__eqEditId=id;renderEquipo();
+  document.getElementById("eqFormTitle").textContent="Editar persona";
+  document.getElementById("eqNombre").value=p.nombre;
+  document.getElementById("eqRol").value=p.rol;
+  document.getElementById("eqPin").value=p.pin;
+  document.getElementById("eqCancel").style.display="";
+}
+async function equipoSave(){
+  var err=document.getElementById("eqErr");
+  var nombre=(document.getElementById("eqNombre").value||"").trim();
+  var rol=document.getElementById("eqRol").value;
+  var pin=(document.getElementById("eqPin").value||"").trim();
+  if(!nombre){err.textContent="Escribe el nombre.";return;}
+  if(!/^[0-9]{4,8}$/.test(pin)){err.textContent="El PIN debe tener entre 4 y 8 d\u00edgitos.";return;}
+  if(!supa){err.textContent="Sin conexi\u00f3n.";return;}
+  try{
+    if(__eqEditId){var r=await supa.from("personas").update({nombre:nombre,rol:rol,pin:pin}).eq("id",__eqEditId);if(r.error){err.textContent="Error: "+r.error.message;return;}toast("Persona actualizada \u2713");}
+    else{var r2=await supa.from("personas").insert({nombre:nombre,rol:rol,pin:pin,activo:true});if(r2.error){err.textContent="Error: "+r2.error.message;return;}toast("Persona agregada \u2713");}
+    __eqEditId=null; await loadPersonas(); renderEquipo();
+  }catch(e){err.textContent="Error de conexi\u00f3n.";}
+}
+async function equipoDelete(id){
+  var p=PERSONAS.find(function(x){return x.id===id;}); if(!p)return;
+  if(!confirm("\u00bfQuitar a "+p.nombre+" del equipo?"))return;
+  try{var r=await supa.from("personas").update({activo:false}).eq("id",id);if(r.error){toast("Error: "+r.error.message);return;}toast("Persona quitada");await loadPersonas();renderEquipo();}catch(e){toast("Error");}
+}
+
 (function(){
- if(!supa){ showLogin(); return; }
- supa.auth.getSession().then(function(r){var s=r.data&&r.data.session;
-   if(s&&s.user){var u=LOGIN.find(function(x){return x.email===s.user.email;});if(u){role=u.rol;window.__sessName=u.n;window.__uid=s.user.id;__boot();return;}}
-   showLogin();
- }).catch(function(){showLogin();});
+ showLogin();
 })();
 
 </script></body></html>
