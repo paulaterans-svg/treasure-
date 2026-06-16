@@ -284,7 +284,7 @@
 </style>
 <style id="pagesize"></style></head>
 <body><div class="wrap">
-  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 46</b></div></div>
+  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo</div></div>
     <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button></div></div>
   <div class="switcher" id="rolebar"><span>Rol</span><div id="roleBtns" style="display:flex;gap:7px;flex-wrap:wrap"></div><span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px"></span></div>
   <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select></div>
@@ -666,8 +666,6 @@ async function shareFolio(n){
    var subj="Your onboard account \u00b7 Cabin "+n+" \u00b7 Treasure of Galapagos";
    var body="Dear "+(c.guest||"guest")+",\n\nThank you for sailing the enchanted isles with us aboard the Treasure of Galapagos. Please find your onboard account attached.\n\nWith gratitude, from the family & crew of the Treasure of Galapagos.\nWe hope the islands stay with you.";
    var html=invoiceEmailHTML(n,c);
-   var __tt=0;cabinLines(n).forEach(function(l){__tt+=l.sub;});
-   if(!confirm("Enviar AHORA:\n\nCabina "+n+" · "+(c.guest||"")+"\nTotal "+money(__tt)+"\nA: "+to+"\n\n¿Confirmas?")){toast("Envío cancelado");return;}
    var resp=await fetch(SUPA_URL+"/functions/v1/send-invoice",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY},body:JSON.stringify({to:to,subject:subj,body:body,html:html,filename:fname,pdfBase64:b64})});
    var data=null; try{data=await resp.json();}catch(_){}
    if(resp.ok&&data&&data.ok){toast("\u2705 Factura enviada a "+to);return;}
