@@ -284,7 +284,7 @@
 </style>
 <style id="pagesize"></style></head>
 <body><div class="wrap">
-  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 35</b></div></div>
+  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · <b style="color:var(--amber)">BUILD 39</b></div></div>
     <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button></div></div>
   <div class="switcher" id="rolebar"><span>Rol</span><div id="roleBtns" style="display:flex;gap:7px;flex-wrap:wrap"></div><span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px"></span></div>
   <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select></div>
@@ -311,7 +311,7 @@
   <div class="mode" id="mode-cuentas">
     <div class="kpis" id="kpis"></div>
     <div class="card"><div class="card-h"><h2>Cuentas por cabina (folios)</h2><span class="hint">para el contable · con servicio e IVA</span></div>
-      <div class="note" style="margin:6px 0 2px">Para enviarle la factura al cliente, usa ✉ Enviar en su cabina: se genera el PDF y eliges Mail o WhatsApp. Solo si el cliente lo pide.</div><div id="foliosList"></div>
+      <div class="note" style="margin:6px 0 2px">Para enviarle la factura al cliente: ✉ Enviar descarga el PDF y abre el correo con el mensaje — adjunta el PDF y envía. Solo si el cliente lo pide.</div><div id="foliosList"></div>
       <div class="vfoot" style="justify-content:flex-start;gap:9px"><button class="act ghost" id="printAllBtn">Imprimir todos (PDF)</button><button class="act ghost" id="csvFoliosBtn">Detalle \u00b7 due\u00f1a</button></div></div>
     <div class="card" id="taxCard"><div class="card-h"><h2>Resumen de impuestos</h2><span class="hint">el total ya incluye servicio e IVA</span></div>
       <table><thead><tr><th class="l">Concepto</th><th>Subtotal</th><th>Servicio 10%</th><th>IVA 15%</th><th>Total</th></tr></thead><tbody id="taxBody"></tbody></table></div>
@@ -519,47 +519,155 @@ function folioText(n){const c=AC().cabins.find(x=>x.n===n),e=embarkDate(),d=addD
 function pdfBlobFolio(n){
  var c=AC().cabins.find(function(x){return x.n===n;}),e=embarkDate(),d=addDays(e,AC().nights),g=dayGroups(n);
  var jsPDF=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF; var doc=new jsPDF({unit:"pt",format:"a4"});
- var y=56,L=40,R=555;
- doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text("Treasure of Galapagos",L,y);y+=18;
- doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(120);
- doc.text("Onboard account / Cuenta de a bordo",L,y);y+=22;
- doc.setTextColor(30);doc.setFontSize(11);
- doc.text("Cruise: "+cruiseCode()+"   Route: "+routes[AC().route].name,L,y);y+=15;
- doc.text("Cabin "+n+" - "+c.guest+" - "+c.pax+" pax",L,y);y+=15;
- doc.text("Embark "+fmtY(e)+"  to  Disembark "+fmtY(d),L,y);y+=20;
- doc.setDrawColor(210);doc.line(L,y,R,y);y+=16;
- doc.setFont("helvetica","bold");doc.text("Detail",L,y);y+=16;doc.setFont("helvetica","normal");
+ var PW=595, L=46, R=549, y=0;
+ // palette (RGB)
+ var INK=[40,32,22], DIM=[120,108,86], FAINT=[160,146,118], OLIVE=[110,122,58], COPPER=[168,91,44], PAPER=[246,238,220], LINE=[214,201,174];
+ function setc(a){doc.setTextColor(a[0],a[1],a[2]);}
+ function setd(a){doc.setDrawColor(a[0],a[1],a[2]);}
+ function setf(a){doc.setFillColor(a[0],a[1],a[2]);}
+ // ---- header band ----
+ setf(OLIVE);doc.rect(0,0,PW,96,"F");
+ doc.setTextColor(255,255,255);
+ doc.setFont("times","bold");doc.setFontSize(24);doc.text("Treasure of Galapagos",L,52);
+ doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.setTextColor(232,226,206);
+ doc.text("EXPEDITION CATAMARAN  ·  GALAPAGOS ISLANDS, ECUADOR",L,72);
+ // invoice label right
+ doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(255,255,255);
+ doc.text("ONBOARD ACCOUNT",R,46,{align:"right"});
+ doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(232,226,206);
+ doc.text(fmtY(new Date()),R,62,{align:"right"});
+ y=128;
+ // ---- guest / cruise block ----
+ doc.setFont("helvetica","bold");doc.setFontSize(8.5);setc(FAINT);
+ doc.text("GUEST",L,y);doc.text("CABIN",L+250,y);
+ doc.setFont("times","bold");doc.setFontSize(14);setc(INK);
+ doc.text(String(c.guest||"Guest"),L,y+18);
+ doc.text("No. "+n+"  ("+c.pax+" pax)",L+250,y+18);
+ y+=42;
+ doc.setFont("helvetica","bold");doc.setFontSize(8.5);setc(FAINT);
+ doc.text("CRUISE",L,y);doc.text("ROUTE",L+250,y);
+ doc.setFont("helvetica","normal");doc.setFontSize(10.5);setc(INK);
+ doc.text(cruiseCode(),L,y+16);
+ doc.text(routes[AC().route].name,L+250,y+16);
+ y+=36;
+ doc.setFont("helvetica","normal");doc.setFontSize(9.5);setc(DIM);
+ doc.text("Embarkation "+fmtY(e)+"     Disembarkation "+fmtY(d),L,y);
+ y+=22;
+ // ---- detail header ----
+ setd(LINE);doc.setLineWidth(0.8);doc.line(L,y,R,y);y+=18;
+ doc.setFont("helvetica","bold");doc.setFontSize(9);setc(COPPER);
+ doc.text("DETAIL OF CONSUMPTION",L,y);
+ doc.text("AMOUNT",R,y,{align:"right"});
+ y+=8;setd(LINE);doc.setLineWidth(0.4);doc.line(L,y,R,y);y+=16;
+ // ---- nights ----
  g.forEach(function(dg){
-   doc.setTextColor(120);doc.setFontSize(9.5);doc.text("Night "+dg.night+" - "+dg.date,L,y);y+=13;
-   doc.setTextColor(30);doc.setFontSize(10.5);
-   dg.items.forEach(function(it){doc.text(it.qty+"x  "+it.name,L+12,y);doc.text(money(it.sub),R,y,{align:"right"});y+=13;if(y>770){doc.addPage();y=56;}});
-   y+=4;
+   doc.setFont("helvetica","bold");doc.setFontSize(8.5);setc(OLIVE);
+   doc.text(("Night "+dg.night+"  ·  "+dg.date).toUpperCase(),L,y);y+=15;
+   doc.setFont("helvetica","normal");doc.setFontSize(10);setc(INK);
+   dg.items.forEach(function(it){
+     doc.text(it.qty+" ×  "+it.name,L+10,y);
+     setc(DIM);doc.text(money(it.sub),R,y,{align:"right"});setc(INK);
+     y+=14;if(y>740){doc.addPage();y=56;}
+   });
+   y+=8;
  });
+ // ---- totals ----
  var b=0,sv=0,iv=0,t=0;cabinLines(n).forEach(function(l){b+=l.base;sv+=l.serv;iv+=l.iva;t+=l.sub;});
- y+=6;doc.setDrawColor(210);doc.line(L,y,R,y);y+=16;
- function tot(lbl,val,bold){doc.setFont("helvetica",bold?"bold":"normal");doc.text(lbl,L,y);doc.text(val,R,y,{align:"right"});y+=15;}
- tot("Subtotal",money(b));tot("Service 10%",money(sv));tot("VAT 15%",money(iv));
- doc.setFontSize(12);tot("TOTAL",money(t),true);doc.setFontSize(10);
- y+=12;doc.setTextColor(120);doc.setFont("helvetica","italic");
- doc.text("With gratitude - the family & crew of the Treasure of Galapagos",L,y);
+ y+=2;setd(LINE);doc.setLineWidth(0.4);doc.line(L+250,y,R,y);y+=16;
+ function tot(lbl,val){doc.setFont("helvetica","normal");doc.setFontSize(10);setc(DIM);doc.text(lbl,L+250,y);setc(INK);doc.text(val,R,y,{align:"right"});y+=16;}
+ tot("Subtotal",money(b));tot("Service (10%)",money(sv));tot("VAT (15%)",money(iv));
+ y+=2;
+ // total band
+ setf(PAPER);doc.rect(L+250,y-12,R-(L+250),26,"F");
+ doc.setFont("times","bold");doc.setFontSize(13);setc(COPPER);
+ doc.text("TOTAL",L+258,y+5);doc.text(money(t),R-8,y+5,{align:"right"});
+ y+=42;
+ // ---- closing ----
+ setd(LINE);doc.setLineWidth(0.4);doc.line(L,y,R,y);y+=20;
+ doc.setFont("times","italic");doc.setFontSize(11);setc(OLIVE);
+ doc.text("With gratitude, from the family & crew of the Treasure of Galapagos.",L,y);
+ y+=18;
+ doc.setFont("helvetica","normal");doc.setFontSize(8.5);setc(FAINT);
+ doc.text("Thank you for sailing the enchanted isles with us. We hope the islands stay with you.",L,y);
+ // footer
+ doc.setFontSize(8);setc(FAINT);
+ doc.text("Treasure of Galapagos  ·  teseturis.com  ·  Puerto Ayora, Santa Cruz, Galapagos",PW/2,812,{align:"center"});
  try{return doc.output("blob");}catch(e){return new Blob([doc.output("arraybuffer")],{type:"application/pdf"});}
 }
+function invoiceEmailHTML(n,c){
+ var e=embarkDate(),d=addDays(e,AC().nights);
+ var b=0,sv=0,iv=0,t=0;cabinLines(n).forEach(function(l){b+=l.base;sv+=l.serv;iv+=l.iva;t+=l.sub;});
+ var guest=(c&&c.guest)?c.guest:"Guest";
+ function row(lbl,val,strong){return '<tr><td style="padding:6px 0;color:#6e6c56;font-size:14px">'+lbl+'</td><td style="padding:6px 0;text-align:right;font-size:14px;'+(strong?'font-weight:700;color:#a85b2c':'color:#282016')+'">'+val+'</td></tr>';}
+ return ''
+ +'<div style="margin:0;padding:0;background:#ebe0c8">'
+ +'<div style="max-width:560px;margin:0 auto;background:#f6eedc;font-family:Georgia,\'Times New Roman\',serif">'
+ +'<div style="background:#6e7a3a;padding:30px 36px 24px">'
+   +'<div style="font-size:24px;font-weight:700;color:#ffffff;font-family:Georgia,serif;letter-spacing:.3px">Treasure of Galapagos</div>'
+   +'<div style="font-size:10px;letter-spacing:2px;color:#e8e2ce;font-family:Arial,sans-serif;margin-top:6px">EXPEDITION CATAMARAN &middot; GAL&Aacute;PAGOS ISLANDS</div>'
+ +'</div>'
+ +'<div style="padding:32px 36px 8px">'
+   +'<p style="font-size:17px;color:#282016;margin:0 0 4px">Dear '+guest+',</p>'
+   +'<p style="font-size:15px;line-height:1.6;color:#4a4636;margin:0 0 22px">Thank you for sailing the enchanted isles with us aboard the <em>Treasure of Galapagos</em>. It was a joy to have you on board. Please find your onboard account attached as a PDF, with a summary below.</p>'
+ +'</div>'
+ +'<div style="padding:0 36px">'
+   +'<div style="background:#ebe0c8;border-radius:8px;padding:18px 22px">'
+     +'<div style="font-size:10px;letter-spacing:1.5px;color:#a89a76;font-family:Arial,sans-serif;margin-bottom:4px">CABIN '+n+' &middot; '+c.pax+' PAX</div>'
+     +'<div style="font-size:13px;color:#6e6c56;font-family:Arial,sans-serif;margin-bottom:14px">'+cruiseCode()+' &middot; '+routes[AC().route].name+'<br>'+fmtY(e)+' &rarr; '+fmtY(d)+'</div>'
+     +'<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif">'
+       +row("Subtotal",money(b))
+       +row("Service (10%)",money(sv))
+       +row("VAT (15%)",money(iv))
+       +'<tr><td colspan="2" style="border-top:1px solid #d6c9ae;padding-top:4px"></td></tr>'
+       +row("Total",money(t),true)
+     +'</table>'
+   +'</div>'
+ +'</div>'
+ +'<div style="padding:26px 36px 32px">'
+   +'<p style="font-size:15px;font-style:italic;color:#6e7a3a;line-height:1.5;margin:0 0 4px">With gratitude, from the family &amp; crew of the Treasure of Galapagos.</p>'
+   +'<p style="font-size:13px;color:#9a8b72;margin:14px 0 0;font-family:Arial,sans-serif">We hope the islands stay with you.</p>'
+ +'</div>'
+ +'<div style="background:#e5d9bf;padding:16px 36px;text-align:center;font-family:Arial,sans-serif">'
+   +'<span style="font-size:11px;color:#8a7d63">teseturis.com &middot; Puerto Ayora, Santa Cruz, Gal&aacute;pagos</span>'
+ +'</div>'
+ +'</div></div>';
+}
+function blobToB64(blob){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){var d=String(r.result||"");var c=d.indexOf(",");res(c>=0?d.slice(c+1):d);};r.onerror=function(){rej(r.error||new Error("read"));};r.readAsDataURL(blob);});}
+function descargarFolio(blob,fname){try{var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1500);return true;}catch(e){return false;}}
+function mailtoFolio(n,c,fname){var subj="Your onboard account \u00b7 Treasure of Galapagos";var body="Dear "+(c.guest||"guest")+",\n\nThank you for sailing the enchanted isles with us aboard the Treasure of Galapagos. Please find your onboard account ("+fname+") attached.\n\nWith gratitude, from the family & crew of the Treasure of Galapagos.\nWe hope the islands stay with you.";setTimeout(function(){window.location.href="mailto:?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(body);},600);}
 async function shareFolio(n){
  var c=AC().cabins.find(function(x){return x.n===n;});
  var JS=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF||null;
  if(!JS){toast("No se carg\u00f3 el generador de PDF \u00b7 revisa la conexi\u00f3n");return;}
- toast("Generando PDF\u2026");
  var blob; try{blob=pdfBlobFolio(n);}catch(e){toast("Error al generar el PDF");try{alert("Detalle del error PDF: "+((e&&e.message)||e));}catch(_){}return;}
  var fname="Invoice-"+cruiseCode()+"-Cabin"+n+".pdf";
- var file=new File([blob],fname,{type:"application/pdf"});
- var subj="Your invoice - Treasure of Galapagos - Cabin "+n;
- var msg="Dear "+(c.guest||"guest")+", thank you for sailing with us aboard the Treasure of Galapagos. Please find your invoice attached.";
- var canF=!!(navigator.canShare&&navigator.canShare({files:[file]}));
- if(canF){
-   try{ await navigator.share({files:[file],title:subj,text:msg}); return; }
-   catch(e){ if(e&&e.name==="AbortError")return; }
+ // Ask for guest email
+ var def=(c&&c.email)?c.email:"";
+ var to=prompt("Correo del hu\u00e9sped para enviar la factura (Cabina "+n+" \u00b7 "+(c.guest||"")+"):",def);
+ if(to===null){return;} // cancelled
+ to=(to||"").trim();
+ if(!to||to.indexOf("@")<0){toast("Correo inv\u00e1lido \u00b7 no se envi\u00f3");return;}
+ if(c)c.email=to;
+ // No backend (offline preview): fall back to download + mailto
+ if(!supa){descargarFolio(blob,fname);mailtoFolio(n,c,fname);toast("Sin conexi\u00f3n \u00b7 PDF descargado, adjunta al correo (\uD83D\uDCCE)");return;}
+ toast("Enviando factura a "+to+" \u2026");
+ try{
+   var b64=await blobToB64(blob);
+   var subj="Your onboard account \u00b7 Treasure of Galapagos";
+   var body="Dear "+(c.guest||"guest")+",\n\nThank you for sailing the enchanted isles with us aboard the Treasure of Galapagos. Please find your onboard account attached.\n\nWith gratitude, from the family & crew of the Treasure of Galapagos.\nWe hope the islands stay with you.";
+   var html=invoiceEmailHTML(n,c);
+   var resp=await fetch(SUPA_URL+"/functions/v1/send-invoice",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY},body:JSON.stringify({to:to,subject:subj,body:body,html:html,filename:fname,pdfBase64:b64})});
+   var data=null; try{data=await resp.json();}catch(_){}
+   if(resp.ok&&data&&data.ok){toast("\u2705 Factura enviada a "+to);return;}
+   var msg=(data&&data.error)?(typeof data.error==="string"?data.error:JSON.stringify(data.error)):("HTTP "+resp.status);
+   toast("No se pudo enviar por correo \u00b7 descargando PDF de respaldo");
+   try{console.error("send-invoice error:",msg);}catch(_){}
+   descargarFolio(blob,fname);mailtoFolio(n,c,fname);
+ }catch(e){
+   toast("Error de env\u00edo \u00b7 descargando PDF de respaldo");
+   try{console.error("send-invoice exception:",e);}catch(_){}
+   descargarFolio(blob,fname);mailtoFolio(n,c,fname);
  }
- try{var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);a.remove();},900);toast(canF?"PDF descargado":"Compartir no disponible en este dispositivo \u00b7 PDF descargado para adjuntarlo al correo");}catch(e2){toast("No se pudo compartir ni descargar el PDF");}
 }
 function renderFolios(){const ac=activeCabins(),paidMap=AC().paid||{},apMap=AC().approved||{},canPay=(role==="director"||role==="dueno"),canTax=(role==="admin"||role==="dueno");
   document.getElementById("foliosList").innerHTML=ac.map(c=>{const a=cabinAgg(c.n),ap=!!apMap[c.n],pd=!!paidMap[c.n];
