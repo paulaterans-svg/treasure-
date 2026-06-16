@@ -1313,30 +1313,39 @@ function pedListaHTML(){
  return toggle+head+body;
 }
 async function pedDiagnostico(){
+  var log=[];
   function show(title,msg,bad){ var ov=document.getElementById("recibOverlay"); if(!ov){ov=document.createElement("div");ov.id="recibOverlay";document.body.appendChild(ov);} ov.innerHTML='<div class="recib-card"><div class="recib-title" style="color:'+(bad?"var(--bad)":"var(--good)")+'">'+title+'</div><div class="recib-sub" style="word-break:break-word;text-align:left;font-size:12px">'+msg+'</div><button class="act" onclick="document.getElementById(\'recibOverlay\').classList.remove(\'show\')">Cerrar</button></div>'; ov.classList.add("show"); }
+  function step(x){ log.push(x); }
   if(!supa){ show("Sin nube","La app no tiene conexi\u00f3n a Supabase. \u00bfAbriste desde https://...?",true); return; }
-  show("Probando\u2026","Enviando una fila de prueba al inventario\u2026",false);
-  var t0=Date.now();
+  var TO=function(p,ms,label){ return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej(new Error("COLGADO en: "+label));},ms);})]); };
   try{
-    var test={crucero_id:AC().id,producto_id:"__test__",rol:"bar",cantidad:1,tipo:"ingreso"};
-    var p=supa.from("conteos").insert([test]);
-    var timeout=new Promise(function(_,rej){setTimeout(function(){rej(new Error("La conexi\u00f3n no respondi\u00f3 en 10 segundos (colgada)."));},10000);});
-    var r=await Promise.race([p,timeout]);
-    var dt=((Date.now()-t0)/1000).toFixed(1);
-    if(r&&r.error){ show("Supabase RECHAZ\u00d3 ("+dt+"s)","C\u00f3digo: <b>"+(r.error.code||"?")+"</b><br>Mensaje: <b>"+(r.error.message||JSON.stringify(r.error))+"</b><br>Detalle: "+(r.error.details||"\u2014")+"<br>Hint: "+(r.error.hint||"\u2014"),true); return; }
-    // limpiar la fila de prueba
-    try{ await supa.from("conteos").delete().eq("producto_id","__test__"); }catch(e){}
-    show("\u2705 Conexi\u00f3n OK ("+dt+"s)","Supabase acept\u00f3 la fila de prueba. El inventario S\u00cd se puede escribir. Si recibir igual falla, el problema es otro y lo vemos.",false);
+    step("1. Buscando un pedido 'comprado'\u2026");
+    var pe=(pedidos||[]).find(function(x){return x.estado==="comprado" && (!x.crucero_id || x.crucero_id===AC().id);});
+    if(!pe){ show("No hay pedido para probar","No encontr\u00e9 ning\u00fan pedido en estado 'comprado' en este crucero. Crea uno y vuelve a probar.",true); return; }
+    step("2. Pedido encontrado: "+pe.id.slice(0,8)+"\u2026 con "+(pe.items?pe.items.length:0)+" productos");
+    if(!pe.items||!pe.items.length){ show("Pedido sin productos","El pedido existe pero sus productos (items) no cargaron. Esto puede ser un permiso de 'pedido_items'.<br><br>PASOS:<br>"+log.join("<br>"),true); return; }
+    step("3. Probando UPDATE de pedidos (marcar recibido)\u2026");
+    var t1=Date.now();
+    var ru=await TO(supa.from("pedidos").update({estado:"comprado"}).eq("id",pe.id),8000,"UPDATE pedidos");
+    step("   \u2192 update respondi\u00f3 en "+((Date.now()-t1)/1000).toFixed(1)+"s "+(ru&&ru.error?("ERROR: "+ru.error.message):"OK"));
+    step("4. Probando recargar pedidos (loadPedidos)\u2026");
+    var t2=Date.now();
+    await TO(loadPedidos(),8000,"loadPedidos");
+    step("   \u2192 loadPedidos OK en "+((Date.now()-t2)/1000).toFixed(1)+"s");
+    step("5. Probando recargar conteos (loadConteos)\u2026");
+    var t3=Date.now();
+    await TO(loadConteos(),8000,"loadConteos");
+    step("   \u2192 loadConteos OK en "+((Date.now()-t3)/1000).toFixed(1)+"s");
+    show("\u2705 Todos los pasos OK","Ning\u00fan paso se colg\u00f3. El recibir deber\u00eda funcionar.<br><br>"+log.join("<br>"),false);
   }catch(e){
-    var dt=((Date.now()-t0)/1000).toFixed(1);
-    show("\u274c Fall\u00f3 ("+dt+"s)",(e&&e.message)||String(e),true);
+    show("\u274c Encontr\u00e9 el problema","<b>"+((e&&e.message)||String(e))+"</b><br><br>PASOS HASTA EL FALLO:<br>"+log.join("<br>"),true);
   }
 }
 function renderPed(){
  var bb=document.getElementById("pedBody"); if(!bb)return;
  var html="";
  if(!supa)html+='<div class="note" style="margin:0 0 12px">Vista previa sin nube: aquí los pedidos no se guardan. Pruébalo en tu sitio publicado.</div>';
- html+='<div style="margin:0 0 12px"><button class="act ghost" data-pedact="diagnostico" style="font-size:12px">\uD83D\uDD0D Probar conexi\u00f3n al inventario</button></div>';
+ html+='<div style="margin:0 0 12px"><button class="act ghost" data-pedact="diagnostico" style="font-size:12px">\uD83D\uDD0D Probar recibir un pedido (v3b)</button></div>';
  if(role==="bartender")html+=pedArmarHTML();
  html+=pedListaHTML();
  bb.innerHTML=html;
