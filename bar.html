@@ -1133,7 +1133,11 @@ async function recibirPedido(pe){
  try{
    if(!supa){ diag("No hay conexi\u00f3n a la nube. Abre la app desde tu sitio publicado (https://...), no el archivo descargado.",true); return; }
    if(!pe){ diag("No se encontr\u00f3 el pedido en memoria. Recarga la p\u00e1gina.",true); return; }
-   if(!pe.items||!pe.items.length){ diag("Este pedido no tiene productos cargados. Puede ser un permiso de 'pedido_items' en Supabase.",true); return; }
+   // CANDADO anti doble-clic: si ya est\u00e1 recibido o se est\u00e1 procesando, no repetir
+   if(pe.estado==="recibido"){ diag("Este pedido ya fue recibido y sumado al inventario. No se vuelve a subir.",true); return; }
+   if(window.__recibiendo===pe.id){ return; }
+   window.__recibiendo=pe.id;
+   if(!pe.items||!pe.items.length){ window.__recibiendo=null; diag("Este pedido no tiene productos cargados. Puede ser un permiso de 'pedido_items' en Supabase.",true); return; }
    var c=AC(),st=invState(c),roles=["dir","bar","adm"];
    var resumen=[],conteoRows=[],movs=[];
    pe.items.forEach(function(it){
@@ -1142,17 +1146,20 @@ async function recibirPedido(pe){
      roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso"}); });
      movs.push({crucero_id:c.id,producto_id:it.producto_id,tipo:"ingreso",cantidad:q});
    });
-   if(!conteoRows.length){ diag("Las cantidades estaban en cero, no hab\u00eda nada que subir.",true); return; }
-   var cc=await supa.from("conteos").insert(conteoRows);
-   if(cc && cc.error){ diag("Supabase rechaz\u00f3 el inventario:<br><b>"+(cc.error.message||cc.error.code||JSON.stringify(cc.error))+"</b>",true); return; }
+   if(!conteoRows.length){ window.__recibiendo=null; diag("Las cantidades estaban en cero, no hab\u00eda nada que subir.",true); return; }
+   var withTimeout=function(p,ms,label){ return Promise.race([ p, new Promise(function(_,rej){ setTimeout(function(){ rej(new Error("Tiempo agotado en "+label+" ("+ms/1000+"s). Revisa tu conexi\u00f3n o los permisos de Supabase.")); }, ms); }) ]); };
+   var cc; try{ cc=await withTimeout(supa.from("conteos").insert(conteoRows), 12000, "subir inventario"); }catch(to){ window.__recibiendo=null; diag(to.message,true); return; }
+   if(cc && cc.error){ window.__recibiendo=null; diag("Supabase rechaz\u00f3 el inventario:<br><b>"+(cc.error.message||cc.error.code||JSON.stringify(cc.error))+"</b>",true); return; }
    var r=await supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id);
    if(r && r.error){ diag("Se subi\u00f3 al inventario, pero no se marc\u00f3 recibido:<br><b>"+(r.error.message||"")+"</b>",true); }
    try{ if(movs.length) await supa.from("movimientos").insert(movs); }catch(e2){}
    try{ if(typeof loadConteos==="function") await loadConteos(); }catch(e3){}
    try{ await loadPedidos(); }catch(e4){}
    if(mode==="inventario")renderInv(); else if(mode==="pedidos")renderPed();
+   window.__recibiendo=null;
    pedRecibidoMsg(resumen);
  }catch(err){
+   window.__recibiendo=null;
    diag("Error inesperado al recibir:<br><b>"+((err&&err.message)||String(err))+"</b>",true);
  }
 }
@@ -1315,7 +1322,7 @@ function renderPed(){
    btn.addEventListener("click",function(e){
      e.stopPropagation();
      var act=btn.dataset.pedact, id=btn.dataset.pedid;
-     if(act==="recibir")pedRecibir(id);
+     if(act==="recibir"){ btn.disabled=true; btn.textContent="Subiendo al inventario\u2026"; pedRecibir(id); }
      else if(act==="borrar")borrarPedido(id);
      else if(act==="aprobar")setEstado(id,"aprobado");
      else if(act==="rechazar")setEstado(id,"rechazado");
