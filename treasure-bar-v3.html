@@ -1148,16 +1148,18 @@ async function recibirPedido(pe){
    });
    if(!conteoRows.length){ window.__recibiendo=null; diag("Las cantidades estaban en cero, no hab\u00eda nada que subir.",true); return; }
    var withTimeout=function(p,ms,label){ return Promise.race([ p, new Promise(function(_,rej){ setTimeout(function(){ rej(new Error("Tiempo agotado en "+label+" ("+ms/1000+"s). Revisa tu conexi\u00f3n o los permisos de Supabase.")); }, ms); }) ]); };
+   // PASO CR\u00cdTICO: subir al inventario (con timeout)
    var cc; try{ cc=await withTimeout(supa.from("conteos").insert(conteoRows), 12000, "subir inventario"); }catch(to){ window.__recibiendo=null; diag(to.message,true); return; }
    if(cc && cc.error){ window.__recibiendo=null; diag("Supabase rechaz\u00f3 el inventario:<br><b>"+(cc.error.message||cc.error.code||JSON.stringify(cc.error))+"</b>",true); return; }
-   var r=await supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id);
-   if(r && r.error){ diag("Se subi\u00f3 al inventario, pero no se marc\u00f3 recibido:<br><b>"+(r.error.message||"")+"</b>",true); }
-   try{ if(movs.length) await supa.from("movimientos").insert(movs); }catch(e2){}
-   try{ if(typeof loadConteos==="function") await loadConteos(); }catch(e3){}
-   try{ await loadPedidos(); }catch(e4){}
-   if(mode==="inventario")renderInv(); else if(mode==="pedidos")renderPed();
+   // \u00a1YA SUBI\u00d3 AL INVENTARIO! Mostrar \u00e9xito YA, sin esperar los pasos secundarios
    window.__recibiendo=null;
    pedRecibidoMsg(resumen);
+   // Pasos secundarios (con timeout, sin bloquear el \u00e9xito): marcar recibido, movimientos, refrescar
+   try{ await withTimeout(supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id), 8000, "marcar recibido"); }catch(e1){}
+   try{ if(movs.length) await withTimeout(supa.from("movimientos").insert(movs), 8000, "movimientos"); }catch(e2){}
+   try{ if(typeof loadConteos==="function") await withTimeout(loadConteos(), 8000, "recargar conteos"); }catch(e3){}
+   try{ await withTimeout(loadPedidos(), 8000, "recargar pedidos"); }catch(e4){}
+   if(mode==="inventario")renderInv(); else if(mode==="pedidos")renderPed();
  }catch(err){
    window.__recibiendo=null;
    diag("Error inesperado al recibir:<br><b>"+((err&&err.message)||String(err))+"</b>",true);
