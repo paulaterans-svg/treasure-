@@ -305,6 +305,17 @@
   .card.pedturn{border:1.5px solid var(--amber);box-shadow:0 0 0 3px rgba(194,144,31,.10)}
   .tab{position:relative}
   .tabbadge{position:absolute;top:3px;right:3px;min-width:17px;height:17px;background:var(--bad);color:#fff;border-radius:9px;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1}
+
+  #recibOverlay{display:none;position:fixed;inset:0;background:rgba(44,36,27,.55);z-index:200;align-items:center;justify-content:center;padding:20px}
+  #recibOverlay.show{display:flex}
+  .recib-card{background:var(--panel);border-radius:16px;max-width:380px;width:100%;padding:28px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .recib-check{font-size:46px;line-height:1}
+  .recib-title{font-size:20px;font-weight:700;color:var(--good);margin-top:8px}
+  .recib-sub{font-size:13px;color:var(--ink-dim);margin-top:6px}
+  .recib-list{text-align:left;margin:16px 0;padding:14px 16px;background:var(--panel-2);border-radius:10px;list-style:none;font-size:13.5px;color:var(--ink);max-height:200px;overflow:auto}
+  .recib-list li{padding:3px 0;border-bottom:1px solid var(--line)}
+  .recib-list li:last-child{border-bottom:none}
+  .recib-card .act{margin-top:6px;width:100%}
 </style>
 <style id="pagesize"></style></head>
 <body><div class="wrap">
@@ -1113,20 +1124,48 @@ async function guardarCompra(id,map){
  }catch(e){toast("Error al guardar compra");}
 }
 async function recibirPedido(pe){
- if(!supa){toast("Sin conexión");return;}
+ // Diagn\u00f3stico visible paso a paso
+ function diag(msg){ try{ var ov=document.getElementById("recibOverlay"); if(!ov){ov=document.createElement("div");ov.id="recibOverlay";document.body.appendChild(ov);} ov.innerHTML='<div class="recib-card"><div class="recib-title" style="color:var(--bad)">No se pudo recibir</div><div class="recib-sub">'+msg+'</div><button class="act" onclick="document.getElementById(\'recibOverlay\').classList.remove(\'show\')">Cerrar</button></div>'; ov.classList.add("show"); }catch(e){ alert(msg); } }
+ if(!supa){ diag("No hay conexi\u00f3n a la nube. \u00c1brelo en tu sitio publicado."); return; }
+ if(!pe){ diag("No se encontr\u00f3 el pedido."); return; }
+ if(!pe.items||!pe.items.length){ diag("Este pedido no tiene productos cargados."); return; }
  var c=AC(),st=invState(c),roles=["dir","bar","adm"];
- try{
-  var conteoRows=[],movs=[];
-  pe.items.forEach(function(it){
+ var resumen=[];
+ var conteoRows=[],movs=[];
+ pe.items.forEach(function(it){
    var q=(+it.cantidad_comprada>0)?+it.cantidad_comprada:+it.cantidad_pedida; if(!(q>0))return;
-   roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso",persona:window.__sessName||null}); });
-   movs.push({crucero_id:c.id,producto_id:it.producto_id,tipo:"ingreso",cantidad:q,creado_por:window.__uid||null});
-  });
-  if(conteoRows.length){var cc=await supa.from("conteos").insert(conteoRows); if(cc.error){toast("Error al sumar al inventario: "+cc.error.message);return;}}
-  var r=await supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id); if(r.error){toast("Recibido pero no se actualizó estado: "+r.error.message);}
-  try{ if(movs.length) await supa.from("movimientos").insert(movs); }catch(e2){}
-  toast("Recibido ✓ inventario actualizado"); await loadPedidos(); if(mode==="inventario")renderInv();
- }catch(e){toast("Error al recibir");}
+   resumen.push(q+" \u00d7 "+it.nombre);
+   roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso"}); });
+   movs.push({crucero_id:c.id,producto_id:it.producto_id,tipo:"ingreso",cantidad:q});
+ });
+ if(!conteoRows.length){ diag("No hab\u00eda cantidades para subir (todo en cero)."); return; }
+ // 1) subir conteos
+ var cc=await supa.from("conteos").insert(conteoRows);
+ if(cc && cc.error){ diag("Error al subir al inventario:<br><b>"+(cc.error.message||cc.error.code||JSON.stringify(cc.error))+"</b>"); return; }
+ // 2) cambiar estado a recibido
+ var r=await supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id);
+ if(r && r.error){ diag("Se subi\u00f3 al inventario, pero no se pudo marcar el pedido como recibido:<br><b>"+(r.error.message||"")+"</b>"); }
+ // 3) movimientos (no cr\u00edtico)
+ try{ if(movs.length) await supa.from("movimientos").insert(movs); }catch(e2){}
+ // 4) refrescar
+ try{ if(typeof loadConteos==="function") await loadConteos(); }catch(e3){}
+ try{ await loadPedidos(); }catch(e4){}
+ if(mode==="inventario")renderInv(); else if(mode==="pedidos")renderPed();
+ // 5) confirmaci\u00f3n
+ pedRecibidoMsg(resumen);
+}
+// Mensaje grande y claro de confirmaci\u00f3n
+function pedRecibidoMsg(resumen){
+ var ov=document.getElementById("recibOverlay");
+ if(!ov){ov=document.createElement("div");ov.id="recibOverlay";document.body.appendChild(ov);}
+ var lista=resumen.slice(0,8).map(function(x){return '<li>'+x+'</li>';}).join("");
+ var extra=resumen.length>8?'<li>\u2026 y '+(resumen.length-8)+' m\u00e1s</li>':"";
+ ov.innerHTML='<div class="recib-card"><div class="recib-check">\u2705</div>'
+  +'<div class="recib-title">\u00a1Subido al inventario!</div>'
+  +'<div class="recib-sub">Se agregaron estos productos al stock del crucero:</div>'
+  +'<ul class="recib-list">'+lista+extra+'</ul>'
+  +'<button class="act" onclick="document.getElementById(\'recibOverlay\').classList.remove(\'show\')">Entendido</button></div>';
+ ov.classList.add("show");
 }
 function pedInitDraft(){ pedDraft={}; var c=AC(),avg=invAvg(); bodega.forEach(function(b){var mn=(avg[b.id]||0)*1.5; if(mn<=0)return; var hay=invOnHand(c,b); if(hay==null||hay>=mn)return; pedDraft[b.id]=Math.ceil(mn-hay-0.0001);}); }
 var pedCatOpen={}; var pedSearch="";
@@ -1199,6 +1238,8 @@ function pedActions(pe){
    if(pe.estado==="solicitado"||pe.estado==="rechazado")return '<button class="act ghost" onclick="borrarPedido(\''+pe.id+'\')">Borrar pedido</button>';
    if(pe.estado==="comprado")return '<button class="act" onclick="pedRecibir(\''+pe.id+'\')">\u2713 Recib\u00ed todo \u00b7 subir a inventario</button>';
  }
+ // DUE\u00d1A puede recibir tambi\u00e9n (acceso total)
+ if(role==="dueno"&&pe.estado==="comprado")return '<button class="act" onclick="pedRecibir(\''+pe.id+'\')">\u2713 Recib\u00ed todo \u00b7 subir a inventario</button>';
  // DIRECTOR
  if(role==="director"&&pe.estado==="solicitado")return '<button class="act" onclick="setEstado(\''+pe.id+'\',\'aprobado\')">\u2713 Aprobar</button><button class="act ghost" onclick="setEstado(\''+pe.id+'\',\'rechazado\')">Rechazar</button>';
  // ADMIN / DUE\u00d1A
@@ -1210,6 +1251,7 @@ function pedIsMyTurn(pe){
  if(role==="director")return pe.estado==="solicitado";
  if(role==="admin"||role==="dueno")return pe.estado==="aprobado";
  if(role==="bartender")return pe.estado==="comprado"||pe.estado==="rechazado";
+ if(role==="dueno")return pe.estado==="comprado";
  return false;
 }
 // Mensaje didáctico de estado según quién mira
