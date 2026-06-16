@@ -1288,7 +1288,7 @@ async function borrarPedido(id){
  }catch(e){toast("Error al borrar");}
 }
 function pedComprar(id){var map={};document.querySelectorAll('.card[data-ped="'+id+'"] .pedComp').forEach(function(inp){map[inp.dataset.it]=Math.max(0,+inp.value||0);});guardarCompra(id,map);}
-function pedRecibir(id){var pe=pedidos.find(function(x){return x.id===id;});if(pe)recibirPedido(pe);}
+function pedRecibir(id){var pe=pedidos.find(function(x){return String(x.id)===String(id);});if(pe)recibirPedido(pe); else toast("No se encontr\u00f3 el pedido");}
 function pedFmtDay(d){var m=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];var p=d.split("-");if(p.length<3)return d;return (+p[2])+" "+m[(+p[1])-1]+" "+p[0];}
 function pedScopeSet(scope){pedScope=scope;if(supa){loadPedidos();}else{renderPed();}}
 function pedCruLabel(cid){var c=(typeof cruises!=="undefined"&&cruises.find)?cruises.find(function(x){return x.id===cid;}):null;return (cid||"?")+(c&&c.route?(" \u00b7 "+c.route):"");}
@@ -1322,7 +1322,7 @@ async function pedDiagnostico(){
     step("1. Buscando un pedido 'comprado'\u2026");
     var pe=(pedidos||[]).find(function(x){return x.estado==="comprado" && (!x.crucero_id || x.crucero_id===AC().id);});
     if(!pe){ show("No hay pedido para probar","No encontr\u00e9 ning\u00fan pedido en estado 'comprado' en este crucero. Crea uno y vuelve a probar.",true); return; }
-    step("2. Pedido encontrado: "+pe.id.slice(0,8)+"\u2026 con "+(pe.items?pe.items.length:0)+" productos");
+    step("2. Pedido encontrado: "+String(pe.id).slice(0,8)+"\u2026 con "+(pe.items?pe.items.length:0)+" productos");
     if(!pe.items||!pe.items.length){ show("Pedido sin productos","El pedido existe pero sus productos (items) no cargaron. Esto puede ser un permiso de 'pedido_items'.<br><br>PASOS:<br>"+log.join("<br>"),true); return; }
     step("3. Probando UPDATE de pedidos (marcar recibido)\u2026");
     var t1=Date.now();
