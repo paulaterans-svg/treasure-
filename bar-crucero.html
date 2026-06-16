@@ -929,7 +929,11 @@ async function __boot(){document.getElementById("rolebar").innerHTML='<span>Sesi
  var __ov=document.getElementById("loginOverlay");
  if(typeof loadCruises==="function"){ try{ await loadCruises(); }catch(e){} }
  AC().current=autoNight(AC());renderSwitcher();applyRole();setMode("servicio");applyRole();if(typeof loadConteos==="function")loadConteos();if(typeof loadPedidos==="function")loadPedidos();
- if(__ov)__ov.classList.remove("show");}
+ if(__ov)__ov.classList.remove("show");
+ // Auto-refresco de pedidos cada 15s (para que aparezcan los pedidos/cambios de otros roles)
+ if(window.__pedPoll)clearInterval(window.__pedPoll);
+ window.__pedPoll=setInterval(function(){ if(supa&&typeof loadPedidos==="function"&&!pedDraft){ loadPedidos(); } },15000);
+}
 
 function reviewBlock(c){const its=[];AC().charges.forEach((x,gi)=>{if(x.cabin===c.n)its.push({gi:gi,x:x});});its.sort((a,b)=>a.x.night-b.x.night);let t=0,lastN=null,rows="";its.forEach(o=>{const r=rcp(o.x.drinkId),L=lineCalc(o.x),sk=!!o.x.skip;if(!sk)t+=L.gross;if(o.x.night!==lastN){lastN=o.x.night;rows+='<div class="rv-day">'+nightDate(o.x.night)+'</div>';}rows+='<div class="rv-row'+(sk?' off':'')+'" data-ci="'+o.gi+'"><span class="rv-x">\u2715</span><span class="rv-nm">'+o.x.qty+'\u00d7 '+r.name+'</span><span class="rv-amt">'+money(L.gross)+'</span></div>';});if(!its.length)rows='<div class="rv-empty">No bar charges.</div>';const ap=!!(AC().approved||{})[c.n],pd=!!(AC().paid||{})[c.n];let act;if(!ap)act='<button class="rv-approve" data-act="ap">Approve</button>';else act='<span class="rv-ok">\u2713 Approved</span>'+(pd?'<span class="rv-ok"> \u00b7 \u2713 Paid</span>':'');return '<div class="rv"><div class="rv-h">Review with your guest \u2014 tap a line to remove anything they won\u2019t pay for</div>'+rows+'<div class="rv-total"><span>Total to pay</span><span>'+money(t)+'</span></div><div class="rv-act">'+act+'</div></div>';}
 function renderInvOverlay(n){const c=AC().cabins.find(x=>x.n===n),e=embarkDate(),d=addDays(e,AC().nights);document.getElementById("invSheet").innerHTML='<div class="inv-sheet">'+folioBlock(c,e,d,"keepsake")+'</div>'+reviewBlock(c);document.querySelectorAll("#invSheet .rv-row").forEach(r=>r.addEventListener("click",function(){const ci=+r.dataset.ci;AC().charges[ci].skip=!AC().charges[ci].skip;renderInvOverlay(n);renderFolios();if(typeof saveCruiseSoon==="function")saveCruiseSoon();}));document.querySelectorAll("#invSheet [data-act]").forEach(b=>b.addEventListener("click",function(){if(b.dataset.act==="ap")invApprove();else invPay();}));}
@@ -1124,35 +1128,33 @@ async function guardarCompra(id,map){
  }catch(e){toast("Error al guardar compra");}
 }
 async function recibirPedido(pe){
- // Diagn\u00f3stico visible paso a paso
- function diag(msg){ try{ var ov=document.getElementById("recibOverlay"); if(!ov){ov=document.createElement("div");ov.id="recibOverlay";document.body.appendChild(ov);} ov.innerHTML='<div class="recib-card"><div class="recib-title" style="color:var(--bad)">No se pudo recibir</div><div class="recib-sub">'+msg+'</div><button class="act" onclick="document.getElementById(\'recibOverlay\').classList.remove(\'show\')">Cerrar</button></div>'; ov.classList.add("show"); }catch(e){ alert(msg); } }
- if(!supa){ diag("No hay conexi\u00f3n a la nube. \u00c1brelo en tu sitio publicado."); return; }
- if(!pe){ diag("No se encontr\u00f3 el pedido."); return; }
- if(!pe.items||!pe.items.length){ diag("Este pedido no tiene productos cargados."); return; }
- var c=AC(),st=invState(c),roles=["dir","bar","adm"];
- var resumen=[];
- var conteoRows=[],movs=[];
- pe.items.forEach(function(it){
-   var q=(+it.cantidad_comprada>0)?+it.cantidad_comprada:+it.cantidad_pedida; if(!(q>0))return;
-   resumen.push(q+" \u00d7 "+it.nombre);
-   roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso"}); });
-   movs.push({crucero_id:c.id,producto_id:it.producto_id,tipo:"ingreso",cantidad:q});
- });
- if(!conteoRows.length){ diag("No hab\u00eda cantidades para subir (todo en cero)."); return; }
- // 1) subir conteos
- var cc=await supa.from("conteos").insert(conteoRows);
- if(cc && cc.error){ diag("Error al subir al inventario:<br><b>"+(cc.error.message||cc.error.code||JSON.stringify(cc.error))+"</b>"); return; }
- // 2) cambiar estado a recibido
- var r=await supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id);
- if(r && r.error){ diag("Se subi\u00f3 al inventario, pero no se pudo marcar el pedido como recibido:<br><b>"+(r.error.message||"")+"</b>"); }
- // 3) movimientos (no cr\u00edtico)
- try{ if(movs.length) await supa.from("movimientos").insert(movs); }catch(e2){}
- // 4) refrescar
- try{ if(typeof loadConteos==="function") await loadConteos(); }catch(e3){}
- try{ await loadPedidos(); }catch(e4){}
- if(mode==="inventario")renderInv(); else if(mode==="pedidos")renderPed();
- // 5) confirmaci\u00f3n
- pedRecibidoMsg(resumen);
+ function diag(msg,bad){ try{ var ov=document.getElementById("recibOverlay"); if(!ov){ov=document.createElement("div");ov.id="recibOverlay";document.body.appendChild(ov);} ov.innerHTML='<div class="recib-card"><div class="recib-title" style="color:'+(bad?"var(--bad)":"var(--good)")+'">'+(bad?"Aviso":"Listo")+'</div><div class="recib-sub" style="word-break:break-word">'+msg+'</div><button class="act" onclick="document.getElementById(\'recibOverlay\').classList.remove(\'show\')">Cerrar</button></div>'; ov.classList.add("show"); }catch(e){ alert(msg); } }
+ // Confirmaci\u00f3n inmediata de que el bot\u00f3n respondi\u00f3 (esto SIEMPRE debe verse)
+ try{
+   if(!supa){ diag("No hay conexi\u00f3n a la nube. Abre la app desde tu sitio publicado (https://...), no el archivo descargado.",true); return; }
+   if(!pe){ diag("No se encontr\u00f3 el pedido en memoria. Recarga la p\u00e1gina.",true); return; }
+   if(!pe.items||!pe.items.length){ diag("Este pedido no tiene productos cargados. Puede ser un permiso de 'pedido_items' en Supabase.",true); return; }
+   var c=AC(),st=invState(c),roles=["dir","bar","adm"];
+   var resumen=[],conteoRows=[],movs=[];
+   pe.items.forEach(function(it){
+     var q=(+it.cantidad_comprada>0)?+it.cantidad_comprada:+it.cantidad_pedida; if(!(q>0))return;
+     resumen.push(q+" \u00d7 "+it.nombre);
+     roles.forEach(function(k){ var cur=(st.counts[k][it.producto_id]!=null?+st.counts[k][it.producto_id]:0); var nv=cur+q; st.counts[k][it.producto_id]=nv; conteoRows.push({crucero_id:c.id,producto_id:it.producto_id,rol:k,cantidad:nv,tipo:"ingreso"}); });
+     movs.push({crucero_id:c.id,producto_id:it.producto_id,tipo:"ingreso",cantidad:q});
+   });
+   if(!conteoRows.length){ diag("Las cantidades estaban en cero, no hab\u00eda nada que subir.",true); return; }
+   var cc=await supa.from("conteos").insert(conteoRows);
+   if(cc && cc.error){ diag("Supabase rechaz\u00f3 el inventario:<br><b>"+(cc.error.message||cc.error.code||JSON.stringify(cc.error))+"</b>",true); return; }
+   var r=await supa.from("pedidos").update({estado:"recibido"}).eq("id",pe.id);
+   if(r && r.error){ diag("Se subi\u00f3 al inventario, pero no se marc\u00f3 recibido:<br><b>"+(r.error.message||"")+"</b>",true); }
+   try{ if(movs.length) await supa.from("movimientos").insert(movs); }catch(e2){}
+   try{ if(typeof loadConteos==="function") await loadConteos(); }catch(e3){}
+   try{ await loadPedidos(); }catch(e4){}
+   if(mode==="inventario")renderInv(); else if(mode==="pedidos")renderPed();
+   pedRecibidoMsg(resumen);
+ }catch(err){
+   diag("Error inesperado al recibir:<br><b>"+((err&&err.message)||String(err))+"</b>",true);
+ }
 }
 // Mensaje grande y claro de confirmaci\u00f3n
 function pedRecibidoMsg(resumen){
@@ -1232,18 +1234,18 @@ function pedCardHTML(pe){
 }
 function pedActions(pe){
  if(pe.crucero_id&&typeof AC==="function"&&AC()&&pe.crucero_id!==AC().id)return "";
- var mine=pedIsMyTurn(pe);
+ var id=pe.id;
  // BAR
  if(role==="bartender"){
-   if(pe.estado==="solicitado"||pe.estado==="rechazado")return '<button class="act ghost" onclick="borrarPedido(\''+pe.id+'\')">Borrar pedido</button>';
-   if(pe.estado==="comprado")return '<button class="act" onclick="pedRecibir(\''+pe.id+'\')">\u2713 Recib\u00ed todo \u00b7 subir a inventario</button>';
+   if(pe.estado==="solicitado"||pe.estado==="rechazado")return '<button class="act ghost" data-pedact="borrar" data-pedid="'+id+'">Borrar pedido</button>';
+   if(pe.estado==="comprado")return '<button class="act" data-pedact="recibir" data-pedid="'+id+'">\u2713 Recib\u00ed todo \u00b7 subir a inventario (v402)</button>';
  }
  // DUE\u00d1A puede recibir tambi\u00e9n (acceso total)
- if(role==="dueno"&&pe.estado==="comprado")return '<button class="act" onclick="pedRecibir(\''+pe.id+'\')">\u2713 Recib\u00ed todo \u00b7 subir a inventario</button>';
+ if(role==="dueno"&&pe.estado==="comprado")return '<button class="act" data-pedact="recibir" data-pedid="'+id+'">\u2713 Recib\u00ed todo \u00b7 subir a inventario (v402)</button>';
  // DIRECTOR
- if(role==="director"&&pe.estado==="solicitado")return '<button class="act" onclick="setEstado(\''+pe.id+'\',\'aprobado\')">\u2713 Aprobar</button><button class="act ghost" onclick="setEstado(\''+pe.id+'\',\'rechazado\')">Rechazar</button>';
+ if(role==="director"&&pe.estado==="solicitado")return '<button class="act" data-pedact="aprobar" data-pedid="'+id+'">\u2713 Aprobar</button><button class="act ghost" data-pedact="rechazar" data-pedid="'+id+'">Rechazar</button>';
  // ADMIN / DUE\u00d1A
- if((role==="admin"||role==="dueno")&&pe.estado==="aprobado")return '<button class="act" onclick="pedComprar(\''+pe.id+'\')">\u2713 Marqu\u00e9 lo comprado \u00b7 avisar al bar</button>';
+ if((role==="admin"||role==="dueno")&&pe.estado==="aprobado")return '<button class="act" data-pedact="comprar" data-pedid="'+id+'">\u2713 Marqu\u00e9 lo comprado \u00b7 avisar al bar</button>';
  return "";
 }
 // ¿Es el turno de este rol para actuar sobre el pedido?
@@ -1308,6 +1310,18 @@ function renderPed(){
  if(role==="bartender")html+=pedArmarHTML();
  html+=pedListaHTML();
  bb.innerHTML=html;
+ // Delegaci\u00f3n de eventos para las acciones de pedido (robusto, no depende de onclick en l\u00ednea)
+ bb.querySelectorAll("[data-pedact]").forEach(function(btn){
+   btn.addEventListener("click",function(e){
+     e.stopPropagation();
+     var act=btn.dataset.pedact, id=btn.dataset.pedid;
+     if(act==="recibir")pedRecibir(id);
+     else if(act==="borrar")borrarPedido(id);
+     else if(act==="aprobar")setEstado(id,"aprobado");
+     else if(act==="rechazar")setEstado(id,"rechazado");
+     else if(act==="comprar")pedComprar(id);
+   });
+ });
 }
 
 
