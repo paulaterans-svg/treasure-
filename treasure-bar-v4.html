@@ -388,6 +388,13 @@
   .pnl-leg i{width:11px;height:11px;border-radius:3px;display:inline-block}
   .pedmsg.note{background:rgba(110,122,58,.14);border:1px solid rgba(110,122,58,.32);color:#586030;border-radius:8px;padding:7px 11px;font-size:12.5px;margin-top:6px}
   .dirrev{padding:12px 14px;border-top:1px dashed var(--line);background:rgba(194,144,31,.05)}
+  .dir-stepper{display:inline-flex;align-items:center;gap:6px}
+  .dir-step{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:17px;font-weight:700;cursor:pointer;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+  .dir-step:active{background:var(--amber);color:#fff}
+  .dir-qv{min-width:26px;text-align:center;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14px}
+  .dir-x{width:30px;height:30px;border-radius:8px;border:1px solid rgba(176,74,46,.4);background:rgba(176,74,46,.08);color:#B04A2E;font-size:14px;cursor:pointer;margin-left:4px;line-height:1}
+  .dir-x:active{background:#B04A2E;color:#fff}
+  .dir-undo{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--amber);font-size:12px;font-weight:600;cursor:pointer}
   .dirrev-h{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px}
   .dirrev-add{position:relative}
   .dirrev-add input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:var(--panel);color:var(--ink);box-sizing:border-box}
@@ -513,11 +520,26 @@ const recipes=[{"id": "BAY", "name": "Bayleis", "fam": "Cóctel", "fmt": "Cócte
 const bodega=[{"id":"CASILLERO","cat":"VINOS","name":"CASILLERO DEL DIABLO CARMENERE","det":"TINTO","shots":null,"unit":"btl"},{"id":"CASILLERO1","cat":"VINOS","name":"CASILLERO DEL DIABLO CARBENET SAUVIGNON","det":"TINTO","shots":null,"unit":"btl"},{"id":"CASILLERO2","cat":"VINOS","name":"CASILLERO DEL DIABLO SHIRAZ","det":"TINTO","shots":null,"unit":"btl"},{"id":"CASILLERO3","cat":"VINOS","name":"CASILLERO DEL DIABLO MALBEC","det":"TINTO","shots":null,"unit":"btl"},{"id":"CASILLERO4","cat":"VINOS","name":"CASILLERO DEL DIABLO MERLOT","det":"TINTO","shots":null,"unit":"btl"},{"id":"CASILLERO5","cat":"VINOS","name":"CASILLERO DEL DIABLO PINOT NOIR","det":"TINTO","shots":null,"unit":"btl"},{"id":"CORDEROCO","cat":"VINOS","name":"CORDERO CON PIEL DE LOBO MALBEC","det":"TINTO","shots":null,"unit":"btl"},{"id":"FAUSTINOV","cat":"VINOS","name":"FAUSTINO V","det":"TINTO","shots":null,"unit":"btl"},{"id":"RESERVDOM","cat":"VINOS","name":"RESERVDO MERLOT","det":"TINTO","shots":null,"unit":"btl"},{"id":"RESERVADO","cat":"VINOS","name":"RESERVADO CABERNET SAUVIGNON","det":"TINTO","shots":null,"unit":"btl"},{"id":"RESERVADO1","cat":"VINOS","name":"RESERVADO  SAUVIGNON BLANC","det":"BLANCO","shots":null,"unit":"btl"},{"id":"RESERVADO2","cat":"VINOS","name":"RESERVADO CARMENERE","det":"BLANCO","shots":null,"unit":"btl"},{"id":"CASILLERO6","cat":"VINOS","name":"CASILLERO DEL DIABLO SAUVIGNON BLANC","det":"BLANCO","shots":null,"unit":"btl"},{"id":"CASILLERO7","cat":"VINOS","name":"CASILLERO DEL DIABLO CHARDONNAY","det":"BLANCO","shots":null,"unit":"btl"},{"id":"CORDEROCO1","cat":"VINOS","name":"CORDERO CON PIEL DE LOBO","det":"BLANCO","shots":null,"unit":"btl"},{"id":"MAISONCAS","cat":"VINOS","name":"MAISON CASTELAN COTES","det":"ROSE","shots":null,"unit":"btl"},{"id":"CALVETROS","cat":"VINOS","name":"CALVET ROSE D ANJOU","det":"ROSE","shots":null,"unit":"btl"},{"id":"CALVETSAU","cat":"MINI WINES","name":"CALVET SAUVIGNON BLANC 187 ML","det":"WHITE","shots":null,"unit":"btl"},{"id":"CALVETMER","cat":"MINI WINES","name":"CALVET MERLOT 187 ML","det":"RED","shots":null,"unit":"btl"},{"id":"CASILLERO8","cat":"MINI WINES","name":"CASILLERO CABERNET SAUVIGNON 375 ML","det":"RED","shots":null,"unit":"btl"},{"id":"ADOBERESE","cat":"MINI WINES","name":"ADOBE RESERVA CHARDONNAY 375 ML","det":"WHITE","shots":null,"unit":"btl"},{"id":"ADOBECARM","cat":"MINI WINES","name":"ADOBE CARMENERE 375 ML","det":"RED","shots":null,"unit":"btl"},{"id":"ADOBERESE1","cat":"MINI WINES","name":"ADOBE RESERVA ROSE 375 ML","det":"ROSE","shots":null,"unit":"btl"},{"id":"ROSEDANJO","cat":"MINI WINES","name":"ROSE D ANJOU 185 ML","det":"ROSE","shots":null,"unit":"btl"},{"id":"VDVICE200SP","cat":"MINI WINES","name":"VDV ICE 200 ML","det":"SPARKLING WINE","shots":null,"unit":"btl"},{"id":"VDVICEROSSP","cat":"MINI WINES","name":"VDV ICE ROSE 200 ML","det":"SPARKLING WINE","shots":null,"unit":"btl"},{"id":"HENKELLTRSP","cat":"MINI WINES","name":"HENKELL TROKEN DRY PICCOLO 200 ML","det":"SPARKLING WINE","shots":null,"unit":"btl"},{"id":"HENKELLTRSP1","cat":"MINI WINES","name":"HENKELL TROKEN DRY 375 ML","det":"SPARKLING WINE","shots":null,"unit":"btl"},{"id":"VDVICEROS","cat":"VINOS ESPUMANTES","name":"VDV ICE ROSE","det":"","shots":null,"unit":"btl"},{"id":"VDVICE","cat":"VINOS ESPUMANTES","name":"VDV ICE","det":"","shots":null,"unit":"btl"},{"id":"BLUENUNOR","cat":"VINOS ESPUMANTES","name":"BLUE NUN ORO INCLUIDO 24K","det":"","shots":null,"unit":"btl"},{"id":"CALVETCEL","cat":"VINOS ESPUMANTES","name":"CALVET CELEBRATION BRUT CELESTE","det":"","shots":null,"unit":"btl"},{"id":"CALVETCEL1","cat":"VINOS ESPUMANTES","name":"CALVET CELEBRATION BRUT ROSE","det":"","shots":null,"unit":"btl"},{"id":"MAISONCAS1","cat":"VINOS ESPUMANTES","name":"MAISON CASTEL ICE CUVEE","det":"","shots":null,"unit":"btl"},{"id":"VILARNAUB","cat":"VINOS ESPUMANTES","name":"VILARNAU BARCELONA BRUT","det":"","shots":null,"unit":"btl"},{"id":"VILARNAUB1","cat":"VINOS ESPUMANTES","name":"VILARNAU BARCELONA DEMI SEC","det":"","shots":null,"unit":"btl"},{"id":"GINBEEFEA","cat":"GIN","name":"GIN BEEFEATER","det":"","shots":12,"unit":"btl"},{"id":"GINHENDRI","cat":"GIN","name":"GIN HENDRICKS","det":"","shots":11,"unit":"btl"},{"id":"GINBOMBAY","cat":"GIN","name":"GIN BOMBAY","det":"","shots":16,"unit":"btl"},{"id":"GINTANQUE1 ","cat":"GIN","name":"GIN TANQUERAY","det":"1 LITRO","shots":16,"unit":"btl"},{"id":"TEQUILAELSI","cat":"TEQUILA","name":"TEQUILA EL CHARRO","det":"SILVER","shots":12,"unit":"btl"},{"id":"TEQUILAELGO","cat":"TEQUILA","name":"TEQUILA EL CHARRO","det":"GOLD","shots":12,"unit":"btl"},{"id":"TEQUILADOSI","cat":"TEQUILA","name":"TEQUILA DON JULIO","det":"SILVER","shots":16,"unit":"btl"},{"id":"TEQUILADORE","cat":"TEQUILA","name":"TEQUILA DON JULIO","det":"REPOSADO","shots":16,"unit":"btl"},{"id":"TEQUILAJORE","cat":"TEQUILA","name":"TEQUILA JOSE CUERVO","det":"REPOSADO","shots":12,"unit":"btl"},{"id":"TEQUILAJOSI","cat":"TEQUILA","name":"TEQUILA JOSE CUERVO","det":"SILVER","shots":12,"unit":"btl"},{"id":"TEQUILAJOGO","cat":"TEQUILA","name":"TEQUILA JOSE CUERVO","det":"GOLD","shots":12,"unit":"btl"},{"id":"EVANWILLI","cat":"WHISKY","name":"EVAN WILLIAMS","det":"","shots":12,"unit":"btl"},{"id":"JACKDANIE","cat":"WHISKY","name":"JACK DANIEL'S","det":"","shots":16,"unit":"btl"},{"id":"JOHNNIEAZ","cat":"WHISKY","name":"JOHNNIE AZUL","det":"","shots":16,"unit":"btl"},{"id":"JOHNNIEDO","cat":"WHISKY","name":"JOHNNIE DOUBLE","det":"","shots":16,"unit":"btl"},{"id":"JOHNNIENE","cat":"WHISKY","name":"JOHNNIE NEGRO","det":"","shots":16,"unit":"btl"},{"id":"JOHNNIEVE","cat":"WHISKY","name":"JOHNNIE VERDE","det":"","shots":16,"unit":"btl"},{"id":"JOHNNIERO","cat":"WHISKY","name":"JOHNNIE ROJO","det":"","shots":12,"unit":"btl"},{"id":"CHIVASR","cat":"WHISKY","name":"CHIVAS R","det":"","shots":null,"unit":"btl"},{"id":"BUCHANNAS1 ","cat":"WHISKY","name":"BUCHANNAS","det":"1 LITRO","shots":16,"unit":"btl"},{"id":"HABANACLU","cat":"RON","name":"HABANA CLUB 7 AÑOS","det":"","shots":12,"unit":"btl"},{"id":"RONSANMIGSI","cat":"RON","name":"RON SAN MIGUEL","det":"SILVER","shots":12,"unit":"btl"},{"id":"BACARDISI","cat":"RON","name":"BACARDI","det":"SILVER","shots":15,"unit":"btl"},{"id":"BACARDIGO","cat":"RON","name":"BACARDI","det":"GOLD","shots":15,"unit":"btl"},{"id":"ABSOLUTVO75","cat":"VODKA","name":"ABSOLUT VODKA","det":"750 ML","shots":12,"unit":"btl"},{"id":"VODKASKY","cat":"VODKA","name":"VODKA SKY","det":"","shots":16,"unit":"btl"},{"id":"VODKASMIR75","cat":"VODKA","name":"VODKA SMIRNOF","det":"75 ML","shots":11,"unit":"btl"},{"id":"STELLAART","cat":"CERVEZA","name":"STELLA ARTOIS","det":"","shots":null,"unit":"u"},{"id":"CORONA","cat":"CERVEZA","name":"CORONA","det":"","shots":null,"unit":"u"},{"id":"CLUB","cat":"CERVEZA","name":"CLUB","det":"","shots":null,"unit":"u"},{"id":"PILSENER","cat":"CERVEZA","name":"PILSENER","det":"","shots":null,"unit":"u"},{"id":"COCACOLA","cat":"BEBIDAS SOFT","name":"COCA COLA","det":"","shots":null,"unit":"u"},{"id":"COCACOLAL","cat":"BEBIDAS SOFT","name":"COCA COLA (LIGHT)","det":"","shots":null,"unit":"u"},{"id":"FIORAVANT","cat":"BEBIDAS SOFT","name":"FIORAVANTI","det":"","shots":null,"unit":"u"},{"id":"FANTA","cat":"BEBIDAS SOFT","name":"FANTA","det":"","shots":null,"unit":"u"},{"id":"INCA","cat":"BEBIDAS SOFT","name":"INCA","det":"","shots":null,"unit":"u"},{"id":"SPRITE","cat":"BEBIDAS SOFT","name":"SPRITE","det":"","shots":null,"unit":"u"},{"id":"GINGERBEE","cat":"BEBIDAS SOFT","name":"GINGER BEER","det":"","shots":null,"unit":"u"},{"id":"GINGERALE","cat":"BEBIDAS SOFT","name":"GINGER ALE","det":"","shots":null,"unit":"u"},{"id":"CRAMBERRY","cat":"BEBIDAS SOFT","name":"CRAMBERRY JUICE","det":"","shots":null,"unit":"u"},{"id":"AGUATONICLI","cat":"BEBIDAS SOFT","name":"AGUA TONICA","det":"litros","shots":null,"unit":"u"},{"id":"GUITTIGGR","cat":"BEBIDAS SOFT","name":"GUITTIG GRANDE","det":"","shots":null,"unit":"u"},{"id":"GUITTIGPE","cat":"BEBIDAS SOFT","name":"GUITTIG PERSONAL","det":"","shots":null,"unit":"u"},{"id":"V8JUGODET","cat":"BEBIDAS SOFT","name":"V8 JUGO DE TOMATE","det":"","shots":null,"unit":"u"},{"id":"LACOPA","cat":"DIGESTIFS / APERITIFS","name":"LA COPA","det":"","shots":null,"unit":"btl"},{"id":"GANCIA","cat":"DIGESTIFS / APERITIFS","name":"GANCIA","det":"","shots":null,"unit":"btl"},{"id":"LIMONCELL","cat":"DIGESTIFS / APERITIFS","name":"LIMONCELLO","det":"","shots":null,"unit":"btl"},{"id":"APEROL","cat":"DIGESTIFS / APERITIFS","name":"APEROL","det":"","shots":null,"unit":"btl"},{"id":"CHINCHON","cat":"DIGESTIFS / APERITIFS","name":"CHINCHON","det":"","shots":22,"unit":"btl"},{"id":"COGNACHEN","cat":"DIGESTIFS / APERITIFS","name":"COGNAC HENNESSY","det":"","shots":null,"unit":"btl"},{"id":"CINZANOVE","cat":"DIGESTIFS / APERITIFS","name":"CINZANO VERMOUT ROSS","det":"","shots":30,"unit":"btl"},{"id":"CINZANOVE1","cat":"DIGESTIFS / APERITIFS","name":"CINZANO VERMOUT BLANCO EXTRA DRY","det":"","shots":23,"unit":"btl"},{"id":"BAYLEISCR","cat":"OTROS LICORES","name":"BAYLEIS","det":"CREMA","shots":12,"unit":"btl"},{"id":"CANAMANAB","cat":"OTROS LICORES","name":"CAÑA MANABITA","det":"","shots":12,"unit":"btl"},{"id":"PISCOBOTI","cat":"OTROS LICORES","name":"PISCO BOTIJA","det":"","shots":12,"unit":"btl"},{"id":"BOLTONSME","cat":"PARA COCTAIL","name":"BOLTONS MENTA","det":"","shots":null,"unit":"btl"},{"id":"AMARETOBO","cat":"PARA COCTAIL","name":"AMARETO BOLS","det":"","shots":null,"unit":"btl"},{"id":"AMARETODIRO","cat":"PARA COCTAIL","name":"AMARETO DISARONO","det":"ROJO","shots":null,"unit":"btl"},{"id":"BOLTONSCU","cat":"PARA COCTAIL","name":"BOLTONS CURACAO","det":"","shots":null,"unit":"btl"},{"id":"BOLTONSGR","cat":"PARA COCTAIL","name":"BOLTONS GRANADINA","det":"","shots":null,"unit":"btl"},{"id":"CAMPARIRO","cat":"PARA COCTAIL","name":"CAMPARI","det":"ROJO","shots":null,"unit":"btl"},{"id":"COINTREAU","cat":"PARA COCTAIL","name":"COINTREAU","det":"","shots":12,"unit":"btl"},{"id":"COLDSCACA","cat":"PARA COCTAIL","name":"COLD'S CACAO","det":"","shots":null,"unit":"btl"},{"id":"COLDSPINA","cat":"PARA COCTAIL","name":"COLD'S PIÑA COLADA","det":"","shots":null,"unit":"btl"},{"id":"COLDSTRIP","cat":"PARA COCTAIL","name":"COLD'S TRIPLE SEC","det":"","shots":null,"unit":"btl"},{"id":"KAHLUA","cat":"PARA COCTAIL","name":"KAHLÚA","det":"","shots":22,"unit":"btl"}];bodega.forEach(b=>{if(!b.shots&&["GIN","TEQUILA","WHISKY","RON","VODKA","DIGESTIFS / APERITIFS","OTROS LICORES","PARA COCTAIL"].indexOf(b.cat)>=0)b.shots=12;});
 bodega.forEach(b=>{if((b.cat==="VINOS"||b.cat==="VINOS ESPUMANTES")&&!b.shots)b.copas=5;});
 const invStart={"CASILLERO":3.0,"CASILLERO1":3.0,"CASILLERO2":1.0,"CASILLERO3":2.0,"CASILLERO4":2.0,"CASILLERO5":2.0,"CORDEROCO":0.0,"FAUSTINOV":1.0,"RESERVDOM":6.0,"RESERVADO":8.0,"RESERVADO1":13.6,"RESERVADO2":0.0,"CASILLERO6":3.0,"CASILLERO7":3.0,"CORDEROCO1":0.0,"MAISONCAS":0.0,"CALVETROS":0.0,"CALVETSAU":2.0,"CALVETMER":4.0,"CASILLERO8":6.0,"ADOBERESE":2.0,"ADOBECARM":0.0,"ADOBERESE1":4.0,"ROSEDANJO":6.0,"VDVICE200SP":1.0,"VDVICEROSSP":3.0,"HENKELLTRSP":1.0,"HENKELLTRSP1":3.0,"VDVICEROS":0.0,"VDVICE":1.0,"BLUENUNOR":1.0,"CALVETCEL":0.0,"CALVETCEL1":1.0,"MAISONCAS1":0.0,"VILARNAUB":1.0,"VILARNAUB1":0.0,"GINBEEFEA":1.111,"GINHENDRI":0.6,"GINBOMBAY":0.4,"GINTANQUE1 ":0.0,"TEQUILAELSI":1.25,"TEQUILADOSI":2.02,"TEQUILAJORE":0.0,"EVANWILLI":0.333,"JACKDANIE":0.556,"JOHNNIEAZ":0.4,"JOHNNIEDO":1.0,"JOHNNIENE":0.286,"JOHNNIEVE":0.444,"JOHNNIERO":0.4,"CHIVASR":0.333,"BUCHANNAS1 ":0.5,"HABANACLU":0.111,"RONSANMIGSI":1.857,"BACARDISI":0.667,"ABSOLUTVO75":0.0,"VODKASKY":0.889,"VODKASMIR75":0.0,"STELLAART":0.0,"CORONA":0.0,"CLUB":10.0,"PILSENER":50.0,"COCACOLA":28.0,"COCACOLAL":4.0,"FIORAVANT":0.0,"FANTA":0.0,"INCA":0.0,"SPRITE":1.0,"GINGERBEE":6.0,"GINGERALE":4.0,"CRAMBERRY":0.0,"AGUATONICLI":5.0,"GUITTIGGR":4.0,"GUITTIGPE":9.0,"V8JUGODET":0.0,"LACOPA":0.667,"GANCIA":0.833,"LIMONCELL":1.0,"APEROL":0.25,"CHINCHON":1.0,"COGNACHEN":0.833,"CINZANOVE":0.5,"CINZANOVE1":1.0,"BAYLEISCR":0.0,"CANAMANAB":0.28,"PISCOBOTI":0.667,"BOLTONSME":1.0,"AMARETOBO":0.4,"AMARETODIRO":0.0,"BOLTONSCU":1.375,"BOLTONSGR":1.2,"CAMPARIRO":0.6,"COINTREAU":0.286,"COLDSCACA":1.0,"COLDSPINA":0.25,"COLDSTRIP":1.0,"KAHLUA":0.571};
-const consume={"BAY":[{"b":"BAYLEISCR","q":0.0833}],"CAI":[{"b":"CANAMANAB","q":0.0833}],"COS":[{"b":"ABSOLUTVO75","q":0.0833}],"CL":[{"b":"BACARDIGO","q":0.0667}],"DAI":[{"b":"BACARDIGO","q":0.0667}],"GT":[{"b":"GINTANQUE1 ","q":0.0625}],"MAN":[{"b":"JACKDANIE","q":0.0625}],"M":[{"b":"TEQUILAJOGO","q":0.0833}],"MAR":[{"b":"GINTANQUE1 ","q":0.0625}],"MO":[{"b":"BACARDIGO","q":0.0667}],"MM":[{"b":"ABSOLUTVO75","q":0.0833}],"NEG":[{"b":"GINTANQUE1 ","q":0.0625}],"OLDF":[{"b":"JACKDANIE","q":0.0625}],"PS":[{"b":"PISCOBOTI","q":0.0833}],"PC":[{"b":"BACARDIGO","q":0.0667}],"TS":[{"b":"TEQUILAJOGO","q":0.0833}],"VT":[{"b":"ABSOLUTVO75","q":0.0833}],"CC":[{"b":"CLUB","q":1}],"CCR":[{"b":"CORONA","q":1}],"CP":[{"b":"PILSENER","q":1}],"CSA":[{"b":"STELLAART","q":1}],"WWBBCPL":[{"b":"RESERVADO1","q":1}],"WRCDCS":[{"b":"RESERVADO","q":1}],"WRODAN":[{"b":"CALVETROS","q":1}],"WRCDCAR":[{"b":"CASILLERO","q":1}],"WWCHCD":[{"b":"CASILLERO7","q":1}],"WRCPLMA":[{"b":"CORDEROCO","q":1}],"SWBN24":[{"b":"BLUENUNOR","q":1}],"SWCCB":[{"b":"CALVETCEL","q":1}],"SWCCBRO":[{"b":"CALVETCEL1","q":1}],"SWCTDS":[{"b":"VILARNAUB1","q":1}],"SWVDVICE":[{"b":"VDVICE","q":1}],"SWVDVR":[{"b":"VDVICEROS","q":1}],"SWVIBR":[{"b":"VILARNAUB","q":1}],"SWVIDE":[{"b":"VILARNAUB1","q":1}],"WRFV":[{"b":"FAUSTINOV","q":1}],"WRCDMAL":[{"b":"CASILLERO3","q":1}],"WRCDME":[{"b":"CASILLERO4","q":1}],"WRCDPN":[{"b":"CASILLERO5","q":1}],"WRCSCT":[{"b":"RESERVADO","q":1}],"WRMECT":[{"b":"RESERVDOM","q":1}],"WWRSCT":[{"b":"RESERVADO","q":1}],"WROMC":[{"b":"MAISONCAS1","q":1}],"WWSBCD":[{"b":"RESERVADO1","q":1}],"WRCDSY":[{"b":"CASILLERO2","q":1}],"VCATC":[{"b":"RESERVDOM","q":1}],"CWRRCSCT":[{"b":"RESERVADO","q":0.2}],"CWWRMCT":[{"b":"RESERVDOM","q":0.2}],"CWWRSCT":[{"b":"RESERVADO","q":0.2}],"COVIATC":[{"b":"RESERVDOM","q":0.2}],"MSWHTD":[{"b":"HENKELLTRSP","q":1}],"MSWHTPI":[{"b":"HENKELLTRSP","q":1}],"MSWICER":[{"b":"VDVICEROSSP","q":1}],"MWWCSB":[{"b":"CALVETSAU","q":1}],"MROWA":[{"b":"ADOBERESE1","q":1}],"MSWICE":[{"b":"VDVICE200SP","q":1}],"BA":[{"b":"AMARETOBO","q":1}],"DA":[{"b":"AMARETODIRO","q":1}],"AP":[{"b":"APEROL","q":1}],"BC":[{"b":"BOLTONSCU","q":1}],"BG":[{"b":"BOLTONSGR","q":1}],"BM":[{"b":"BOLTONSME","q":1}],"CMAN":[{"b":"CANAMANAB","q":1}],"PDC":[{"b":"PISCOBOTI","q":1}],"WB":[{"b":"BUCHANNAS1 ","q":1}],"WJA":[{"b":"JOHNNIEAZ","q":1}],"WJN":[{"b":"JOHNNIENE","q":1}],"WJR":[{"b":"JOHNNIERO","q":1}],"WJV":[{"b":"JOHNNIEVE","q":1}],"GBOM":[{"b":"GINBOMBAY","q":1}],"GHEN":[{"b":"GINHENDRI","q":1}],"GTAN":[{"b":"GINTANQUE1 ","q":1}],"RBA":[{"b":"BACARDIGO","q":1}],"RHC":[{"b":"HABANACLU","q":1}],"RSM":[{"b":"RONSANMIGSI","q":1}],"VSMIR":[{"b":"VODKASMIR75","q":1}],"VAB":[{"b":"ABSOLUTVO75","q":1}],"VSKY":[{"b":"VODKASKY","q":1}],"WEW":[{"b":"EVANWILLI","q":1}],"WJD":[{"b":"JACKDANIE","q":1}],"CAM":[{"b":"CAMPARIRO","q":1}],"DCINR":[{"b":"CINZANOVE","q":1}],"DCOG":[{"b":"COGNACHEN","q":1}],"DCON":[{"b":"COINTREAU","q":1}],"CDC":[{"b":"COLDSCACA","q":1}],"CDP":[{"b":"COLDSPINA","q":1}],"CTS":[{"b":"COLDSTRIP","q":1}],"FR77":[{"b":"GINTANQUE1 ","q":0.0625}],"DGANR":[{"b":"GANCIA","q":1}],"KAH":[{"b":"KAHLUA","q":1}],"MRWRCA":[{"b":"ADOBERESE","q":1}],"MWWRCH":[{"b":"ADOBERESE","q":1}],"MRWCSCD":[{"b":"RESERVADO","q":1}],"MRWCAME":[{"b":"CALVETMER","q":1}],"PL":[{"b":"LIMONCELL","q":1}],"SVAB":[{"b":"ABSOLUTVO75","q":0.0833}],"SBOM":[{"b":"GINBOMBAY","q":0.0625}],"SHEN":[{"b":"GINHENDRI","q":0.0909}],"STAN":[{"b":"GINTANQUE1 ","q":0.0625}],"SRBS":[{"b":"BACARDIGO","q":0.0667}],"SRHC":[{"b":"HABANACLU","q":0.0833}],"SRSM":[{"b":"RONSANMIGSI","q":0.0833}],"STDJB":[{"b":"TEQUILADOSI","q":0.0625}],"STDJR":[{"b":"TEQUILADOSI","q":0.0625}],"STECH":[{"b":"TEQUILAELSI","q":0.0833}],"STJC":[{"b":"TEQUILAJORE","q":0.0833}],"SVSKY":[{"b":"VODKASKY","q":0.0625}],"SVSMIR":[{"b":"VODKASMIR75","q":0.0909}],"SWB":[{"b":"BUCHANNAS1 ","q":0.0625}],"SWEW":[{"b":"EVANWILLI","q":0.0833}],"SWJD":[{"b":"JACKDANIE","q":0.0625}],"SWHA":[{"b":"JOHNNIEAZ","q":0.0625}],"SWJN":[{"b":"JOHNNIENE","q":0.0625}],"SWJR":[{"b":"JOHNNIERO","q":0.0833}],"SWJV":[{"b":"JOHNNIEVE","q":0.0625}],"TDJB":[{"b":"TEQUILADOSI","q":1}],"TDJR":[{"b":"TEQUILADOSI","q":1}],"TECH":[{"b":"TEQUILAELSI","q":1}],"TJC":[{"b":"TEQUILAJORE","q":1}],"CCO":[{"b":"COCACOLA","q":1}],"CCZ":[{"b":"COCACOLAL","q":1}],"FANTA":[{"b":"FANTA","q":1}],"FV":[{"b":"FIORAVANT","q":1}],"GA":[{"b":"GINGERALE","q":1}],"GB":[{"b":"GINGERBEE","q":1}],"GUI":[{"b":"GUITTIGPE","q":1}],"IC":[{"b":"INCA","q":1}],"SP":[{"b":"SPRITE","q":1}],"TW":[{"b":"AGUATONICLI","q":1}]};
+const consume={"BAY":[{"b":"BAYLEISCR","q":0.0833}],"CAI":[{"b":"CANAMANAB","q":0.0833}],"COS":[{"b":"ABSOLUTVO75","q":0.0833}],"CL":[{"b":"RONSANMIGSI","q":0.0833}],"DAI":[{"b":"RONSANMIGSI","q":0.0833}],"GT":[{"b":"GINTANQUE1 ","q":0.0625}],"MAN":[{"b":"JACKDANIE","q":0.0625}],"M":[{"b":"TEQUILAJOGO","q":0.0833}],"MAR":[{"b":"GINTANQUE1 ","q":0.0625}],"MO":[{"b":"RONSANMIGSI","q":0.0833}],"MM":[{"b":"ABSOLUTVO75","q":0.0833}],"NEG":[{"b":"GINTANQUE1 ","q":0.0625}],"OLDF":[{"b":"JACKDANIE","q":0.0625}],"PS":[{"b":"PISCOBOTI","q":0.0833}],"PC":[{"b":"RONSANMIGSI","q":0.0833}],"TS":[{"b":"TEQUILAJOGO","q":0.0833}],"VT":[{"b":"ABSOLUTVO75","q":0.0833}],"CC":[{"b":"CLUB","q":1}],"CCR":[{"b":"CORONA","q":1}],"CP":[{"b":"PILSENER","q":1}],"CSA":[{"b":"STELLAART","q":1}],"WWBBCPL":[{"b":"RESERVADO1","q":1}],"WRCDCS":[{"b":"RESERVADO","q":1}],"WRODAN":[{"b":"CALVETROS","q":1}],"WRCDCAR":[{"b":"CASILLERO","q":1}],"WWCHCD":[{"b":"CASILLERO7","q":1}],"WRCPLMA":[{"b":"CORDEROCO","q":1}],"SWBN24":[{"b":"BLUENUNOR","q":1}],"SWCCB":[{"b":"CALVETCEL","q":1}],"SWCCBRO":[{"b":"CALVETCEL1","q":1}],"SWCTDS":[{"b":"VILARNAUB1","q":1}],"SWVDVICE":[{"b":"VDVICE","q":1}],"SWVDVR":[{"b":"VDVICEROS","q":1}],"SWVIBR":[{"b":"VILARNAUB","q":1}],"SWVIDE":[{"b":"VILARNAUB1","q":1}],"WRFV":[{"b":"FAUSTINOV","q":1}],"WRCDMAL":[{"b":"CASILLERO3","q":1}],"WRCDME":[{"b":"CASILLERO4","q":1}],"WRCDPN":[{"b":"CASILLERO5","q":1}],"WRCSCT":[{"b":"RESERVADO","q":1}],"WRMECT":[{"b":"RESERVDOM","q":1}],"WWRSCT":[{"b":"RESERVADO","q":1}],"WROMC":[{"b":"MAISONCAS1","q":1}],"WWSBCD":[{"b":"RESERVADO1","q":1}],"WRCDSY":[{"b":"CASILLERO2","q":1}],"VCATC":[{"b":"RESERVDOM","q":1}],"CWRRCSCT":[{"b":"RESERVADO","q":0.2}],"CWWRMCT":[{"b":"RESERVDOM","q":0.2}],"CWWRSCT":[{"b":"RESERVADO","q":0.2}],"COVIATC":[{"b":"RESERVDOM","q":0.2}],"MSWHTD":[{"b":"HENKELLTRSP","q":1}],"MSWHTPI":[{"b":"HENKELLTRSP","q":1}],"MSWICER":[{"b":"VDVICEROSSP","q":1}],"MWWCSB":[{"b":"CALVETSAU","q":1}],"MROWA":[{"b":"ADOBERESE1","q":1}],"MSWICE":[{"b":"VDVICE200SP","q":1}],"BA":[{"b":"AMARETOBO","q":1}],"DA":[{"b":"AMARETODIRO","q":1}],"AP":[{"b":"APEROL","q":1}],"BC":[{"b":"BOLTONSCU","q":1}],"BG":[{"b":"BOLTONSGR","q":1}],"BM":[{"b":"BOLTONSME","q":1}],"CMAN":[{"b":"CANAMANAB","q":1}],"PDC":[{"b":"PISCOBOTI","q":1}],"WB":[{"b":"BUCHANNAS1 ","q":1}],"WJA":[{"b":"JOHNNIEAZ","q":1}],"WJN":[{"b":"JOHNNIENE","q":1}],"WJR":[{"b":"JOHNNIERO","q":1}],"WJV":[{"b":"JOHNNIEVE","q":1}],"GBOM":[{"b":"GINBOMBAY","q":1}],"GHEN":[{"b":"GINHENDRI","q":1}],"GTAN":[{"b":"GINTANQUE1 ","q":1}],"RBA":[{"b":"BACARDIGO","q":1}],"RHC":[{"b":"HABANACLU","q":1}],"RSM":[{"b":"RONSANMIGSI","q":1}],"VSMIR":[{"b":"VODKASMIR75","q":1}],"VAB":[{"b":"ABSOLUTVO75","q":1}],"VSKY":[{"b":"VODKASKY","q":1}],"WEW":[{"b":"EVANWILLI","q":1}],"WJD":[{"b":"JACKDANIE","q":1}],"CAM":[{"b":"CAMPARIRO","q":1}],"DCINR":[{"b":"CINZANOVE","q":1}],"DCOG":[{"b":"COGNACHEN","q":1}],"DCON":[{"b":"COINTREAU","q":1}],"CDC":[{"b":"COLDSCACA","q":1}],"CDP":[{"b":"COLDSPINA","q":1}],"CTS":[{"b":"COLDSTRIP","q":1}],"FR77":[{"b":"GINTANQUE1 ","q":0.0625}],"DGANR":[{"b":"GANCIA","q":1}],"KAH":[{"b":"KAHLUA","q":1}],"MRWRCA":[{"b":"ADOBERESE","q":1}],"MWWRCH":[{"b":"ADOBERESE","q":1}],"MRWCSCD":[{"b":"RESERVADO","q":1}],"MRWCAME":[{"b":"CALVETMER","q":1}],"PL":[{"b":"LIMONCELL","q":1}],"SVAB":[{"b":"ABSOLUTVO75","q":0.0833}],"SBOM":[{"b":"GINBOMBAY","q":0.0625}],"SHEN":[{"b":"GINHENDRI","q":0.0909}],"STAN":[{"b":"GINTANQUE1 ","q":0.0625}],"SRBS":[{"b":"BACARDIGO","q":0.0667}],"SRHC":[{"b":"HABANACLU","q":0.0833}],"SRSM":[{"b":"RONSANMIGSI","q":0.0833}],"STDJB":[{"b":"TEQUILADOSI","q":0.0625}],"STDJR":[{"b":"TEQUILADOSI","q":0.0625}],"STECH":[{"b":"TEQUILAELSI","q":0.0833}],"STJC":[{"b":"TEQUILAJORE","q":0.0833}],"SVSKY":[{"b":"VODKASKY","q":0.0625}],"SVSMIR":[{"b":"VODKASMIR75","q":0.0909}],"SWB":[{"b":"BUCHANNAS1 ","q":0.0625}],"SWEW":[{"b":"EVANWILLI","q":0.0833}],"SWJD":[{"b":"JACKDANIE","q":0.0625}],"SWHA":[{"b":"JOHNNIEAZ","q":0.0625}],"SWJN":[{"b":"JOHNNIENE","q":0.0625}],"SWJR":[{"b":"JOHNNIERO","q":0.0833}],"SWJV":[{"b":"JOHNNIEVE","q":0.0625}],"TDJB":[{"b":"TEQUILADOSI","q":1}],"TDJR":[{"b":"TEQUILADOSI","q":1}],"TECH":[{"b":"TEQUILAELSI","q":1}],"TJC":[{"b":"TEQUILAJORE","q":1}],"CCO":[{"b":"COCACOLA","q":1}],"CCZ":[{"b":"COCACOLAL","q":1}],"FANTA":[{"b":"FANTA","q":1}],"FV":[{"b":"FIORAVANT","q":1}],"GA":[{"b":"GINGERALE","q":1}],"GB":[{"b":"GINGERBEE","q":1}],"GUI":[{"b":"GUITTIGPE","q":1}],"IC":[{"b":"INCA","q":1}],"SP":[{"b":"SPRITE","q":1}],"TW":[{"b":"AGUATONICLI","q":1}]};
 let cruises=[{"id":"TOG-260613-C","route":2,"embark":"2026-06-13","nights":6,"pax":16,"cabins":[{"n":1,"guest":"Cabina 1","pax":2,"active":true},{"n":2,"guest":"Cabina 2","pax":2,"active":true},{"n":3,"guest":"Cabina 3","pax":2,"active":true},{"n":4,"guest":"Cabina 4","pax":2,"active":true},{"n":5,"guest":"Cabina 5","pax":2,"active":true},{"n":6,"guest":"Cabina 6","pax":2,"active":true},{"n":7,"guest":"Cabina 7","pax":2,"active":true},{"n":8,"guest":"Cabina 8","pax":1,"active":true},{"n":9,"guest":"Cabina 9","pax":1,"active":true}],"charges":[],"current":1,"closed":false,"counts":{},"paid":{}}];
 let activeId="TOG-260613-C";
 let selectedCabin=1,selectedFam="Cóctel",selectedGroup="mes",carryover={},selectedYear=null,selectedMonth=null,expandedCabin=null,draft={},panelMetric="rev";
-const fams=["Cóctel","Cerveza","Vino","Licor","Bebida","Souvenir"];
+const fams=["Cóctel","Cerveza","Vino","Licor","Bebida","Souvenir","Extra"];
+// ===== EXTRAS PREMIUM: adicional del licor ($4.35) =====
+// El Extra es el ADICIONAL por usar un licor premium. El cóctel se cobra aparte normalmente.
+// Cada Extra descuenta ~1 oz del licor elegido y cobra $4.35 ("Valor Extra Premium Licor").
+(function(){
+  var EXTRA_PRICE=4.3478; // Valor Extra Cocteleria Por Premium Licor
+  var CATS_LICOR=["RON","WHISKY","GIN","TEQUILA","VODKA","DIGESTIFS / APERITIFS","OTROS LICORES","PARA COCTAIL"];
+  bodega.forEach(function(b){
+    if(CATS_LICOR.indexOf(b.cat)<0)return;
+    var shots=b.shots||12; var q=Math.round((1/shots)*10000)/10000; // 1 oz ≈ 1/shots de botella
+    var rid="EX_"+b.id.trim();
+    var det=(b.det&&b.det.trim()&&["1 LITRO","750 ML","75 ML","200 ML","375 ML","185 ML","187 ML"].indexOf(b.det)<0)?" "+b.det:"";
+    recipes.push({id:rid,name:b.name+det,fam:"Extra",fmt:"Adicional licor premium",price:EXTRA_PRICE,iv:0.15,sv:0.1,ing:[{id:b.id,ml:1}]});
+    consume[rid]=[{b:b.id,q:q}];
+  });
+})();
 const SVG=s=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+s+'</svg>';
 const ICON={
   cocktail:SVG('<path d="M5 4h14l-7 8z"/><path d="M12 12v6"/><path d="M8 21h8"/>'),
@@ -546,7 +568,7 @@ const ICON={
   flag:SVG('<path d="M5 21V4"/><path d="M5 4h12l-2.5 4 2.5 4H5"/>'),
   cart:SVG('<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11h10l2-8H6"/>')
 };
-const famIcon={"Cóctel":"cocktail","Cerveza":"beer","Vino":"wine","Licor":"bottle","Bebida":"soda","Souvenir":"gift","Servicio":"bell"};
+const famIcon={"Cóctel":"cocktail","Cerveza":"beer","Vino":"wine","Licor":"bottle","Bebida":"soda","Souvenir":"gift","Servicio":"bell","Extra":"bottle"};
 const tabIcon={zarpe:"anchor",servicio:"cocktail",cuentas:"receipt",sri:"clipboard",inventario:"boxes",pedidos:"cart",panel:"chart",equipo:"crown"};
 const catIcon={"VINOS":"wine","MINI WINES":"wine","VINOS ESPUMANTES":"champagne","GIN":"highball","TEQUILA":"shot","WHISKY":"rocks","RON":"bottle","VODKA":"bottle","CERVEZA":"beer","BEBIDAS SOFT":"soda","DIGESTIFS / APERITIFS":"rocks","OTROS LICORES":"bottle","PARA COCTAIL":"cocktail"};
 let invOpen={};let invOpenK={};
@@ -1052,7 +1074,46 @@ function updateSwitcherVis(){const show=(role==="admin"||role==="dueno")&&mode!=
 function setMode(m){mode=m;document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.m===m));document.querySelectorAll(".mode").forEach(s=>s.classList.toggle("active",s.id==="mode-"+m));updateSwitcherVis();renderMode();}
 let mode="servicio";
 function bod(id){return bodega.find(b=>b.id===id);}
-function invVenta(c){const a={};c.charges.forEach(ch=>{if(ch.skip)return;const mp=consume[ch.drinkId];if(!mp)return;mp.forEach(m=>{a[m.b]=(a[m.b]||0)+m.q*ch.qty;});});return a;}
+// IDs de bodega que son licores (de los que sale 1 oz por cóctel)
+var LICOR_BODEGA_IDS=null;
+function _licorBodegaIds(){
+  if(LICOR_BODEGA_IDS)return LICOR_BODEGA_IDS;
+  var cats=["RON","WHISKY","GIN","TEQUILA","VODKA","DIGESTIFS / APERITIFS","OTROS LICORES","PARA COCTAIL"];
+  LICOR_BODEGA_IDS={}; bodega.forEach(function(b){ if(cats.indexOf(b.cat)>=0)LICOR_BODEGA_IDS[b.id]=true; });
+  return LICOR_BODEGA_IDS;
+}
+function invVenta(c){
+  var a={};
+  var licIds=_licorBodegaIds();
+  // 1) Contar Extras por cabina+noche (cada Extra reemplaza el licor base de UN cóctel)
+  var extrasPorCelda={};
+  c.charges.forEach(function(ch){
+    if(ch.skip)return;
+    if((""+ch.drinkId).indexOf("EX_")===0){ var k=ch.cabin+"|"+ch.night; extrasPorCelda[k]=(extrasPorCelda[k]||0)+ch.qty; }
+  });
+  // 2) Recorrer cargos y descontar
+  c.charges.forEach(function(ch){
+    if(ch.skip)return;
+    var mp=consume[ch.drinkId]; if(!mp)return;
+    var esExtra=((""+ch.drinkId).indexOf("EX_")===0);
+    var r=rcp(ch.drinkId); var esCoctel=(r&&r.fam==="Cóctel");
+    mp.forEach(function(m){
+      var qty=ch.qty;
+      // Si es cóctel y su ingrediente es un licor, y hay Extras pendientes en su celda -> ese licor base NO se descuenta
+      if(esCoctel && licIds[m.b]){
+        var k=ch.cabin+"|"+ch.night;
+        var disponibles=extrasPorCelda[k]||0;
+        if(disponibles>0){
+          var reemplazados=Math.min(disponibles,qty);
+          extrasPorCelda[k]=disponibles-reemplazados;
+          qty=qty-reemplazados; // solo se descuenta el resto (los no cubiertos por un Extra)
+        }
+      }
+      if(qty>0)a[m.b]=(a[m.b]||0)+m.q*qty;
+    });
+  });
+  return a;
+}
 function invState(c){c.inv=c.inv||{};c.inv.ini=c.inv.ini||{};c.inv.ing=c.inv.ing||{};c.inv.cor=c.inv.cor||{};c.inv.counts=c.inv.counts||{};c.inv.counts.dir=c.inv.counts.dir||{};c.inv.counts.bar=c.inv.counts.bar||{};c.inv.counts.adm=c.inv.counts.adm||{};return c.inv;}
 function r2(v){return Math.round(v*100)/100;}
 function cval(b,role,iv){const v=((iv.counts||{})[role]||{})[b.id];if(v==null||v==="")return null;return +v;}
@@ -1334,18 +1395,22 @@ function updatePedBadge(){
   if(n>0){ var b=document.createElement("span"); b.className="tabbadge"; b.textContent=n; tab.appendChild(b); }
 }
 async function loadPedidos(){
- if(!supa)return; var c=AC(); if(!c)return;
+ if(!supa)return; var c=AC();
+ if(!c&&pedScope!=="todos")return;
  try{
-  var qy=supa.from("pedidos").select("id,estado,creado_en,creado_por,crucero_id,persona,nota_director").order("creado_en",{ascending:false}); if(pedScope!=="todos")qy=qy.eq("crucero_id",c.id); var p=await qy;
-  if(p.error||!p.data){pedidos=[];}
+  var qy=supa.from("pedidos").select("id,estado,creado_en,creado_por,crucero_id,persona").order("creado_en",{ascending:false}); if(pedScope!=="todos"&&c)qy=qy.eq("crucero_id",c.id); var p=await qy;
+  if(p.error){pedidos=[];toast("No se pudieron cargar pedidos: "+p.error.message);}
+  else if(!p.data){pedidos=[];}
   else{
    var ids=p.data.map(function(x){return x.id;}); var items=[];
    if(ids.length){var it=await supa.from("pedido_items").select("id,pedido_id,producto_id,nombre,unidad,cantidad_pedida,cantidad_comprada").in("pedido_id",ids); if(!it.error&&it.data)items=it.data;}
    pedidos=p.data.map(function(pe){pe.items=items.filter(function(i){return i.pedido_id===pe.id;});return pe;});
+   // nota del director: opcional, no rompe si la columna no existe
+   try{ if(ids.length){var nt=await supa.from("pedidos").select("id,nota_director").in("id",ids); if(!nt.error&&nt.data){var nmap={};nt.data.forEach(function(x){nmap[x.id]=x.nota_director;});pedidos.forEach(function(pe){pe.nota_director=nmap[pe.id]||null;});}} }catch(eN){}
   }
   if(mode==="pedidos")renderPed();
   if(typeof updatePedBadge==="function")updatePedBadge();
- }catch(e){}
+ }catch(e){toast("Error cargando pedidos: "+e.message);}
 }
 async function crearPedido(rows){
  if(!supa){toast("Sin conexión: no se pudo enviar");return;}
@@ -1576,16 +1641,29 @@ function pedCardHTML(pe){
  if(!open)return '<div class="card'+(mineTurn?' pedturn':'')+'" data-ped="'+pe.id+'" style="padding:12px 14px;margin-bottom:8px">'+head+smBanner+'</div>';
  var canBuy=(role==="admin"||role==="dueno");
  var dirReview=(role==="director"&&pe.estado==="solicitado");
+ if(dirReview&&!pedDirCantidades[pe.id]){ pedDirCantidades[pe.id]={}; pe.items.forEach(function(it){pedDirCantidades[pe.id][it.id]=+it.cantidad_pedida;}); }
  var itemsRows=pe.items.map(function(it){
+   if(dirReview){
+     var cur=pedDirCantidades[pe.id][it.id]; if(cur==null)cur=+it.cantidad_pedida;
+     var quitado=(cur<=0);
+     var nameCell='<td class="l"><span class="nm"'+(quitado?' style="text-decoration:line-through;color:var(--ink-faint)"':'')+'>'+it.nombre+'</span></td>';
+     var pedCell='<td class="num"'+(quitado?' style="color:var(--ink-faint)"':'')+'>'+r2(it.cantidad_pedida)+'</td>';
+     var ctrl;
+     if(quitado){
+       ctrl='<button class="dir-undo" onclick="pedDirSetQty(\''+pe.id+'\',\''+it.id+'\','+(+it.cantidad_pedida)+')">Restaurar</button>';
+     }else{
+       ctrl='<span class="dir-stepper"><button class="dir-step" onclick="pedDirStep(\''+pe.id+'\',\''+it.id+'\',-1)">\u2212</button><b class="dir-qv">'+r2(cur)+'</b><button class="dir-step" onclick="pedDirStep(\''+pe.id+'\',\''+it.id+'\',1)">+</button><button class="dir-x" onclick="pedDirSetQty(\''+pe.id+'\',\''+it.id+'\',0)" title="No aprobar este">\u2715</button></span>';
+     }
+     return '<tr data-diritrow="'+it.id+'">'+nameCell+pedCell+'<td class="num">'+ctrl+'</td></tr>';
+   }
    var compCell;
-   if(dirReview){compCell='<input type="number" min="0" value="'+r2(it.cantidad_pedida)+'" data-dirit="'+it.id+'" class="pedDir" style="width:64px;text-align:center">';}
-   else if(pe.estado==="aprobado"&&canBuy){compCell='<input type="number" min="0" value="'+(it.cantidad_comprada||it.cantidad_pedida)+'" data-it="'+it.id+'" class="pedComp" style="width:60px;text-align:center">';}
+   if(pe.estado==="aprobado"&&canBuy){compCell='<input type="number" min="0" value="'+(it.cantidad_comprada||it.cantidad_pedida)+'" data-it="'+it.id+'" class="pedComp" style="width:60px;text-align:center">';}
    else if(it.cantidad_comprada){compCell='<span style="color:var(--ink-faint)">'+r2(it.cantidad_comprada)+'</span>';}
    else{compCell='<span style="color:var(--ink-faint)">\u2014</span>';}
    return '<tr><td class="l"><span class="nm">'+it.nombre+'</span></td><td class="num">'+r2(it.cantidad_pedida)+'</td><td class="num">'+compCell+'</td></tr>';
  }).join("");
  if(!nlines)itemsRows='<tr><td colspan="3" style="color:var(--bad);padding:10px;font-size:12px">\u26a0 Este pedido no tiene l\u00edneas cargadas. Revisa permisos de pedido_items en Supabase y crea un pedido nuevo.</td></tr>';
- var thirdCol=dirReview?"Apruebas":"Comprado";
+ var thirdCol=dirReview?"Cantidad":"Comprado";
  var actions=pedActions(pe);
  var reviewBox=dirReview?pedDirReviewHTML(pe):"";
  var notaShow=(pe.nota_director&&pe.estado!=="solicitado")?'<div class="pedmsg note">\uD83D\uDCDD Nota del Director: '+pe.nota_director+'</div>':"";
@@ -1649,6 +1727,29 @@ async function borrarPedido(id){
 }
 // ===== REVISIÓN DEL DIRECTOR =====
 var pedDirAgregados={}; // {pedidoId:[{producto_id,nombre,unidad,cantidad}]}
+var pedDirCantidades={}; // {pedidoId:{itemId:cantidad}} cantidades que el director ajusta
+function pedDirStep(pid,itid,delta){
+ if(!pedDirCantidades[pid])pedDirCantidades[pid]={};
+ var cur=pedDirCantidades[pid][itid]; if(cur==null)cur=0;
+ pedDirCantidades[pid][itid]=Math.max(0,cur+delta);
+ pedDirRefreshRow(pid,itid);
+}
+function pedDirSetQty(pid,itid,val){
+ if(!pedDirCantidades[pid])pedDirCantidades[pid]={};
+ pedDirCantidades[pid][itid]=Math.max(0,+val||0);
+ pedDirRefreshRow(pid,itid);
+}
+function pedDirRefreshRow(pid,itid){
+ var pe=(pedidos||[]).find(function(x){return String(x.id)===String(pid);}); if(!pe)return;
+ var it=pe.items.find(function(x){return String(x.id)===String(itid);}); if(!it)return;
+ var row=document.querySelector('.card[data-ped="'+pid+'"] tr[data-diritrow="'+itid+'"]'); if(!row)return;
+ var cur=pedDirCantidades[pid][itid]; if(cur==null)cur=+it.cantidad_pedida;
+ var quitado=(cur<=0);
+ var ctrl;
+ if(quitado){ ctrl='<button class="dir-undo" onclick="pedDirSetQty(\''+pid+'\',\''+itid+'\','+(+it.cantidad_pedida)+')">Restaurar</button>'; }
+ else{ ctrl='<span class="dir-stepper"><button class="dir-step" onclick="pedDirStep(\''+pid+'\',\''+itid+'\',-1)">\u2212</button><b class="dir-qv">'+r2(cur)+'</b><button class="dir-step" onclick="pedDirStep(\''+pid+'\',\''+itid+'\',1)">+</button><button class="dir-x" onclick="pedDirSetQty(\''+pid+'\',\''+itid+'\',0)" title="No aprobar este">\u2715</button></span>'; }
+ row.innerHTML='<td class="l"><span class="nm"'+(quitado?' style="text-decoration:line-through;color:var(--ink-faint)"':'')+'>'+it.nombre+'</span></td><td class="num"'+(quitado?' style="color:var(--ink-faint)"':'')+'>'+r2(it.cantidad_pedida)+'</td><td class="num">'+ctrl+'</td>';
+}
 function pedDirSearch(pid){
  var q=(document.getElementById("dirAddSearch_"+pid).value||"").trim().toLowerCase();
  var box=document.getElementById("dirAddRes_"+pid);
@@ -1687,14 +1788,19 @@ async function aprobarRevisado(id){
  var pe=(pedidos||[]).find(function(x){return String(x.id)===String(id);});
  if(!pe){toast("No se encontró el pedido");renderPed();return;}
  try{
-  // 1) actualizar cantidades editadas de los items existentes
+  // 1) actualizar cantidades editadas de los items existentes (botones -/+ y X)
   var aprobados=0;
+  var mapQ=pedDirCantidades[id]||{};
   for(var i=0;i<pe.items.length;i++){
     var it=pe.items[i];
-    var inp=document.querySelector('.card[data-ped="'+id+'"] .pedDir[data-dirit="'+it.id+'"]');
-    var nueva=inp?Math.max(0,+inp.value||0):it.cantidad_pedida;
-    if(nueva!==it.cantidad_pedida){ await supa.from("pedido_items").update({cantidad_pedida:nueva}).eq("id",it.id); }
-    if(nueva>0)aprobados++;
+    var nueva=(mapQ[it.id]!=null)?Math.max(0,+mapQ[it.id]):+it.cantidad_pedida;
+    if(nueva<=0){
+      // el director quitó este producto: se elimina del pedido
+      await supa.from("pedido_items").delete().eq("id",it.id);
+    }else{
+      if(nueva!==it.cantidad_pedida){ await supa.from("pedido_items").update({cantidad_pedida:nueva}).eq("id",it.id); }
+      aprobados++;
+    }
   }
   // 2) insertar productos agregados por el director
   var agg=pedDirAgregados[id]||[];
@@ -1707,10 +1813,11 @@ async function aprobarRevisado(id){
   var nota=(document.getElementById("dirNota_"+id)||{}).value||"";
   // 4) estado: si no quedó nada aprobado, es rechazo
   var nuevoEstado=aprobados>0?"aprobado":"rechazado";
-  var upd={estado:nuevoEstado}; if(nota.trim())upd.nota_director=nota.trim();
-  var r=await supa.from("pedidos").update(upd).eq("id",id);
+  // intentar guardar estado + nota; si la columna nota_director no existe, reintentar solo estado
+  var r=await supa.from("pedidos").update(nota.trim()?{estado:nuevoEstado,nota_director:nota.trim()}:{estado:nuevoEstado}).eq("id",id);
+  if(r.error){ r=await supa.from("pedidos").update({estado:nuevoEstado}).eq("id",id); }
   if(r.error){toast("No se pudo guardar: "+r.error.message);renderPed();return;}
-  delete pedDirAgregados[id];
+  delete pedDirAgregados[id]; delete pedDirCantidades[id];
   toast(nuevoEstado==="aprobado"?"Pedido aprobado ✓ (enviado a compras)":"Pedido rechazado (todo en 0)");
   await loadPedidos();
  }catch(e){toast("Error al aprobar: "+e.message);renderPed();}
@@ -1724,7 +1831,7 @@ function pedFmtMonth(mk){var M=["Enero","Febrero","Marzo","Abril","Mayo","Junio"
 function pedFmtDayShort(d){var m=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];var p=(d||"").split("-");if(p.length<3)return d;return (+p[2])+" "+m[(+p[1])-1];}
 function pedDayGroup(list){var out="",lastDay="";list.forEach(function(pe){var day=(pe.creado_en||"").slice(0,10);if(day&&day!==lastDay){lastDay=day;out+='<div class="peddate">'+pedFmtDay(day)+'</div>';}out+=pedCardHTML(pe);});return out;}
 function pedListaHTML(){
- var toggle='<div class="pedscope"><button class="pedtab'+(pedScope==="crucero"?" on":"")+'" onclick="pedScopeSet(\'crucero\')">Este crucero</button><button class="pedtab'+(pedScope==="todos"?" on":"")+'" onclick="pedScopeSet(\'todos\')">Todos</button></div>';
+ var toggle='<div class="pedscope"><button class="pedtab'+(pedScope==="crucero"?" on":"")+'" onclick="pedScopeSet(\'crucero\')">Este crucero</button><button class="pedtab'+(pedScope==="todos"?" on":"")+'" onclick="pedScopeSet(\'todos\')">Todos</button></div><div style="text-align:right;margin:-4px 0 8px"><button class="act ghost" style="font-size:11px;padding:4px 9px" onclick="pedDiagLeer()">\uD83D\uDD0D Diagn\u00f3stico</button></div>';
  if(!pedidos.length)return toggle+'<div class="card"><div style="padding:12px;color:var(--ink-faint)">Todav\u00eda no hay pedidos'+(pedScope==="todos"?".":" para este crucero.")+'</div></div>';
  var head='<div class="card-h" style="padding:2px 2px 6px"><h2 style="font-size:15px">Pedidos</h2><span class="hint">'+pedidos.length+' \u00b7 toca uno para ver el detalle</span></div>';
  var body="";
@@ -1768,6 +1875,34 @@ async function pedDiagnostico(){
   }catch(e){
     show("\u274c Encontr\u00e9 el problema","<b>"+((e&&e.message)||String(e))+"</b><br><br>PASOS HASTA EL FALLO:<br>"+log.join("<br>"),true);
   }
+}
+async function pedDiagLeer(){
+  function show(title,msg,bad){ var ov=document.getElementById("recibOverlay"); if(!ov){ov=document.createElement("div");ov.id="recibOverlay";document.body.appendChild(ov);} ov.innerHTML='<div class="recib-card"><div class="recib-title" style="color:'+(bad?"var(--bad)":"var(--good)")+'">'+title+'</div><div class="recib-sub" style="word-break:break-word;text-align:left;font-size:12px">'+msg+'</div><button class="act" onclick="document.getElementById(\'recibOverlay\').classList.remove(\'show\')">Cerrar</button></div>'; ov.classList.add("show"); }
+  if(!supa){ show("Sin nube","La app no tiene conexi\u00f3n a Supabase. \u00bfAbriste desde https://... y NO desde el archivo de Descargas?",true); return; }
+  var L=[];
+  try{
+    var c=AC(); L.push("Crucero activo: "+(c?c.id:"NINGUNO"));
+    L.push("Filtro actual: "+pedScope);
+    // 1) leer TODOS los pedidos, sin filtro
+    var all=await supa.from("pedidos").select("id,estado,crucero_id,persona,creado_en").order("creado_en",{ascending:false});
+    if(all.error){ show("\u274c No puedo LEER pedidos","Error de Supabase al leer la tabla 'pedidos':<br><br><b>"+all.error.message+"</b><br><br>Casi seguro es un permiso (RLS) de lectura en la tabla pedidos.<br><br>"+L.join("<br>"),true); return; }
+    L.push("TOTAL de pedidos en la base (sin filtro): "+all.data.length);
+    if(all.data.length){
+      all.data.slice(0,6).forEach(function(p){ L.push("\u2022 #"+String(p.id)+" \u00b7 "+p.estado+" \u00b7 crucero="+(p.crucero_id||"(vac\u00edo)")+" \u00b7 "+(p.persona||"?")); });
+    }
+    // 2) leer items
+    if(all.data.length){
+      var ids=all.data.map(function(x){return x.id;});
+      var it=await supa.from("pedido_items").select("id,pedido_id").in("pedido_id",ids);
+      if(it.error){ L.push("\u26a0 No puedo leer pedido_items: "+it.error.message+" (permiso RLS de items)"); }
+      else { L.push("Total de l\u00edneas (items) le\u00eddas: "+it.data.length); }
+    }
+    var diag="";
+    if(all.data.length===0){ diag="<br><b>La base NO tiene ning\u00fan pedido.</b> Aunque el bar vea 'enviado', no se est\u00e1 guardando. Probable permiso RLS de ESCRITURA, o se borr\u00f3."; }
+    else if(c && all.data.every(function(p){return p.crucero_id && p.crucero_id!==c.id;})){ diag="<br><b>Hay pedidos, pero de OTRO crucero.</b> Tu crucero activo es "+c.id+" y los pedidos son de otro. Usa el filtro 'Todos'."; }
+    else { diag="<br><b>Hay pedidos y son visibles.</b> Si no los ves en la lista, toca 'Todos' o recarga con un ?fresh=NUEVO."; }
+    show("Diagn\u00f3stico de lectura", L.join("<br>")+"<br>"+diag, all.data.length===0);
+  }catch(e){ show("\u274c Error",((e&&e.message)||String(e)),true); }
 }
 var pedSubtab=null; // "armar" | "ver"
 function renderPed(){
