@@ -411,7 +411,7 @@
 </style>
 <style id="pagesize"></style></head>
 <body><div class="wrap">
-  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo</div></div>
+  <div class="top"><div class="brand"><div class="mark">Treasure<span class="dot">.</span></div><div class="tagline">Bar de a bordo · v4.1</div></div>
     <div class="tabs"><button class="tab" data-m="zarpe">Zarpe</button><button class="tab active" data-m="servicio">Servicio</button><button class="tab" data-m="cuentas">Cuentas</button><button class="tab" data-m="sri">SRI</button><button class="tab" data-m="inventario">Inventario</button><button class="tab" data-m="pedidos">Pedidos</button><button class="tab" data-m="panel">Panel</button><button class="tab" data-m="equipo">Equipo</button></div></div>
   <div class="switcher" id="rolebar"><span>Rol</span><div id="roleBtns" style="display:flex;gap:7px;flex-wrap:wrap"></div><span id="roleDesc" style="color:var(--ink-faint);font-size:11.5px"></span></div>
   <div class="switcher" id="switcher"><span>Buscar</span><select id="yearSel" style="min-width:90px"></select><select id="monthSel" style="min-width:120px"></select><select id="cruiseSel"></select></div>
@@ -530,7 +530,7 @@ const fams=["Cóctel","Cerveza","Vino","Licor","Bebida","Souvenir","Extra"];
 // Cada Extra descuenta ~1 oz del licor elegido y cobra $4.35 ("Valor Extra Premium Licor").
 (function(){
   var EXTRA_PRICE=4.3478; // Valor Extra Cocteleria Por Premium Licor
-  var CATS_LICOR=["RON","WHISKY","GIN","TEQUILA","VODKA","DIGESTIFS / APERITIFS","OTROS LICORES","PARA COCTAIL"];
+  var CATS_LICOR=["RON","WHISKY","GIN","TEQUILA","VODKA","DIGESTIFS / APERITIFS","OTROS LICORES"]; // "PARA COCTAIL" excluido: son insumos/jarabes, no licores premium
   bodega.forEach(function(b){
     if(CATS_LICOR.indexOf(b.cat)<0)return;
     var shots=b.shots||12; var q=Math.round((1/shots)*10000)/10000; // 1 oz ≈ 1/shots de botella
