@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tu Casa — Studio Ocho</title>
+<!--
+  Studio Ocho — Test de Perfil de Hogar
+  Web3Forms Key: configurado
+  Email destino: felipegaviria@studioocho.one
+-->
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg:       #0d0b07;
+    --sand:     #c4b49a;
+    --gold:     #d4a85a;
+    --text:     #ede3d0;
+    --dim:      rgba(196,180,154,0.5);
+    --border:   rgba(196,180,154,0.14);
+    --border2:  rgba(196,180,154,0.4);
+    --glow:     rgba(212,168,90,0.12);
+  }
+
+  html, body {
+    min-height: 100vh;
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(rgba(196,180,154,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(196,180,154,0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+  }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 48px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ══════════════════════════════
+     HEADER
+  ══════════════════════════════ */
+  .header {
+    padding: 28px 24px 18px;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-mark {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--border2);
+    border-style: solid;
+  }
+  .header-mark.tl { top: 14px; left: 16px; border-width: 1px 0 0 1px; }
+  .header-mark.tr { top: 14px; right: 16px; border-width: 1px 1px 0 0; }
+
+  .logo-symbols { display: flex; justify-content: center; align-items: center; gap: 7px; margin-bottom: 10px; }
+  .logo-symbols svg { display: block; }
+
+  .logo-name {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 6px;
+    color: var(--sand);
+    text-transform: uppercase;
+  }
+
+  .logo-tag {
+    font-size: 8px;
+    letter-spacing: 3.5px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ══════════════════════════════
+     SCREEN SYSTEM
+  ══════════════════════════════ */
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* ══════════════════════════════
+     PANTALLA: NOMBRE
+  ══════════════════════════════ */
+  .pre-body {
+    flex: 1; padding: 4px 20px 24px;
+    display: flex; flex-direction: column;
+  }
+
+  .pre-card {
+    border: 1px solid var(--border2);
+    padding: 40px 28px 36px;
+    flex: 1;
+    display: flex; flex-direction: column;
+    justify-content: center; text-align: center;
+    position: relative;
+    background: rgba(196,180,154,0.02);
+  }
+
+  .pre-card .mark {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-color: rgba(212,168,90,0.5);
+    border-style: solid;
+  }
+  .pre-card .mark.bl { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+  .pre-card .mark.br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+  .pre-eyebrow {
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 18px;
+  }
+
+  /* Animated symbols on intro — infinite loop 5s cycle */
+  .pre-symbols {
+    display: flex; justify-content: center; align-items: center;
+    gap: 10px; margin-bottom: 28px;
+  }
+
+  /* Sym 1: outline circle draws 2%→12%, holds 12%→68%, fades 68%→84%, reset */
+  .s1 {
+    stroke-dasharray: 69; stroke-dashoffset: 69;
+    animation: sym1Loop 5s infinite;
+  }
+  @keyframes sym1Loop {
+    0%, 2%    { stroke-dashoffset: 69; opacity: 1; }
+    12%, 66%  { stroke-dashoffset: 0;  opacity: 1; }
+    82%       { stroke-dashoffset: 0;  opacity: 0; }
+    100%      { stroke-dashoffset: 69; opacity: 0; }
+  }
+
+  /* Sym 2: ring draws 10%→20% */
+  .s2r {
+    stroke-dasharray: 69; stroke-dashoffset: 69;
+    animation: sym2RLoop 5s infinite;
+  }
+  @keyframes sym2RLoop {
+    0%, 10%  { stroke-dashoffset: 69; opacity: 1; }
+    20%, 66% { stroke-dashoffset: 0;  opacity: 1; }
+    82%      { stroke-dashoffset: 0;  opacity: 0; }
+    100%     { stroke-dashoffset: 69; opacity: 0; }
+  }
+
+  /* Sym 2: filled half, appears at 18% */
+  .s2f {
+    opacity: 0;
+    animation: sym2FLoop 5s infinite;
+  }
+  @keyframes sym2FLoop {
+    0%, 18%  { opacity: 0; }
+    26%, 66% { opacity: 1; }
+    82%      { opacity: 0; }
+    100%     { opacity: 0; }
+  }
+
+  /* Sym 3: square draws 18%→30% */
+  .s3 {
+    stroke-dasharray: 80; stroke-dashoffset: 80;
+    animation: sym3Loop 5s infinite;
+  }
+  @keyframes sym3Loop {
+    0%, 18%  { stroke-dashoffset: 80; opacity: 1; }
+    30%, 66% { stroke-dashoffset: 0;  opacity: 1; }
+    82%      { stroke-dashoffset: 0;  opacity: 0; }
+    100%     { stroke-dashoffset: 80; opacity: 0; }
+  }
+
+  /* Sym 4: filled circle pops at 28% */
+  .s4 {
+    opacity: 0;
+    transform-box: fill-box; transform-origin: center;
+    animation: sym4Loop 5s infinite;
+  }
+  @keyframes sym4Loop {
+    0%, 28%  { opacity: 0; transform: scale(0.3); }
+    36%      { opacity: 1; transform: scale(1.18); }
+    42%, 66% { opacity: 1; transform: scale(1); }
+    82%      { opacity: 0; transform: scale(0.8); }
+    100%     { opacity: 0; transform: scale(0.3); }
+  }
+
+  .pre-icon { font-size: 52px; display: block; margin-bottom: 20px; }
+
+  .pre-title {
+    font-size: 21px; font-weight: 700;
+    color: var(--text); margin-bottom: 8px; line-height: 1.3;
+  }
+
+  .pre-sub {
+    font-size: 13px; color: var(--dim);
+    margin-bottom: 32px; line-height: 1.65;
+  }
+
+  .name-input {
+    width: 100%;
+    background: rgba(196,180,154,0.05);
+    border: 1px solid var(--border2);
+    padding: 14px 16px;
+    font-size: 18px; font-weight: 600;
+    color: var(--text); font-family: inherit;
+    outline: none; margin-bottom: 16px;
+    text-align: center; letter-spacing: 0.5px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .name-input:focus { border-color: var(--gold); background: rgba(212,168,90,0.07); }
+  .name-input::placeholder { color: rgba(196,180,154,0.25); font-weight: 400; }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--sand);
+    color: var(--bg);
+    border: none;
+    padding: 16px;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 4px; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s, transform 0.1s;
+  }
+  .btn-primary:active { opacity: 0.85; transform: scale(0.98); }
+  .btn-disabled { opacity: 0.2; pointer-events: none; }
+
+  .pre-note {
+    font-size: 11px; color: var(--dim);
+    margin-top: 20px; line-height: 1.6;
+  }
+
+  /* ══════════════════════════════
+     PROGRESS
+  ══════════════════════════════ */
+  .progress-area { padding: 10px 20px 6px; }
+
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 10px;
+  }
+
+  .progress-label {
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim);
+  }
+
+  .progress-num {
+    font-size: 12px; font-weight: 700;
+    color: var(--gold); letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .progress-track {
+    background: rgba(196,180,154,0.08);
+    height: 1px; overflow: visible; position: relative;
+  }
+
+  .progress-fill {
+    background: linear-gradient(90deg, var(--sand), var(--gold));
+    height: 1px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute; right: -4px; top: -4px;
+    width: 9px; height: 9px;
+    background: var(--gold); border-radius: 50%;
+    box-shadow: 0 0 10px rgba(212,168,90,0.7);
+  }
+
+  /* ══════════════════════════════
+     PREGUNTA
+  ══════════════════════════════ */
+  .q-body {
+    flex: 1; padding: 8px 20px 20px;
+    display: flex; flex-direction: column;
+  }
+
+  .q-card {
+    border: 1px solid var(--border);
+    padding: 28px 20px 20px;
+    flex: 1; display: flex; flex-direction: column;
+    animation: slideIn 0.22s ease;
+    background: rgba(196,180,154,0.015);
+    position: relative;
+  }
+
+  /* Corner marks on question card */
+  .q-card::before {
+    content: '';
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    border-top: 1px solid rgba(212,168,90,0.4);
+    border-right: 1px solid rgba(212,168,90,0.4);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(22px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .q-emoji { font-size: 34px; display: block; text-align: center; margin-bottom: 14px; }
+
+  .q-cat {
+    text-align: center;
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--dim);
+    margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .q-cat::before, .q-cat::after {
+    content: ''; display: block; height: 1px; width: 28px;
+    background: var(--border2);
+  }
+
+  .q-text {
+    font-size: 17px; font-weight: 700;
+    color: var(--text); text-align: center;
+    line-height: 1.45; margin-bottom: 22px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+  .opt {
+    display: flex; align-items: center; gap: 13px;
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 13px 14px;
+    cursor: pointer; text-align: left;
+    transition: all 0.16s;
+    position: relative;
+  }
+
+  /* Blueprint corner mark */
+  .opt::before {
+    content: '';
+    position: absolute; top: 4px; left: 4px;
+    width: 6px; height: 6px;
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+    transition: border-color 0.16s;
+  }
+
+  .opt:hover { border-color: var(--border2); background: rgba(196,180,154,0.04); }
+  .opt:hover::before { border-color: rgba(196,180,154,0.5); }
+
+  .opt.chosen {
+    border-color: var(--gold);
+    background: var(--glow);
+    box-shadow: inset 0 0 0 1px rgba(212,168,90,0.15), 0 0 14px rgba(212,168,90,0.12);
+    animation: optPress 0.28s ease;
+  }
+  .opt.chosen::before { border-color: var(--gold); }
+
+  @keyframes optPress {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.025); }
+    100% { transform: scale(1); }
+  }
+
+  /* Background question number */
+  .q-num-bg {
+    position: absolute;
+    bottom: 10px; right: 14px;
+    font-size: 88px; font-weight: 900;
+    color: rgba(196,180,154,0.045);
+    line-height: 1; pointer-events: none;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -4px; user-select: none;
+  }
+
+  .opt-icon { font-size: 21px; flex-shrink: 0; }
+
+  .opt-text {
+    font-size: 13px; font-weight: 500;
+    color: var(--text); line-height: 1.4; opacity: 0.8;
+  }
+  .opt.chosen .opt-text { opacity: 1; }
+
+  /* ══════════════════════════════
+     LOADING
+  ══════════════════════════════ */
+  .loading-screen {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 40px 24px;
+  }
+
+  .loading-house { margin-bottom: 28px; }
+
+  .house-track {
+    stroke: rgba(196,180,154,0.12);
+  }
+
+  .house-arc {
+    stroke-dasharray: 28 72;
+    animation: houseLoad 1.6s linear infinite;
+  }
+
+  @keyframes houseLoad {
+    from { stroke-dashoffset: 0; }
+    to   { stroke-dashoffset: -100; }
+  }
+
+  .loading-label {
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--dim);
+    margin-bottom: 20px;
+  }
+
+  .dots { display: flex; gap: 6px; }
+  .dots span {
+    width: 4px; height: 4px;
+    background: var(--sand); border-radius: 50%;
+    animation: dotpulse 1.2s infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dotpulse {
+    0%, 80%, 100% { transform: scale(0.5); opacity: 0.25; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ══════════════════════════════
+     RESULTADO
+  ══════════════════════════════ */
+  .result-body {
+    flex: 1; padding: 0 20px 24px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  /* Hero card */
+  .result-hero {
+    border: 1px solid var(--border2);
+    padding: 36px 24px 30px;
+    text-align: center; position: relative;
+    background: rgba(196,180,154,0.025);
+    animation: heroReveal 0.5s ease both;
+  }
+
+  @keyframes heroReveal {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-hero .mark {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-color: rgba(212,168,90,0.6);
+    border-style: solid;
+  }
+  .result-hero .mark.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+  .result-hero .mark.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+  .result-hero .mark.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+  .result-hero .mark.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+  /* Animal seal — premium stamp reveal */
+  .animal-seal {
+    position: relative;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 110px; height: 110px;
+    margin: 0 auto 18px;
+  }
+
+  .seal-svg {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    animation: sealSpin 30s linear infinite;
+  }
+
+  @keyframes sealSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .seal-emoji {
+    font-size: 52px; line-height: 1;
+    position: relative; z-index: 1;
+    animation: sealReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes sealReveal {
+    0%   { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+    60%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .result-animal { font-size: 62px; display: block; margin-bottom: 14px; }
+
+  .result-badge {
+    display: inline-block;
+    border: 1px solid var(--border2);
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    padding: 5px 14px; margin-bottom: 16px; color: var(--dim);
+  }
+
+  .result-name {
+    font-size: 22px; font-weight: 800;
+    color: var(--text); margin-bottom: 6px; letter-spacing: 0.5px;
+  }
+
+  .result-tagline {
+    font-size: 10px; color: var(--dim);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 18px; }
+
+  .chip {
+    border: 1px solid var(--border);
+    color: var(--dim); font-size: 8px; font-weight: 700;
+    padding: 4px 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  }
+
+  /* Section cards */
+  .r-card {
+    border: 1px solid var(--border);
+    padding: 18px 18px;
+    background: rgba(196,180,154,0.018);
+    position: relative;
+  }
+
+  .r-card.accent {
+    border-color: var(--border2);
+    background: rgba(196,180,154,0.04);
+  }
+
+  .r-label {
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--sand);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .r-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .r-text { font-size: 13px; color: var(--dim); line-height: 1.75; }
+
+  .mix-card .mix-sub { font-size: 13.5px; color: var(--text); line-height: 1.6; margin-bottom: 16px; }
+  .mix-card .mix-sub b { color: var(--sand); font-weight: 700; }
+  .mix-bars { display: flex; flex-direction: column; gap: 9px; }
+  .mix-row { display: flex; align-items: center; gap: 10px; font-size: 11.5px; }
+  .mix-name { width: 96px; flex-shrink: 0; color: var(--dim); }
+  .mix-track { flex: 1; height: 7px; background: rgba(196,180,154,0.1); border-radius: 4px; overflow: hidden; }
+  .mix-fill { display: block; height: 100%; border-radius: 4px; transition: width .6s ease; }
+  .mix-pct { width: 34px; text-align: right; font-family: var(--mono, monospace); color: var(--sand); font-size: 11px; }
+  .mix-note { font-size: 11px; color: var(--faint, rgba(196,180,154,0.45)); line-height: 1.6; margin-top: 14px; font-style: italic; }
+
+  .key-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+    font-size: 12px; color: var(--text); opacity: 0.75; line-height: 1.5;
+  }
+  .key-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .key-row .ki { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  .prog-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 12px; color: var(--text); opacity: 0.8;
+    margin-bottom: 8px; line-height: 1.45;
+  }
+  .prog-row:last-child { margin-bottom: 0; }
+
+  /* Buttons */
+  .btn-secondary {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border2);
+    padding: 14px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--dim); cursor: pointer; margin-top: 4px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-secondary:active { border-color: var(--gold); color: var(--gold); }
+
+  /* Email status */
+  .email-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--dim);
+    padding: 6px 0; justify-content: center; letter-spacing: 0.5px;
+  }
+
+  /* Conflict banner */
+  .conflict-banner {
+    border: 1px solid rgba(212,168,90,0.35);
+    padding: 14px 16px;
+    font-size: 12px; color: var(--dim); line-height: 1.6;
+    background: rgba(212,168,90,0.04);
+  }
+  .conflict-banner strong { font-weight: 700; display: block; margin-bottom: 4px; color: var(--gold); }
+
+  /* Footer */
+  .studio-footer {
+    text-align: center; padding-top: 6px;
+    font-size: 8px; color: rgba(196,180,154,0.25);
+    letter-spacing: 2.5px; text-transform: uppercase;
+  }
+
+  /* unused legacy classes (keep for compat) */
+  .pre-label, .role-opts, .role-btn, .time-pill,
+  .btn-disabled-legacy { display: none; }
+
+  .intro-body, .intro-card { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-mark tl"></div>
+    <div class="header-mark tr"></div>
+    <div class="logo-symbols">
+      <svg width="16" height="16" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7.5" stroke="#c4b49a" stroke-width="1.5" fill="none"/></svg>
+      <svg width="16" height="16" viewBox="0 0 18 18"><path d="M9 1.5 A7.5 7.5 0 0 1 9 16.5 Z" fill="#c4b49a"/><circle cx="9" cy="9" r="7.5" stroke="#c4b49a" stroke-width="1.5" fill="none"/></svg>
+      <svg width="16" height="16" viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" stroke="#c4b49a" stroke-width="1.5" fill="none"/></svg>
+      <svg width="16" height="16" viewBox="0 0 18 18"><circle cx="9" cy="9" r="7.5" fill="#c4b49a"/></svg>
+    </div>
+    <div class="logo-name">Studio Ocho</div>
+    <div class="logo-tag">Art of Living · Galápagos</div>
+  </div>
+
+  <!-- ══════ PANTALLA: NOMBRE ══════ -->
+  <div id="screen-pre" class="screen active">
+    <div class="pre-body">
+      <div class="pre-card">
+        <div class="mark bl"></div>
+        <div class="mark br"></div>
+
+        <div class="pre-eyebrow">Briefing inicial · Studio Ocho</div>
+
+        <div class="pre-symbols">
+          <!-- ○ Círculo vacío -->
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle class="s1" cx="14" cy="14" r="11" stroke="#c4b49a" stroke-width="1.5" fill="none"/>
+          </svg>
+          <!-- ◐ Medio círculo -->
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle class="s2r" cx="14" cy="14" r="11" stroke="#c4b49a" stroke-width="1.5" fill="none"/>
+            <path class="s2f" d="M14 3 A11 11 0 0 1 14 25 Z" fill="#c4b49a"/>
+          </svg>
+          <!-- □ Cuadrado -->
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <rect class="s3" x="4" y="4" width="20" height="20" stroke="#c4b49a" stroke-width="1.5" fill="none"/>
+          </svg>
+          <!-- ● Círculo lleno -->
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle class="s4" cx="14" cy="14" r="11" fill="#c4b49a"/>
+          </svg>
+        </div>
+
+        <div class="pre-title">Tu casa empieza<br>aquí.</div>
+        <div class="pre-sub">Antes de la primera reunión, necesitamos conocerte.<br>No son preguntas de arquitectura — son sobre cómo vives.</div>
+
+        <input class="name-input" id="user-name" type="text"
+          placeholder="Tu nombre"
+          maxlength="40"
+          oninput="checkPreForm()" />
+
+        <button class="btn-primary btn-disabled" id="btn-pre-go" onclick="goToIntro()">
+          Comenzar →
+        </button>
+
+        <p class="pre-note">3 minutos · 15 preguntas · Resultado inmediato<br>Si tienes pareja, compártele el test después.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PANTALLA: PREGUNTAS ══════ -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-area">
+      <div class="progress-meta">
+        <span class="progress-label">Construyendo tu perfil</span>
+        <span class="progress-num" id="q-label-top">01 · 15</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-card" id="q-slot"></div>
+    </div>
+  </div>
+
+  <!-- ══════ PANTALLA: CARGANDO ══════ -->
+  <div id="screen-loading" class="screen">
+    <div class="loading-screen">
+      <!-- House loading spinner -->
+      <svg class="loading-house" width="64" height="58" viewBox="0 0 64 58">
+        <!-- Track (faint full outline) -->
+        <path class="house-track"
+          d="M4 56 L4 26 L32 4 L60 26 L60 56 Z M20 56 L20 38 L44 38 L44 56"
+          pathLength="100"
+          stroke="#c4b49a" stroke-width="1.5" fill="none"
+          stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Animated arc -->
+        <path class="house-arc"
+          d="M4 56 L4 26 L32 4 L60 26 L60 56 Z M20 56 L20 38 L44 38 L44 56"
+          pathLength="100"
+          stroke="#d4a85a" stroke-width="1.5" fill="none"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div class="loading-label">Trazando tu perfil de hogar</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ══════ PANTALLA: RESULTADO ══════ -->
+  <div id="screen-result" class="screen">
+    <div class="result-body" id="result-slot"></div>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIGURACIÓN ──────────────────────────────────────────────
+const WEB3FORMS_KEY = "9964eb7d-ae48-4eac-a363-ff35d8ee325a";
+const STUDIO_EMAIL  = "felipegaviria@studioocho.one";
+
+// ── PREGUNTAS ──────────────────────────────────────────────────
+const questions = [
+
+  // ════ BLOQUE FACTUAL (no puntúa al perfil — solo arma el programa) ════
+  {
+    emoji: "👨‍👩‍👦",
+    cat: "Tu familia",
+    text: "¿Quién vive en tu casa?",
+    opts: [
+      { icon: "💑",   text: "Solo mi pareja — sin hijos por ahora",              sc: {} },
+      { icon: "🐣",   text: "Pareja con hijos pequeños (menores de 10)",         sc: {} },
+      { icon: "👦👧", text: "Pareja con hijos adolescentes o ya grandes",        sc: {} },
+      { icon: "🐕",   text: "También tenemos mascotas — son parte de la familia", sc: {} }
+    ]
+  },
+  {
+    emoji: "🔦",
+    cat: "Un clásico de Galápagos",
+    text: "Se va la luz en la noche 😄 ¿Cuántas linternas necesita tu casa?",
+    opts: [
+      { icon: "🕯️",   text: "1 o 2 — somos la pareja, sin hijos aún",           sc: {} },
+      { icon: "🔦",   text: "3 o 4 — pareja con uno o dos hijos",                sc: {} },
+      { icon: "🔦🔦", text: "5 o 6 — familia completa",                          sc: {} },
+      { icon: "🏠",   text: "7 o más — somos bastantes en esta casa",            sc: {} }
+    ]
+  },
+  {
+    emoji: "🎒",
+    cat: "La tarde en casa",
+    text: "Tus hijos llegan del colegio. ¿Cómo es esa hora?",
+    opts: [
+      { icon: "👶", text: "Todavía muy pequeños — necesitan estar cerca de nosotros", sc: {} },
+      { icon: "🧒", text: "Juegan solos pero nos buscan cada rato",               sc: {} },
+      { icon: "🎧", text: "Se encierran en su cuarto — necesitan su espacio",     sc: {} },
+      { icon: "🚫", text: "No tenemos hijos / ya son independientes",             sc: {} }
+    ]
+  },
+
+  // ════ NÚCLEO DE PERSONALIDAD — DILEMAS (elegir uno = renunciar al resto) ════
+  {
+    emoji: "🌅",
+    cat: "Tu ritmo",
+    text: "Domingo en la mañana. El plan perfecto es...",
+    opts: [
+      { icon: "😴", text: "Mi burbuja: sin ruido, sin que nadie me busque",        sc: { tortuga:2 } },
+      { icon: "👨‍👩‍👧", text: "Desayuno largo con la familia, todos en la cocina",   sc: { delfin:2 } },
+      { icon: "🌊", text: "Salir: mar, bici, naturaleza — la casa es para volver",  sc: { iguana:2 } },
+      { icon: "🍹", text: "Que empiece a llegar gente: música y sobremesa",         sc: { fragata:2 } }
+    ]
+  },
+  {
+    emoji: "🍳",
+    cat: "El corazón de la casa",
+    text: "Cocinando, lo que NO negocias es...",
+    opts: [
+      { icon: "👀", text: "Tener a la vista a los míos mientras cocino",           sc: { delfin:2 } },
+      { icon: "🗣️", text: "Cocina abierta a la sala y a la conversación",          sc: { fragata:2 } },
+      { icon: "🚪", text: "Cocinar en lo mío, sin que vean el proceso",            sc: { tiburon:1, tortuga:1 } },
+      { icon: "🌿", text: "La brisa y el patio entrando mientras cocino",          sc: { iguana:2 } }
+    ]
+  },
+  {
+    emoji: "👥",
+    cat: "Tu vida social",
+    text: "La verdad sobre las visitas en tu casa:",
+    opts: [
+      { icon: "🎉", text: "Mientras más gente, mejor — la casa es para llenarla",  sc: { fragata:2 } },
+      { icon: "🤝", text: "Solo familia y gente de confianza, sin show",           sc: { delfin:2 } },
+      { icon: "🚶", text: "Mejor los veo afuera — mi casa es mi refugio",          sc: { tortuga:2 } },
+      { icon: "🏨", text: "Que haya un espacio aparte para quien se queda",        sc: { lobo:2 } }
+    ]
+  },
+  {
+    emoji: "🏠",
+    cat: "La cara a la calle",
+    text: "Tu casa, vista desde la calle, es...",
+    opts: [
+      { icon: "🔒", text: "Cerrada y discreta — lo de adentro es asunto mío",      sc: { tortuga:2 } },
+      { icon: "🪟", text: "Abierta y acogedora — que se note que aquí se vive",    sc: { fragata:2 } },
+      { icon: "🌿", text: "Casi no se ve la casa — se ve el verde alrededor",      sc: { iguana:2 } },
+      { icon: "◾", text: "Limpia, con líneas y carácter — que la volteen a ver",   sc: { tiburon:2 } }
+    ]
+  },
+  {
+    emoji: "🎨",
+    cat: "Lo que importa",
+    text: "Si tuvieras que elegir UNA sola, tu casa sería...",
+    opts: [
+      { icon: "✨", text: "Impresionante — con diseño y carácter propio",          sc: { tiburon:2 } },
+      { icon: "⚙️", text: "Inteligente — mucho con poco, nada de sobra",           sc: { pinguino:2 } },
+      { icon: "🌱", text: "Parte de Galápagos — natural, fresca, viva",            sc: { iguana:2 } },
+      { icon: "🤍", text: "Cálida — que se sienta hogar apenas entras",            sc: { delfin:2 } }
+    ]
+  },
+  {
+    emoji: "😤",
+    cat: "Tu dolor",
+    text: "De donde vives ahora, lo que MÁS te pesa es...",
+    opts: [
+      { icon: "🥵", text: "El calor encerrado — que no corra el aire",            sc: { iguana:2 } },
+      { icon: "🔊", text: "El ruido — no tener un rincón mío en silencio",         sc: { tortuga:2 } },
+      { icon: "📦", text: "El desorden — todo apretado, nada en su lugar",         sc: { pinguino:2 } },
+      { icon: "🙈", text: "Que me da pena recibir — la casa no acompaña",          sc: { fragata:2 } }
+    ]
+  },
+  {
+    emoji: "❤️",
+    cat: "Tu espacio soñado",
+    text: "Solo puedes tener UN espacio increíble. Eliges...",
+    opts: [
+      { icon: "🍽️", text: "Una cocina-comedor enorme, de reunión",                sc: { delfin:2 } },
+      { icon: "🛖",  text: "Una terraza para vivir afuera todo el día",            sc: { fragata:1, iguana:1 } },
+      { icon: "🛏️", text: "Una suite principal de hotel, solo mía",               sc: { tortuga:2 } },
+      { icon: "💼", text: "Un estudio o depa aparte — trabajo o renta",            sc: { lobo:2 } }
+    ]
+  },
+  {
+    emoji: "🌴",
+    cat: "Feriado largo",
+    text: "Semana Santa en Galápagos. ¿Quién duerme en tu casa?",
+    opts: [
+      { icon: "👴👵", text: "Mis papás o suegros — necesitan su cuarto cómodo",    sc: { lobo:2 } },
+      { icon: "🛋️",  text: "Amigos o familia — siempre cae alguien al sofá-cama", sc: { fragata:1, delfin:1 } },
+      { icon: "🚢",  text: "Vienen pero se va al hotel — cada quien lo suyo",      sc: { tortuga:1, tiburon:1 } },
+      { icon: "🏡",  text: "Somos los mismos — nadie se queda a dormir",          sc: { pinguino:2 } }
+    ]
+  },
+  {
+    emoji: "💡",
+    cat: "Uso del espacio",
+    text: "Además de ser hogar, tu casa debería...",
+    opts: [
+      { icon: "💰", text: "Generar renta — una unidad aparte que produzca",        sc: { lobo:2 } },
+      { icon: "💻", text: "Tener mi espacio de trabajo u oficina en casa",         sc: { tiburon:1, pinguino:1 } },
+      { icon: "👨‍👩‍👧", text: "Ser 100% de la familia, nada más",                   sc: { delfin:2 } },
+      { icon: "🌿", text: "Poder crecer y cambiar con los años",                   sc: { iguana:2 } }
+    ]
+  },
+  {
+    emoji: "🧱",
+    cat: "La pared de tu sala",
+    text: "Una pared importante de tu sala. ¿Cómo la quieres?",
+    opts: [
+      { icon: "🖼️", text: "Un gran ventanal que enmarque UNA vista perfecta",     sc: { tiburon:2 } },
+      { icon: "↕️", text: "Doble altura — amplitud con pocos metros",              sc: { pinguino:2 } },
+      { icon: "🧱", text: "Sólida y protegida — la luz entra por arriba",          sc: { tortuga:2 } },
+      { icon: "🪟", text: "Toda de vidrio, abierta — luz, vista y gente",          sc: { fragata:2 } }
+    ]
+  },
+  {
+    emoji: "🏗️",
+    cat: "Tu plan",
+    text: "Tu forma de construir es...",
+    opts: [
+      { icon: "🏃", text: "Todo de una, completo, y a estrenar",                   sc: { tiburon:2 } },
+      { icon: "🎯", text: "Lo justo, bien hecho, sin gastar de más",               sc: { pinguino:2 } },
+      { icon: "🏨", text: "Empezar por la parte que me dé renta",                  sc: { lobo:2 } },
+      { icon: "🧱", text: "Por etapas — creciendo orgánico con el tiempo",         sc: { iguana:2 } }
+    ]
+  },
+  {
+    emoji: "🔮",
+    cat: "Tu futuro",
+    text: "En 10 años, esta casa probablemente...",
+    opts: [
+      { icon: "🏡", text: "Sigue idéntica — la hicimos perfecta para nosotros",    sc: { tortuga:2 } },
+      { icon: "👶", text: "Tiene más vida — la familia creció",                    sc: { delfin:2 } },
+      { icon: "💰", text: "Me da ingresos — alquilo una parte",                    sc: { lobo:1, pinguino:1 } },
+      { icon: "🌅", text: "Más abierta, más gente, más vida social",               sc: { fragata:2 } }
+    ]
+  }
+];
+
+// ── PERFILES ──────────────────────────────────────────────────
+const profiles = {
+  tortuga: {
+    animal: "🐢",
+    name: "La Tortuga Gigante",
+    tagline: "Clásica · Privada · Íntima",
+    chips: ["Introvertida", "Sólida", "Duradera", "Tu refugio"],
+    desc: "Tu casa es exactamente eso: tu casa. Un espacio que te pertenece, donde recargas energías y nadie te interrumpe. No necesitas impresionar a nadie — necesitas sentirte seguro y cómodo. La calle queda afuera.",
+    keys: [
+      { icon: "🔒", text: "Fachada discreta con mucha vida hacia adentro" },
+      { icon: "🌿", text: "Patio interior privado — visible desde la casa, no desde la calle" },
+      { icon: "🛏️", text: "Dormitorio principal como zona sagrada, alejado del ruido" },
+      { icon: "🌬️", text: "Ventilación cruzada con privacidad: celosías, ventanas altas" },
+      { icon: "📐", text: "Cada espacio tiene su función clara — sin zonas desperdiciadas" }
+    ],
+    galapagos: [
+      { icon: "💧", text: "Cisterna integrada al diseño — el agua en Santa Cruz es clave" },
+      { icon: "🌡️", text: "Paredes con masa térmica para mantener el fresco dentro" },
+      { icon: "🌫️", text: "Ventilación nocturna sin comprometer la privacidad" }
+    ]
+  },
+  fragata: {
+    animal: "🦅",
+    name: "El Ave Fragata",
+    tagline: "Abierta · Social · Con carácter",
+    chips: ["Extrovertida", "Luminosa", "Social", "Con vida"],
+    desc: "Tu casa debe respirar. Espacios que fluyen, luz natural, una terraza que invite a quedarse. Eres de los que recibe con gusto y necesita que el ambiente acompañe. La casa como escenario de la vida social.",
+    keys: [
+      { icon: "🌅", text: "Sala y comedor integrados, abiertos hacia terraza o jardín" },
+      { icon: "🪑", text: "Terraza generosa con sombra — el segundo living de la casa" },
+      { icon: "🍳", text: "Cocina semi-abierta que conecta con el área social" },
+      { icon: "💡", text: "Ventanas grandes: luz natural todo el día" },
+      { icon: "🌊", text: "Orientación pensada para la brisa de Santa Cruz" }
+    ],
+    galapagos: [
+      { icon: "☀️", text: "Aleros y pérgolas para proteger del sol sin cerrar el espacio" },
+      { icon: "💧", text: "Recolección de agua lluvia — hasta 50% de ahorro" },
+      { icon: "🌬️", text: "Ventilación cruzada estratégica: reduce hasta 6°C el interior" }
+    ]
+  },
+  iguana: {
+    animal: "🦎",
+    name: "La Iguana Marina",
+    tagline: "Natural · Fresca · Consciente",
+    chips: ["Sostenible", "Orgánica", "Fresca", "Viva"],
+    desc: "Tu casa vive entre adentro y afuera. La naturaleza no es decoración — es parte del diseño. Quieres sentir el viento, los materiales naturales, la transición fluida entre zonas. Y que todo tenga sentido con Galápagos.",
+    keys: [
+      { icon: "🌿", text: "Corredores, pérgolas y patios que integran interior con exterior" },
+      { icon: "🌬️", text: "Ventilación cruzada como prioridad — el calor de Santa Cruz se resuelve así" },
+      { icon: "🪵", text: "Materiales naturales: bambú, madera de cedro, bloques de terra-cemento" },
+      { icon: "🐕", text: "Espacio exterior funcional para mascotas y vida al aire libre" },
+      { icon: "🌱", text: "Diseño que puede crecer — ampliaciones futuras ya pensadas" }
+    ],
+    galapagos: [
+      { icon: "🎋", text: "Bambú: 50 veces menos huella que el acero, disponible en las islas" },
+      { icon: "☀️", text: "Paneles solares integrados — independencia energética" },
+      { icon: "💧", text: "Cisterna grande + recolección de lluvia: el agua es el recurso más escaso" }
+    ]
+  },
+  delfin: {
+    animal: "🐬",
+    name: "El Delfín de Galápagos",
+    tagline: "Familiar · Funcional · Cálida",
+    chips: ["Familiar", "Práctica", "Flexible", "Cálida"],
+    desc: "Tu casa es el centro de tu familia. Tiene que aguantar el movimiento, el ruido, el crecimiento. Cada espacio debe servir de verdad. Pero también quieres que se sienta viva y cálida — no un catálogo.",
+    keys: [
+      { icon: "👨‍👩‍👦", text: "Zonas separadas: área de niños vs. área de adultos" },
+      { icon: "🍳", text: "Cocina amplia como corazón — donde todo pasa, visible desde la sala" },
+      { icon: "🔇", text: "Que no escuches a tus hijos desde tu cuarto — muros bien pensados" },
+      { icon: "📦", text: "Mucho almacenamiento: closets, bodega, lavandería cubierta" },
+      { icon: "🌳", text: "Patio o jardín seguro para niños y mascotas" }
+    ],
+    galapagos: [
+      { icon: "🏗️", text: "Estructura preparada para un segundo piso — la familia crece" },
+      { icon: "💧", text: "Cisterna integrada: el agua en Santa Cruz no es garantizada" },
+      { icon: "🚲", text: "Espacio para bicis y motos — el transporte real en Galápagos" }
+    ]
+  },
+  lobo: {
+    animal: "🦭",
+    name: "El Lobo Marino",
+    tagline: "Estratégica · Productiva · Inteligente",
+    chips: ["Inversión", "Flexible", "Rentable", "Práctica"],
+    desc: "Tu casa es también un activo. Piensas a largo plazo: quieres vivir bien Y que el espacio trabaje para ti. Un cuarto que se alquile, una suite independiente, o simplemente una casa que valga cada peso invertido.",
+    keys: [
+      { icon: "🚪", text: "Suite o departamento con entrada independiente para alquiler" },
+      { icon: "⚡", text: "Medidor eléctrico separable — flexibilidad para el futuro" },
+      { icon: "🏗️", text: "Segundo piso diseñado para funcionar de forma independiente" },
+      { icon: "🚗", text: "Garaje o estacionamiento — suma valor a la propiedad" },
+      { icon: "📐", text: "Planta flexible: lo que hoy es oficina, mañana es suite de alquiler" }
+    ],
+    galapagos: [
+      { icon: "📈", text: "El mercado de Airbnb en Santa Cruz triplicó los hoteles regulados en 2024" },
+      { icon: "💧", text: "Cisterna propia en cada unidad — independencia de suministro" },
+      { icon: "☀️", text: "Paneles solares: reduce costos operativos del espacio rentable" }
+    ]
+  },
+  pinguino: {
+    animal: "🐧",
+    name: "El Pingüino de Galápagos",
+    tagline: "Compacta · Ingeniosa · Sin desperdiciar nada",
+    chips: ["Eficiente", "Inteligente", "Compacta", "Sin excesos"],
+    desc: "Cada metro cuadrado trabaja. No necesitas más espacio del que vas a usar — necesitas el espacio correcto. Tu casa puede ser pequeña en m² y grande en calidad de vida. El diseño inteligente es tu ventaja.",
+    keys: [
+      { icon: "📐", text: "Espacios multifuncionales — el comedor que es también oficina" },
+      { icon: "📦", text: "Almacenamiento integrado en muros, escaleras y techos" },
+      { icon: "↕️", text: "Techos altos y ventanas bien ubicadas para amplitud visual" },
+      { icon: "🌿", text: "Patio o terraza pequeña pero bien diseñada — mejor que sala grande" },
+      { icon: "🔧", text: "Diseño modular: cada etapa de construcción ya está prevista" }
+    ],
+    galapagos: [
+      { icon: "🎋", text: "Bambú y madera local: materiales livianos que reducen costo y peso" },
+      { icon: "💧", text: "Cisterna compacta pero eficiente — diseñada para el consumo real" },
+      { icon: "🌬️", text: "Ventilación cruzada bien ubicada: reemplaza el aire acondicionado" }
+    ]
+  },
+  tiburon: {
+    animal: "🦈",
+    name: "El Tiburón Martillo",
+    tagline: "Contemporánea · Limpia · Con carácter",
+    chips: ["Moderna", "Diseño", "Diferente", "Atemporal"],
+    desc: "Tu casa va a ser diferente a las demás en Santa Cruz. Quieres líneas limpias, materiales contemporáneos, que la arquitectura hable por sí sola. No te interesa lo convencional — quieres algo que en 20 años siga viéndose bien diseñado.",
+    keys: [
+      { icon: "▬",  text: "Fachada limpia y contemporánea — sin ornamentos innecesarios" },
+      { icon: "🪟", text: "Ventanas estratégicas: enmarcan vistas, no solo dan luz" },
+      { icon: "🏗️", text: "Concreto expuesto, acero pintado, vidrio — materiales honestos" },
+      { icon: "🌑", text: "Contraste: exterior sobrio, interior cálido y bien iluminado" },
+      { icon: "📐", text: "Espacios definidos sin decoración innecesaria — el diseño es suficiente" }
+    ],
+    galapagos: [
+      { icon: "🧂", text: "Protección anticorrosión en metales — el aire marino de Santa Cruz ataca" },
+      { icon: "🌬️", text: "Ventilación pasiva con diseño contemporáneo: no celosías, sí geometría" },
+      { icon: "💧", text: "Cisterna oculta en el diseño — la infraestructura no se ve, funciona" }
+    ]
+  }
+};
+
+// ── ESTADO ────────────────────────────────────────────────────
+let scores = { tortuga:0, fragata:0, iguana:0, delfin:0, lobo:0, pinguino:0, tiburon:0 };
+let answers = [];
+let answerLabels = [];
+let userName = '';
+let userRole  = '';
+
+// ── PANTALLA INICIAL ──────────────────────────────────────────
+function checkPreForm() {
+  const name = document.getElementById('user-name').value.trim();
+  const btn  = document.getElementById('btn-pre-go');
+  btn.classList.toggle('btn-disabled', name.length < 2);
+}
+
+function goToIntro() {
+  userName = document.getElementById('user-name').value.trim();
+  show('screen-quiz');
+  renderQ(0);
+}
+
+// ── UTILIDADES ────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQ(i) {
+  const q   = questions[i];
+  const num = String(i + 1).padStart(2, '0');
+  const tot = String(questions.length).padStart(2, '0');
+  const pct = Math.round((i / questions.length) * 100);
+
+  document.getElementById('q-label-top').textContent = `${num} · ${tot}`;
+  document.getElementById('prog-fill').style.width   = `${pct}%`;
+
+  document.getElementById('q-slot').innerHTML = `
+    <div class="q-num-bg">${num}</div>
+    <span class="q-emoji">${q.emoji}</span>
+    <div class="q-cat">${q.cat}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="options">
+      ${q.opts.map((o, idx) => `
+        <button class="opt" onclick="pick(${i},${idx})">
+          <span class="opt-icon">${o.icon}</span>
+          <span class="opt-text">${o.text}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function pick(qIdx, oIdx) {
+  const opt = questions[qIdx].opts[oIdx];
+  document.querySelectorAll('.opt').forEach(b => b.style.pointerEvents = 'none');
+  document.querySelectorAll('.opt')[oIdx].classList.add('chosen');
+
+  for (const [k, v] of Object.entries(opt.sc || {})) {
+    scores[k] = (scores[k] || 0) + v;
+  }
+
+  answers.push(oIdx);
+  answerLabels.push(opt.text);
+
+  setTimeout(() => {
+    if (qIdx + 1 < questions.length) {
+      renderQ(qIdx + 1);
+    } else {
+      show('screen-loading');
+      setTimeout(showResult, 2200);
+    }
+  }, 360);
+}
+
+function showResult() {
+  const programaMap = [
+    {
+      ans: answerLabels[1],
+      map: {
+        '1 o 2':   '1 dormitorio (pareja sin hijos)',
+        '3 o 4':   '2–3 dormitorios',
+        '5 o 6':   '3–4 dormitorios',
+        '7 o más': '4+ dormitorios'
+      }
+    },
+    {
+      ans: answerLabels[2],
+      map: {
+        'Todavía muy pequeños': 'Dormitorio cerca del master, puerta comunicada',
+        'Juegan solos':         'Cuartos accesibles, zona de juego visible',
+        'Se encierran':         'Dormitorios con privacidad, baño propio si es posible',
+        'No tenemos hijos':     'Sin cuartos de niños por ahora'
+      }
+    },
+    {
+      ans: answerLabels[10],
+      map: {
+        'papás o suegros':    'Cuarto de visitas con baño propio',
+        'Amigos o familia':   'Cuarto de visitas o sofá-cama integrado',
+        'se va al hotel':     'Sin cuarto de visitas necesario',
+        'los mismos':         'Sin cuarto de visitas necesario'
+      }
+    }
+  ];
+
+  const programaBrief = programaMap.map(p => {
+    const key = Object.keys(p.map).find(k => p.ans && p.ans.includes(k));
+    return key ? p.map[key] : (p.ans || '—');
+  });
+
+  const sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]);
+  const winner = sorted[0][0];
+  const second = sorted[1][0];
+  const p = profiles[winner];
+  const isCouple  = userRole.includes('Pareja 1') || userRole.includes('Pareja 2');
+  const gap       = sorted[0][1] - sorted[1][1];
+  const showConflict = isCouple && gap <= 3;
+
+  // ── PERFIL MIXTO: porcentajes (total siempre = 24) ──
+  const totalPts = sorted.reduce((s, [,v]) => s + v, 0) || 1;
+  const pct = sorted.map(([k,v]) => ({ k, v, pct: Math.round(v / totalPts * 100) }));
+  const sp = profiles[second];
+  const pPct = pct[0].pct, sPct = pct[1].pct;
+  // mixto si el segundo es fuerte (≥60% del primero y ≥20% del total)
+  const esMixto = sorted[1][1] >= sorted[0][1] * 0.6 && sPct >= 20;
+  const mixSub = esMixto
+    ? `Principalmente <b>${p.animal} ${p.name.replace(/^(La |El )/,'')}</b> (${pPct}%) con alma de <b>${sp.animal} ${sp.name.replace(/^(La |El )/,'')}</b> (${sPct}%)`
+    : `Tu perfil es claramente <b>${p.animal} ${p.name.replace(/^(La |El )/,'')}</b> (${pPct}%)`;
+  const barColors = { tortuga:'#8a9b6e', fragata:'#c98a5a', iguana:'#7fa99b', delfin:'#5b9bd4', lobo:'#9b7d5a', pinguino:'#b0b0b8', tiburon:'#7a8a9b' };
+  const mixBars = pct.filter(x => x.pct >= 8).map(x => {
+    const pr = profiles[x.k];
+    return `<div class="mix-row">
+        <span class="mix-name">${pr.animal} ${pr.name.replace(/^(La |El )/,'')}</span>
+        <span class="mix-track"><span class="mix-fill" style="width:${x.pct}%;background:${barColors[x.k]}"></span></span>
+        <span class="mix-pct">${x.pct}%</span>
+      </div>`;
+  }).join('');
+
+  // Enviar email (pasamos programaBrief)
+  sendEmail(winner, p, sorted, programaBrief);
+
+  const conflictHtml = showConflict ? `
+    <div class="conflict-banner">
+      <strong>💡 Nota de Studio Ocho</strong>
+      Tu perfil principal es <strong>${p.animal} ${p.name}</strong>, pero también tienes de <strong>${profiles[second].animal} ${profiles[second].name}</strong>. Pídele a tu pareja que llene el test — compararemos ambos antes del diseño.
+    </div>
+  ` : '';
+
+  document.getElementById('result-slot').innerHTML = `
+
+    <div class="result-hero">
+      <div class="mark tl"></div><div class="mark tr"></div>
+      <div class="mark bl"></div><div class="mark br"></div>
+
+      <div class="animal-seal">
+        <svg class="seal-svg" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="55" cy="55" r="50" stroke="#d4a85a" stroke-width="0.7" fill="none" stroke-dasharray="5 3.5"/>
+          <circle cx="55" cy="55" r="44" stroke="rgba(196,180,154,0.25)" stroke-width="0.5" fill="none"/>
+        </svg>
+        <span class="seal-emoji">${p.animal}</span>
+      </div>
+
+      <div class="result-badge">${userName ? userName + '  ·  ' : ''}Perfil de hogar</div>
+      <div class="result-name">${p.name}</div>
+      <div class="result-tagline">${p.tagline}</div>
+      <div class="chips">${p.chips.map(c => `<span class="chip">${c}</span>`).join('')}</div>
+    </div>
+
+    <div class="r-card mix-card">
+      <div class="r-label">Tu mezcla de perfiles</div>
+      <div class="mix-sub">${mixSub}</div>
+      <div class="mix-bars">${mixBars}</div>
+      <div class="mix-note">Nadie es un solo animal. Tu casa nace de esta mezcla — y si eres pareja, de la diferencia entre la tuya y la de tu pareja.</div>
+    </div>
+
+    ${conflictHtml}
+
+    <div class="r-card">
+      <div class="r-text">${p.desc}</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-label">Claves de diseño</div>
+      ${p.keys.map(k => `
+        <div class="key-row">
+          <span class="ki">${k.icon}</span>
+          <span>${k.text}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="r-card accent">
+      <div class="r-label">Programa mínimo sugerido</div>
+      <div class="prog-row"><span>🛏️</span><span>${programaBrief[0] || '—'}</span></div>
+      <div class="prog-row"><span>👶</span><span>${programaBrief[1] || '—'}</span></div>
+      <div class="prog-row"><span>🌴</span><span>${programaBrief[2] || '—'}</span></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-label">Específico para Santa Cruz</div>
+      ${p.galapagos.map(g => `
+        <div class="prog-row">
+          <span>${g.icon}</span><span>${g.text}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <button class="btn-secondary" onclick="sharePartner()">
+      👫 &nbsp; Compartir con mi pareja
+    </button>
+
+    <div id="email-status" class="email-status">
+      <span>📨</span><span>Enviando resultados a Studio Ocho...</span>
+    </div>
+
+    <div class="studio-footer">Studio Ocho · Art of Living · Galápagos</div>
+  `;
+
+  show('screen-result');
+}
+
+async function sendEmail(winner, p, sorted, programaBrief = []) {
+  const allAnswers = questions.map((q, i) => {
+    const opt = q.opts[answers[i]];
+    return `${i+1}. ${q.cat} — ${q.text}\n   ✓ ${opt ? opt.icon + ' ' + opt.text : '—'}`;
+  }).join('\n\n');
+
+  const scoreLines = sorted.map(([k,v]) => {
+    return `  ${k === winner ? '★' : ' '} ${profiles[k]?.animal} ${profiles[k]?.name}: ${v} pts`;
+  }).join('\n');
+
+  const now = new Date().toLocaleString('es-EC', {
+    timeZone: 'America/Guayaquil', dateStyle: 'full', timeStyle: 'short'
+  });
+
+  const emailBody = `
+═══════════════════════════════════
+  NUEVO PERFIL — STUDIO OCHO TEST
+═══════════════════════════════════
+
+👤 CLIENTE:    ${userName || 'No especificado'}
+📅 FECHA:      ${now}
+
+🏆 PERFIL GANADOR:
+   ${p.animal} ${p.name}
+   ${p.tagline}
+
+📊 PUNTUACIÓN COMPLETA:
+${scoreLines}
+
+═══════════════════════════════════
+  RESPUESTAS COMPLETAS
+═══════════════════════════════════
+
+${allAnswers}
+
+═══════════════════════════════════
+  PROGRAMA ARQUITECTÓNICO
+═══════════════════════════════════
+
+🛏️  Dormitorios:  ${programaBrief[0] || '—'}
+👶  Hijos:        ${programaBrief[1] || '—'}
+🌴  Visitas:      ${programaBrief[2] || '—'}
+
+═══════════════════════════════════
+  RECOMENDACIONES PARA LA REUNIÓN
+═══════════════════════════════════
+
+${p.keys.map(k => `• ${k.text}`).join('\n')}
+
+📍 Santa Cruz — Galápagos:
+${p.galapagos.map(g => `• ${g.text}`).join('\n')}
+
+═══════════════════════════════════
+Enviado desde Studio Ocho Test v3
+  `.trim();
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject:    `🏠 Nuevo perfil: ${p.animal} ${p.name} — ${userName || 'Cliente'}`,
+        from_name:  'Studio Ocho Test',
+        email:      STUDIO_EMAIL,
+        message:    emailBody
+      })
+    });
+    const data = await res.json();
+    const el = document.getElementById('email-status');
+    if (el) {
+      el.innerHTML = data.success
+        ? '<span>✅</span><span>Resultados enviados a Studio Ocho</span>'
+        : '<span>⚠️</span><span>No se pudo enviar el email</span>';
+    }
+  } catch(e) {
+    const el = document.getElementById('email-status');
+    if (el) el.innerHTML = '<span>⚠️</span><span>Sin conexión — resultados no enviados</span>';
+  }
+}
+
+function sharePartner() {
+  const url = 'https://lively-ganache-3675ee.netlify.app/';
+  const msg = `Hola! Hice el test de Studio Ocho para diseñar nuestra casa — necesito que tú también lo hagas. Solo 3 minutos 👇\n${url}`;
+  if (navigator.share) {
+    navigator.share({ title: 'Test Studio Ocho', text: msg, url: url });
+  } else {
+    // Fallback: copiar link al portapapeles
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('✅ Link copiado — pégalo a tu pareja');
+      }).catch(() => _copyFallback(url));
+    } else {
+      _copyFallback(url);
+    }
+  }
+}
+
+function _copyFallback(text) {
+  const el = document.createElement('textarea');
+  el.value = text;
+  el.style.position = 'fixed'; el.style.opacity = '0';
+  document.body.appendChild(el);
+  el.focus(); el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  alert('✅ Link copiado — pégalo a tu pareja');
+}
+</script>
+</body>
+</html>
