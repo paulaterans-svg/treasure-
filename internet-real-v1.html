@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internet a bordo · Treasure (simulación v2)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --abismo:#0a1f2e; --texto:#e8f1ef; --texto2:#9fc0c4;
+    --verde:#2f9e7f; --coral:#d9663f; --amar:#e0a93b; --azul:#4f9dd4; --morado:#7e6bd4; --mar:#15506b;
+    --linea:rgba(159,192,196,.16); --card:rgba(255,255,255,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--abismo);
+    background-image:radial-gradient(900px 480px at 82% -12%, rgba(21,80,107,.5), transparent 60%);
+    color:var(--texto);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5;min-height:100vh;padding:0 0 70px}
+  .wrap{max-width:780px;margin:0 auto;padding:0 18px}
+  header{padding:28px 0 6px}
+  .eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--amar);font-weight:bold}
+  h1{font-size:25px;font-family:Georgia,serif;margin:3px 0}
+  .simtag{display:inline-block;background:rgba(224,169,59,.16);color:var(--amar);font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-top:4px}
+
+  .titular{border-radius:16px;padding:18px 22px;margin:18px 0;border:1px solid var(--linea);
+    background:linear-gradient(100deg,rgba(217,102,63,.2),rgba(217,102,63,.04));border-color:rgba(217,102,63,.45)}
+  .titular .est{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:var(--coral)}
+  .titular .frase{font-size:20px;font-family:Georgia,serif;margin-top:6px;line-height:1.35}
+  .titular .frase b{color:#fff}
+  .barraplan{height:12px;border-radius:7px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:14px;display:flex}
+  .barraplan i{display:block;height:100%}
+
+  .seccion{margin:26px 0}
+  .seccion h2{font-size:17px;font-family:Georgia,serif;margin-bottom:3px}
+  .seccion .desc{color:var(--texto2);font-size:13px;margin-bottom:14px}
+
+  /* protagonista: en que se va */
+  .donut-wrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+  .donut-box{position:relative;width:200px;height:200px;flex:none}
+  .donut-centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .donut-centro .big{font-size:24px;font-weight:bold;font-family:Georgia,serif}
+  .donut-centro .lbl{font-size:11px;color:var(--texto2);letter-spacing:1px;text-transform:uppercase}
+  .reparto{flex:1;min-width:240px}
+  .rep-fila{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--linea);cursor:pointer}
+  .rep-fila:last-child{border-bottom:none}
+  .rep-fila:hover{opacity:.85}
+  .rep-dot{width:11px;height:11px;border-radius:3px;flex:none}
+  .rep-nom{flex:1;font-size:14px}
+  .rep-nom small{color:var(--texto2);font-size:11px;display:block}
+  .rep-val{font-size:14px;font-weight:bold;text-align:right}
+  .rep-val small{color:var(--texto2);font-weight:normal;font-size:11px;display:block}
+
+  .mundos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  .mundo{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:16px 18px}
+  .mundo .mt{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--texto2)}
+  .mundo .mv{font-size:23px;font-weight:bold;font-family:Georgia,serif;margin-top:5px}
+  .mundo .mp{font-size:13px;color:var(--texto2);margin-top:2px}
+  .mundo.afuera{border-color:rgba(79,157,212,.35)}
+  .mundo.adentro{border-color:rgba(217,102,63,.35)}
+
+  .anomalia{display:flex;align-items:center;gap:14px;background:rgba(217,102,63,.1);border:1px solid rgba(217,102,63,.4);border-radius:14px;padding:14px 18px;margin-bottom:12px}
+  .anomalia .ico{font-size:22px}
+  .anomalia .t1{font-size:15px;font-weight:bold;color:#f0c4b3}
+  .anomalia .t2{font-size:13px;color:var(--texto2)}
+
+  .grupoSel{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .gb-tab{background:transparent;border:1px solid var(--linea);color:var(--texto2);padding:7px 14px;border-radius:18px;font-size:13px;cursor:pointer;font-family:inherit}
+  .gb-tab.on{background:var(--verde);border-color:var(--verde);color:#04241c;font-weight:bold}
+
+  .cons{background:var(--card);border:1px solid var(--linea);border-radius:12px;padding:13px 16px;margin-bottom:10px}
+  .cons-top{display:flex;align-items:center;gap:12px}
+  .cons-rank{width:18px;color:var(--texto2);font-size:13px}
+  .cons-nom{flex:1;min-width:0;font-size:15px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cons-gb{text-align:right}
+  .cons-gb .g{font-size:15px;font-weight:bold}
+  .cons-gb .d{font-size:12px;color:var(--amar)}
+  .cons-decide{display:flex;align-items:center;gap:12px;margin-top:9px;padding-top:9px;border-top:1px solid var(--linea)}
+  .cons-ctx{flex:1;font-size:12px;color:var(--texto2);line-height:1.45}
+  .cons-ctx b{color:var(--espuma);color:#cfe3e0}
+  .btn-eval{background:transparent;border:1px solid rgba(217,102,63,.5);color:var(--coral);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-eval:hover{background:rgba(217,102,63,.15)}
+  .btn-eval.marcado{border-color:var(--coral);color:#fff;background:rgba(217,102,63,.3)}
+  .btn-frenar{background:transparent;border:1px solid rgba(47,158,127,.6);color:var(--verde);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-frenar:hover{background:rgba(47,158,127,.15)}
+  .btn-frenar.marcado{border-color:var(--verde);color:#04241c;background:var(--verde);font-weight:bold}
+
+  .vermas{background:transparent;border:1px dashed var(--linea);color:var(--texto2);width:100%;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;margin-top:4px;font-family:inherit}
+  .vermas:hover{border-color:var(--verde);color:var(--verde)}
+
+  .nota{background:rgba(224,169,59,.08);border:1px solid rgba(224,169,59,.3);border-radius:12px;padding:12px 16px;font-size:12px;color:#e8d3a8;margin-top:20px}
+  .pie{color:var(--texto2);font-size:11px;text-align:center;margin-top:30px}
+  .hoyhint{font-size:12px;color:var(--texto2);text-align:center;margin-top:8px;font-style:italic}
+
+  .tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+  .tarjeta{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:14px 16px;cursor:pointer;transition:.15s}
+  .tarjeta:hover{border-color:var(--texto2);transform:translateY(-1px)}
+  .tarjeta.on{border-color:var(--verde)}
+  .tj-top{display:flex;align-items:center;gap:8px}
+  .tj-dot{width:10px;height:10px;border-radius:3px}
+  .tj-nom{font-size:13px;color:var(--texto2)}
+  .tj-val{font-size:23px;font-weight:bold;font-family:Georgia,serif;margin-top:6px}
+  .tj-val small{font-size:13px;color:var(--texto2);font-weight:normal}
+  .tj-sub{font-size:12px;color:var(--texto2);margin-top:2px}
+
+  .free3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+  .f3{border-radius:12px;padding:12px 14px;border:1px solid var(--linea)}
+  .f3.glotones{background:rgba(217,102,63,.1);border-color:rgba(217,102,63,.4)}
+  .f3.normales{background:var(--card)}
+  .f3.fantasmas{background:rgba(159,192,196,.05)}
+  .f3 .n{font-size:26px;font-weight:bold;font-family:Georgia,serif}
+  .f3 .l{font-size:12px;margin-top:2px}
+  .f3.glotones .l{color:#f0c4b3}
+  .f3 .l2{font-size:11px;color:var(--texto2);margin-top:4px;line-height:1.4}
+  @media(max-width:560px){.free3{grid-template-columns:1fr}}
+  @media(max-width:560px){.mundos{grid-template-columns:1fr}.donut-wrap{justify-content:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">M/Y Treasure of Galápagos</div>
+    <h1>¿En qué se va el internet?</h1>
+    <span class="simtag" id="simtag">Cargando datos reales…</span>
+  </header>
+
+  <div class="titular" id="titular">
+    <div class="est" id="titEst">Cargando…</div>
+    <div class="frase" id="titFrase"></div>
+    <div class="barraplan" id="barraplan"></div>
+  </div>
+
+  <div class="seccion">
+    <h2>Día a día</h2>
+    <div class="desc">Consumo de cada día del mes. Toca una barra para ver quién consumió ese día abajo.</div>
+    <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del mes"></canvas></div>
+    <div class="hoyhint" id="hoyHint">Mostrando el mes completo · toca un día para enfocarlo</div>
+  </div>
+
+  <div class="seccion">
+    <h2 id="tReparto">El reparto del mes</h2>
+    <div class="desc">Esto es lo que se está comiendo tu plan. El primero es tu mayor gasto. Toca para investigar.</div>
+    <div class="donut-wrap">
+      <div class="donut-box"><canvas id="donut" role="img" aria-label="Reparto del consumo de internet por grupo"></canvas>
+        <div class="donut-centro"><div class="big" id="dCentro"></div><div class="lbl">de 2.5 TB</div></div>
+      </div>
+      <div class="reparto" id="reparto"></div>
+    </div>
+  </div>
+
+  <div class="seccion">
+    <h2>Tu barco vs los de afuera</h2>
+    <div class="desc">La pregunta clave: ¿el internet se lo comen tus huéspedes, o tu propia operación?</div>
+    <div class="mundos">
+      <div class="mundo afuera">
+        <div class="mt">Los de afuera</div>
+        <div class="mv" id="mAfuera"></div>
+        <div class="mp">clientes free + clientes que pagan</div>
+      </div>
+      <div class="mundo adentro">
+        <div class="mt">Tu propia operación</div>
+        <div class="mv" id="mAdentro"></div>
+        <div class="mp">tripulación + cámaras + equipos + dueños</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seccion">
+    <h2>Lo que salta a la vista</h2>
+    <div id="anomalias"></div>
+  </div>
+
+  <div class="seccion">
+    <h2 id="tTarjetas">Quién consume — el mes</h2>
+    <div class="desc">Reparto por grupo en tarjetas. Toca una para investigar sus consumidores abajo.</div>
+    <div class="tarjetas" id="tarjetas"></div>
+  </div>
+
+  <div class="seccion">
+    <h2>Investigar y decidir</h2>
+    <div class="desc">Mira cada consumidor con su contexto. Tú decides si vale la pena frenarlo o no.</div>
+    <div class="grupoSel" id="grupoSel"></div>
+    <div id="freeResumen"></div>
+    <div id="consLista"></div>
+    <button class="vermas" id="verMas" style="display:none"></button>
+  </div>
+
+  <div class="nota">
+    <b>Frenar (dejar lento)</b> deja al aparato conectado pero sin que pueda tragarse el plan con videos pesados — ideal para los glotones del free.
+    <b>Cortar</b> lo deja sin internet del todo. Por ahora los botones <b>marcan tu decisión</b> pero no ejecutan el corte: para que se aplique de verdad en tu red falta conectar el router (el paso con cerberus). Aquí el dashboard te ayuda a <b>descubrir y decidir</b>; la ejecución es un paso aparte.
+  </div>
+
+  <div class="pie">Datos en vivo desde tu red · se actualiza al recargar · el router guarda cada 15 min</div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ofanipfedpclreezvhzj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_eho1Pzbe5J6_InHzL9YQ6g_xaFYuSfe";
+
+const PLAN_GB = 2500;
+const COSTO_MES = 340;
+const COSTO_GB = COSTO_MES/PLAN_GB;
+const GB_BYTES = 1073741824;
+
+const GRUPOS = {
+  cableado:     {nom:"Red cableada", sub:"cámaras, TV, grabador", col:"#d9663f", mundo:"adentro"},
+  tripulacion:  {nom:"Tripulación", sub:"crew con login", col:"#2f9e7f", mundo:"adentro"},
+  cliente_free: {nom:"Clientes free", sub:"huéspedes gratis", col:"#4f9dd4", mundo:"afuera"},
+  cliente_pago: {nom:"Clientes pago", sub:"internet premium", col:"#e0a93b", mundo:"afuera"},
+  equipo:       {nom:"Equipos", sub:"PCs y tablets de a bordo", col:"#15506b", mundo:"adentro"},
+  dueno:        {nom:"Dueños", sub:"acceso privado", col:"#7e6bd4", mundo:"adentro"}
+};
+
+// mapea el 'tipo' que manda el router al grupo del dashboard
+function tipoAGrupo(tipo, fuente){
+  if(tipo==="equipo_cableado") return "cableado";
+  if(tipo==="tripulacion") return "tripulacion";
+  if(tipo==="cliente_free") return "cliente_free";
+  if(tipo==="cliente_pago") return "cliente_pago";
+  if(tipo==="dueno") return "dueno";
+  if(tipo==="equipo") return "equipo";
+  return "equipo"; // 'otro' y desconocidos van a equipos
+}
+
+// nombres bonitos para los puertos ether (ve editándolos a medida que identifiques)
+const NOMBRE_PUERTO = {
+  "ether6":"ether6 (sin identificar)",
+  "ether7":"ether7 (sin identificar)",
+  "ether8":"ether8 (¿TV salón?)",
+  "ether9":"ether9 (sin identificar)",
+  "ether10":"ether10 (¿grabador cámaras?)"
+};
+
+// contexto de decisión por grupo (genérico; el detalle real lo da el consumo)
+function contexto(grupo, nombre, gbVal){
+  if(grupo==="cableado") return `Equipo cableado de a bordo. <b>Si lo frenas/cortas</b>: revisa primero qué hay en este cable antes de decidir.`;
+  if(grupo==="tripulacion") return `Tripulación. ${gbVal>=20?'<b>Consumo alto.</b> ':''}Frenarlo solo afecta a una persona del crew, no a huéspedes.`;
+  if(grupo==="cliente_free") return `Free anónimo. ${gbVal>=10?'<b>Gastando mucho para una cortesía.</b> ':''}Frenarlo o cortarlo no afecta a nadie tuyo.`;
+  if(grupo==="cliente_pago") return `Cliente que PAGÓ por internet. <b>No conviene cortar</b>: pagó por esto.`;
+  if(grupo==="dueno") return `Acceso de dueño.`;
+  return `Equipo de operación a bordo.`;
+}
+
+// --- estado, se llena desde Supabase ---
+let DIFFS = [];          // filas de v_consumo_diario
+let diaSel = null;
+let grupoActivo="cableado", verTodos=false;
+let HOY_DIA = new Date().getDate();
+let mesActual = new Date().toISOString().slice(0,7); // "2026-06"
+
+const gb = v => v>=1000 ? (v/1000).toFixed(2)+" TB" : Math.round(v)+" GB";
+const usd = v => "$"+Math.round(v*COSTO_GB);
+
+// nombre legible del identificador según grupo
+function nombreLegible(grupo, ident){
+  if(grupo==="cableado") return NOMBRE_PUERTO[ident] || ident;
+  if(grupo==="cliente_free") return "Aparato "+(ident.split(".").slice(-2).join(".").replace("/32","")||ident);
+  return ident;
+}
+
+// ===== Carga desde Supabase =====
+async function cargarDatos(){
+  // leemos la vista de consumo diario del mes actual
+  const desde = mesActual + "-01";
+  const url = `${SUPABASE_URL}/rest/v1/v_consumo_diario?select=*&dia=gte.${desde}&order=dia.asc`;
+  const res = await fetch(url, {headers:{apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY}});
+  if(!res.ok) throw new Error("HTTP "+res.status+" — "+(await res.text()).slice(0,150));
+  const filas = await res.json();
+  // anexar grupo a cada fila
+  DIFFS = filas.map(f=>({
+    dia: f.dia,
+    diaNum: parseInt(f.dia.slice(8,10),10),
+    grupo: tipoAGrupo(f.tipo, f.fuente),
+    ident: f.identificador,
+    bytes: Number(f.bytes_total||0)
+  }));
+}
+
+// ===== Cálculos derivados (reemplazan los datos simulados) =====
+// total por grupo del mes completo (en GB)
+function totalGrupoCalc(){
+  const o={};
+  for(const k in GRUPOS) o[k]=0;
+  DIFFS.forEach(d=>{ o[d.grupo]=(o[d.grupo]||0)+d.bytes; });
+  for(const k in o) o[k]=o[k]/GB_BYTES;
+  return o;
+}
+// total por grupo de un día (GB)
+function grupoDelDia(diaNum){
+  const o={};
+  for(const k in GRUPOS) o[k]=0;
+  DIFFS.filter(d=>d.diaNum===diaNum).forEach(d=>{ o[d.grupo]+=d.bytes; });
+  for(const k in o) o[k]=o[k]/GB_BYTES;
+  return o;
+}
+// consumo total por día del mes (array indexado por día)
+function consumoPorDia(){
+  const m={};
+  DIFFS.forEach(d=>{ m[d.diaNum]=(m[d.diaNum]||0)+d.bytes; });
+  const maxDia=Math.max(HOY_DIA, ...Object.keys(m).map(Number).concat([1]));
+  const arr=[];
+  for(let i=1;i<=maxDia;i++) arr.push(+((m[i]||0)/GB_BYTES).toFixed(2));
+  return arr;
+}
+// consumidores de un grupo (mes o día), ordenados, con contexto
+function consumidoresDe(grupo){
+  const filtra = diaSel ? (d=>d.grupo===grupo && d.diaNum===diaSel) : (d=>d.grupo===grupo);
+  const acum={};
+  DIFFS.filter(filtra).forEach(d=>{ acum[d.ident]=(acum[d.ident]||0)+d.bytes; });
+  return Object.entries(acum)
+    .map(([ident,b])=>({ident, gbv:b/GB_BYTES}))
+    .sort((a,b)=>b.gbv-a.gbv)
+    .map(x=>[nombreLegible(grupo,x.ident), x.gbv, contexto(grupo, x.ident, x.gbv)]);
+}
+// división del free en glotones/normales/fantasmas
+function freeDividido(){
+  const lista=consumidoresDe("cliente_free");
+  const glot=lista.filter(r=>r[1]>=10).length;
+  const norm=lista.filter(r=>r[1]>0 && r[1]<10).length;
+  const fant=lista.filter(r=>r[1]<=0).length;
+  return {
+    glotones:{n:glot, desc:"gastan +10 GB · los que conviene frenar"},
+    normales:{n:norm, desc:"gasto bajo · déjalos tranquilos"},
+    fantasmas:{n:fant, desc:"sin consumo · se limpian solos"}
+  };
+}
+
+// datos del mes o día según selección (para donut/reparto/mundos/tarjetas)
+function datosActuales(){ return diaSel ? grupoDelDia(diaSel) : totalGrupoCalc(); }
+
+// totales del mes (para titular)
+function totalMesGB(){ return Object.values(totalGrupoCalc()).reduce((a,b)=>a+b,0); }
+
+async function init(){
+  try{
+    await cargarDatos();
+  }catch(e){
+    document.getElementById("titFrase").innerHTML =
+      `<span style="font-size:15px">No se pudieron cargar los datos: ${e.message}. Si abriste el archivo descargado, ábrelo mejor desde la dirección de GitHub Pages (https).</span>`;
+    return;
+  }
+  if(!DIFFS.length){
+    document.getElementById("titFrase").innerHTML =
+      `<span style="font-size:16px">Todavía no hay consumo registrado este mes. El router va guardando cada 15 minutos — vuelve en un rato y verás los datos llenándose.</span>`;
+    document.getElementById("barraplan").style.display="none";
+    return;
+  }
+  titular();
+  document.getElementById("simtag").textContent = "Datos en vivo · "+DIFFS.length+" registros este mes";
+  try{ graficaDia(); }catch(e){ console.warn("gráfica día no disponible",e); }
+  try{ donut(); }catch(e){ console.warn("donut no disponible",e); }
+  reparto(); mundos(); anomalias(); tarjetas(); selector(); consumidores();
+}
+
+function tarjetas(){
+  const dat=datosActuales();
+  document.getElementById("tTarjetas").textContent = diaSel ? ("Quién consume — día "+diaSel) : "Quién consume — el mes";
+  const orden=Object.entries(dat).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("tarjetas").innerHTML=orden.map(([k,v])=>{
+    const g=GRUPOS[k];
+    const cuenta=consumidoresDe(k).length;
+    return `<div class="tarjeta ${k===grupoActivo?'on':''}" onclick="activar('${k}')">
+      <div class="tj-top"><span class="tj-dot" style="background:${g.col}"></span><span class="tj-nom">${g.nom}</span></div>
+      <div class="tj-val">${gb(v)} <small>· ${usd(v)}</small></div>
+      <div class="tj-sub">${cuenta} ${cuenta===1?'aparato':'aparatos'}</div>
+    </div>`;
+  }).join("");
+}
+
+function graficaDia(){
+  const DIAS=consumoPorDia();
+  const labels=DIAS.map((_,i)=>i+1);
+  window._gd=new Chart(document.getElementById("grafDia"),{
+    type:"bar",
+    data:{labels,datasets:[{data:DIAS,backgroundColor:DIAS.map(()=>"#2f9e7f"),borderRadius:5,maxBarThickness:26}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      onClick:(e,el)=>{ if(el.length) seleccionarDia(el[0].index+1); },
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+" GB ese día"}}},
+      scales:{x:{ticks:{color:"#9fc0c4"},grid:{display:false},title:{display:true,text:"día del mes",color:"#9fc0c4",font:{size:11}}},
+        y:{ticks:{color:"#9fc0c4",callback:v=>v+" GB"},grid:{color:"rgba(159,192,196,.1)"},beginAtZero:true}}}
+  });
+}
+
+function seleccionarDia(d){
+  diaSel = (diaSel===d) ? null : d;
+  if(window._gd){
+    const DIAS=consumoPorDia();
+    const cols=DIAS.map((_,i)=> (i+1)===diaSel ? "#e0a93b":"#2f9e7f");
+    window._gd.data.datasets[0].backgroundColor=cols;
+    window._gd.update();
+  }
+  if(diaSel){
+    document.getElementById("hoyHint").textContent="Mostrando el día "+diaSel+" · toca de nuevo para volver al mes";
+  }else{
+    document.getElementById("hoyHint").textContent="Mostrando el mes completo · toca un día para enfocarlo";
+  }
+  try{ donut(); }catch(e){} reparto(); mundos(); tarjetas(); consumidores();
+}
+
+function titular(){
+  const usadoMes = totalMesGB();
+  const ritmo = usadoMes / HOY_DIA;
+  const proyFin = Math.round(ritmo * 30);
+  const restante = PLAN_GB - usadoMes;
+  const diasQuedan = ritmo>0 ? Math.floor(restante/ritmo) : 99;
+  const sePasa = proyFin > PLAN_GB;
+  const t = document.getElementById("titular");
+  t.className = "titular" + (sePasa ? "" : " ok");
+  document.querySelector("#titular .est").textContent = sePasa ? "Llegando al límite" : "Vas con margen";
+  if(sePasa){
+    document.getElementById("titFrase").innerHTML =
+      `Llevas <b>${gb(usadoMes)}</b> de tus <b>2.5 TB</b>. A este ritmo terminas el mes en <b>${gb(proyFin)}</b> — te <b>pasarías del plan</b>. Te quedan ~<b>${diasQuedan} días</b>.`;
+  }else{
+    document.getElementById("titFrase").innerHTML =
+      `Llevas <b>${gb(usadoMes)}</b> de tus <b>2.5 TB</b>. A este ritmo terminas el mes en <b>${gb(proyFin)}</b>, dentro de tu plan. Vas con <b>${Math.round((1-proyFin/PLAN_GB)*100)}% de margen</b>.`;
+  }
+  const pct = Math.min(100, usadoMes/PLAN_GB*100);
+  const proy = Math.max(0, Math.min(100,proyFin/PLAN_GB*100)-pct);
+  const color = sePasa ? "var(--coral)" : "var(--verde)";
+  const colorProy = sePasa ? "rgba(217,102,63,.35)" : "rgba(47,158,127,.3)";
+  document.getElementById("barraplan").innerHTML =
+    `<i style="width:${pct}%;background:${color}"></i><i style="width:${proy}%;background:${colorProy}"></i>`;
+}
+
+function donut(){
+  const dat=datosActuales();
+  const orden=Object.entries(dat).sort((a,b)=>b[1]-a[1]);
+  const totDat=Object.values(dat).reduce((a,b)=>a+b,0);
+  if(window._donut) window._donut.destroy();
+  window._donut=new Chart(document.getElementById("donut"),{
+    type:"doughnut",
+    data:{labels:orden.map(([k])=>GRUPOS[k].nom),
+      datasets:[{data:orden.map(([,v])=>v),backgroundColor:orden.map(([k])=>GRUPOS[k].col),borderWidth:0}]},
+    options:{cutout:"68%",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+": "+gb(c.parsed)}}}}
+  });
+  document.getElementById("dCentro").textContent=gb(totDat);
+  document.querySelector(".donut-centro .lbl").textContent = diaSel ? ("día "+diaSel) : "de 2.5 TB";
+}
+
+function reparto(){
+  const dat=datosActuales();
+  document.getElementById("tReparto").textContent = diaSel ? ("El reparto del día "+diaSel) : "El reparto del mes";
+  const orden=Object.entries(dat).sort((a,b)=>b[1]-a[1]);
+  const tot=Object.values(dat).reduce((a,b)=>a+b,0)||1;
+  const suf = diaSel ? "" : "/mes";
+  document.getElementById("reparto").innerHTML=orden.map(([k,v])=>{
+    const g=GRUPOS[k];
+    return `<div class="rep-fila" onclick="activar('${k}')">
+      <span class="rep-dot" style="background:${g.col}"></span>
+      <span class="rep-nom">${g.nom}<small>${g.sub}</small></span>
+      <span class="rep-val">${gb(v)} · ${Math.round(v/tot*100)}%<small>${usd(v)}${suf}</small></span>
+    </div>`;
+  }).join("");
+}
+
+function mundos(){
+  const dat=datosActuales();
+  let af=0, ad=0;
+  for(const k in dat){ (GRUPOS[k].mundo==="afuera"?af+=dat[k]:ad+=dat[k]); }
+  const tot=af+ad||1;
+  document.getElementById("mAfuera").innerHTML=`${gb(af)} <span style="font-size:13px;color:var(--texto2)">· ${Math.round(af/tot*100)}%</span>`;
+  document.getElementById("mAdentro").innerHTML=`${gb(ad)} <span style="font-size:13px;color:var(--texto2)">· ${Math.round(ad/tot*100)}%</span>`;
+}
+
+function anomalias(){
+  const tg = totalGrupoCalc();
+  const total = Object.values(tg).reduce((a,b)=>a+b,0)||1;
+  const oper = (tg.cableado+tg.tripulacion+tg.equipo+tg.dueno);
+  const pctOper = Math.round(oper/total*100);
+  const a=[];
+  // 1) operación vs huéspedes
+  if(pctOper>=50){
+    a.push({ico:"🔍",t1:`Tu operación se come el ${pctOper}% del internet, no los huéspedes`,
+      t2:`Cámaras (${gb(tg.cableado)}) + tripulación (${gb(tg.tripulacion)}) + equipos pesan más que los clientes. Ahí está tu agujero negro.`});
+  }
+  // 2) mayor consumidor individual de toda la red
+  let mayor=null;
+  for(const k in GRUPOS){ consumidoresDe(k).forEach(c=>{ if(!mayor||c[1]>mayor.gb){mayor={nom:c[0],gb:c[1],grupo:k};} }); }
+  if(mayor && mayor.gb>5){
+    a.push({ico:"📈",t1:`Tu mayor consumidor: ${mayor.nom} — ${gb(mayor.gb)} = ${usd(mayor.gb)}/mes`,
+      t2:`Es ${GRUPOS[mayor.grupo].nom.toLowerCase()}. Revísalo abajo para decidir si conviene frenarlo.`});
+  }
+  // 3) free con muchos aparatos
+  const nFree = consumidoresDe("cliente_free").length;
+  if(nFree>16){
+    const fd=freeDividido();
+    a.push({ico:"⚠️",t1:`Free: ${nFree} aparatos conectados (deberían ser ~16)`,
+      t2:`${nFree-16} de más. De esos, ${fd.glotones.n} gastan mucho (glotones) y ${fd.fantasmas.n} están sin consumo. Revisa los glotones abajo.`});
+  }
+  if(!a.length) a.push({ico:"✓",t1:"Nada raro por ahora",t2:"El consumo se ve normal este mes."});
+  document.getElementById("anomalias").innerHTML=a.map(x=>`
+    <div class="anomalia"><div class="ico">${x.ico}</div>
+      <div><div class="t1">${x.t1}</div><div class="t2">${x.t2}</div></div></div>`).join("");
+}
+
+function selector(){
+  const tg=totalGrupoCalc();
+  const orden=Object.keys(GRUPOS).sort((a,b)=>tg[b]-tg[a]);
+  document.getElementById("grupoSel").innerHTML=orden.map(k=>
+    `<button class="gb-tab ${k===grupoActivo?'on':''}" onclick="activar('${k}')">${GRUPOS[k].nom}</button>`).join("");
+}
+
+function activar(k){ grupoActivo=k; verTodos=false; selector(); tarjetas(); consumidores();
+  document.getElementById("consLista").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+
+function consumidores(){
+  const lista = consumidoresDe(grupoActivo);
+  const g=GRUPOS[grupoActivo];
+  const esFree = grupoActivo==="cliente_free";
+
+  // resumen del free dividido en 3
+  const fr=document.getElementById("freeResumen");
+  if(esFree){
+    const fd=freeDividido();
+    fr.innerHTML=`
+      <div class="free3">
+        <div class="f3 glotones"><div class="n">${fd.glotones.n}</div><div class="l">Glotones</div><div class="l2">${fd.glotones.desc}</div></div>
+        <div class="f3 normales"><div class="n">${fd.normales.n}</div><div class="l">Normales</div><div class="l2">${fd.normales.desc}</div></div>
+        <div class="f3 fantasmas"><div class="n">${fd.fantasmas.n}</div><div class="l">Fantasmas</div><div class="l2">${fd.fantasmas.desc}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--texto2);margin-bottom:14px;font-style:italic">De los ${lista.length}, solo los ${fd.glotones.n} glotones merecen tu atención. Abajo, los mayores:</div>`;
+  } else { fr.innerHTML=""; }
+
+  const conConsumo = lista.filter(r=>r[1]>0);
+  const vis = verTodos ? conConsumo : conConsumo.slice(0,5);
+  if(!vis.length){
+    document.getElementById("consLista").innerHTML='<div style="color:var(--texto2);font-size:14px;padding:14px 0">Nadie de este grupo ha consumido este '+(diaSel?'día':'mes')+' todavía.</div>';
+    document.getElementById("verMas").style.display="none";
+    return;
+  }
+  document.getElementById("consLista").innerHTML=vis.map((r,i)=>`
+    <div class="cons">
+      <div class="cons-top">
+        <span class="cons-rank">${i+1}</span>
+        <span class="cons-nom" style="border-left:3px solid ${g.col};padding-left:9px">${r[0]}</span>
+        <span class="cons-gb"><div class="g">${gb(r[1])}</div><div class="d">${usd(r[1])}${diaSel?'':'/mes'}</div></span>
+      </div>
+      <div class="cons-decide">
+        <div class="cons-ctx">${r[2]}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-frenar" onclick="frenar(this)">Frenar (dejar lento)</button>
+          <button class="btn-eval" onclick="cortar(this)">Cortar</button>
+        </div>
+      </div>
+    </div>`).join("");
+  const btn=document.getElementById("verMas");
+  const ocultos = conConsumo.length - 5;
+  if(ocultos>0){
+    btn.style.display="block";
+    btn.textContent = verTodos ? "Ver menos" : `Ver los otros ${ocultos} de este grupo`;
+    btn.onclick=()=>{verTodos=!verTodos;consumidores();};
+  } else btn.style.display="none";
+}
+
+function frenar(b){
+  const otro=b.parentElement.querySelector(".btn-eval");
+  if(b.classList.contains("marcado")){b.classList.remove("marcado");b.textContent="Frenar (dejar lento)";}
+  else{b.classList.add("marcado");b.textContent="Frenado ✓ (lento)";if(otro){otro.classList.remove("marcado");otro.textContent="Cortar";}}
+}
+function cortar(b){
+  const otro=b.parentElement.querySelector(".btn-frenar");
+  if(b.classList.contains("marcado")){b.classList.remove("marcado");b.textContent="Cortar";}
+  else{b.classList.add("marcado");b.textContent="Cortado ✓";if(otro){otro.classList.remove("marcado");otro.textContent="Frenar (dejar lento)";}}
+}
+
+init();
+</script>
+</body>
+</html>
