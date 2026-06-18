@@ -28,17 +28,22 @@
   h1{font-size:25px;font-family:Georgia,serif;margin:3px 0}
   .simtag{display:inline-block;background:rgba(224,169,59,.16);color:var(--amar);font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-top:4px}
 
-  .titular{border-radius:16px;padding:18px 22px;margin:18px 0;border:1px solid var(--linea);
-    background:linear-gradient(100deg,rgba(217,102,63,.2),rgba(217,102,63,.04));border-color:rgba(217,102,63,.45)}
-  .titular .est{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:var(--coral)}
-  .titular .frase{font-size:20px;font-family:Georgia,serif;margin-top:6px;line-height:1.35}
-  .titular .frase b{color:#fff}
-  .barraplan{height:12px;border-radius:7px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:14px;display:flex}
+  .titular{border-radius:18px;padding:20px 22px;margin:18px 0;border:2px solid var(--linea)}
+  .titular.bien{background:linear-gradient(100deg,rgba(122,155,118,.22),rgba(122,155,118,.05));border-color:rgba(122,155,118,.6)}
+  .titular.ojo{background:linear-gradient(100deg,rgba(217,165,20,.2),rgba(217,165,20,.05));border-color:rgba(217,165,20,.6)}
+  .titular.mal{background:linear-gradient(100deg,rgba(169,52,0,.22),rgba(169,52,0,.05));border-color:rgba(169,52,0,.6)}
+  .semaforo{display:flex;align-items:center;gap:16px}
+  .sem-cara{font-size:46px;line-height:1;flex-shrink:0}
+  .titular .est{font-size:24px;font-weight:bold;font-family:Georgia,serif;color:var(--texto);letter-spacing:0;text-transform:none}
+  .sem-sub{font-size:15px;color:var(--texto2);margin-top:4px;line-height:1.4}
+  .titular .frase{font-size:15px;margin-top:14px;color:var(--texto2)}
+  .titular .frase b{color:var(--texto);font-size:17px}
+  .barraplan{height:16px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:16px;display:flex}
   .barraplan i{display:block;height:100%}
 
   .seccion{margin:26px 0}
-  .seccion h2{font-size:17px;font-family:Georgia,serif;margin-bottom:3px}
-  .seccion .desc{color:var(--texto2);font-size:13px;margin-bottom:14px}
+  .seccion h2{font-size:19px;font-family:Georgia,serif;margin-bottom:4px}
+  .seccion .desc{color:var(--texto2);font-size:14px;margin-bottom:14px;line-height:1.4}
 
   /* protagonista: en que se va */
   .donut-wrap{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
@@ -80,6 +85,12 @@
   .cons-gb{text-align:right}
   .cons-gb .g{font-size:15px;font-weight:bold}
   .cons-gb .d{font-size:12px;color:var(--amar)}
+  .mini-cmp{margin-top:8px}
+  .mini-fila{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:11px}
+  .mini-fila .et{width:38px;color:var(--texto2);flex-shrink:0}
+  .mini-track{flex:1;height:14px;background:rgba(156,178,158,.1);border-radius:7px;overflow:hidden}
+  .mini-barra{height:100%;border-radius:7px;transition:width .4s}
+  .mini-fila .vv{width:54px;text-align:right;flex-shrink:0;font-weight:bold}
   .cons-decide{display:flex;align-items:center;gap:12px;margin-top:9px;padding-top:9px;border-top:1px solid var(--linea)}
   .cons-ctx{flex:1;font-size:12px;color:var(--texto2);line-height:1.45}
   .cons-ctx b{color:var(--espuma);color:#cfe3e0}
@@ -160,18 +171,24 @@
   </header>
 
   <div class="titular" id="titular">
-    <div class="est" id="titEst">Cargando…</div>
-    <div class="frase" id="titFrase"></div>
+    <div class="semaforo">
+      <div class="sem-cara" id="semCara">⏳</div>
+      <div class="sem-texto">
+        <div class="est" id="titEst">Cargando…</div>
+        <div class="sem-sub" id="titSub"></div>
+      </div>
+    </div>
     <div class="barraplan" id="barraplan"></div>
+    <div class="frase" id="titFrase"></div>
   </div>
 
   <div class="pestanas">
-    <button class="pest activo" id="pestComp" onclick="verVista('comp')">Hoy vs ayer</button>
-    <button class="pest" id="pestResumen" onclick="verVista('resumen')">Resumen general</button>
-    <button class="pest" id="pestDia" onclick="verVista('dia')">Histórico</button>
+    <button class="pest activo" id="pestComp" onclick="verVista('comp')">📊 Hoy</button>
+    <button class="pest" id="pestResumen" onclick="verVista('resumen')">📅 El mes</button>
+    <button class="pest" id="pestDia" onclick="verVista('dia')">🔎 Días pasados</button>
   </div>
 
-  <!-- ===== VISTA COMPARATIVO (hoy vs ayer) ===== -->
+  <!-- ===== VISTA COMPARATIVO (hoy vs ayer) — solo el cuadro y la gráfica de hora ===== -->
   <div id="vistaComp">
     <div class="hoy-box" id="hoyBox">
       <div class="hoy-izq">
@@ -186,64 +203,26 @@
     <div class="desc" style="text-align:center;margin-top:-6px">El día de hoy va sumando hora a hora. Se compara contra ayer (día completo), así que hasta la noche normalmente verás un porcentaje de lo de ayer.</div>
 
     <div class="seccion" style="margin-top:18px">
-      <h2>A qué hora se gasta (hoy)</h2>
-      <div class="desc">Consumo de cada hora del día de hoy. Te muestra cuándo se dispara el internet.</div>
+      <h2>¿A qué hora se gasta más?</h2>
+      <div class="desc">Cada barra es una hora del día. La más alta es cuando más se usa internet.</div>
       <div class="chart-box" style="height:190px"><canvas id="grafHora" role="img" aria-label="Consumo de internet por hora del día"></canvas></div>
       <div class="hoyhint" id="horaHint"></div>
     </div>
   </div><!-- fin vistaComp -->
 
-  <!-- ===== VISTA RESUMEN ===== -->
-  <div id="vistaResumen" style="display:none">
-
-  <div class="seccion">
-    <h2 id="tReparto">El reparto del ciclo</h2>
-    <div class="desc">Esto es lo que se está comiendo tu plan. El primero es tu mayor gasto. Toca para investigar.</div>
-    <div class="donut-wrap">
-      <div class="donut-box"><canvas id="donut" role="img" aria-label="Reparto del consumo de internet por grupo"></canvas>
-        <div class="donut-centro"><div class="big" id="dCentro"></div><div class="lbl">de 2.5 TB</div></div>
-      </div>
-      <div class="reparto" id="reparto"></div>
-    </div>
-  </div>
-
-  <div class="seccion">
-    <h2>Tu barco vs los de afuera</h2>
-    <div class="desc">La pregunta clave: ¿el internet se lo comen tus huéspedes, o tu propia operación?</div>
-    <div class="mundos">
-      <div class="mundo afuera">
-        <div class="mt">Los de afuera</div>
-        <div class="mv" id="mAfuera"></div>
-        <div class="mp">clientes free + clientes que pagan</div>
-      </div>
-      <div class="mundo adentro">
-        <div class="mt">Tu propia operación</div>
-        <div class="mv" id="mAdentro"></div>
-        <div class="mp">tripulación + cámaras + equipos + dueños</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="seccion">
-    <h2>Lo que salta a la vista</h2>
-    <div id="anomalias"></div>
-  </div>
-
-  </div><!-- fin vistaResumen -->
-
   <!-- ===== VISTA HISTÓRICO (por día + comparar 2 fechas) ===== -->
   <div id="vistaDia" style="display:none">
 
   <div class="seccion">
-    <h2>Consumo por día</h2>
-    <div class="desc">Cada barra es un día del ciclo (corte el 20). Toca una barra para ver su detalle abajo, o usa el comparador de fechas.</div>
+    <h2>Cada día del mes</h2>
+    <div class="desc">Cada barra es un día. Toca una para ver ese día en detalle.</div>
     <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del ciclo"></canvas></div>
     <div class="hoyhint" id="hoyHint">Toca un día para ver su detalle</div>
   </div>
 
   <div class="seccion">
-    <h2>Comparar dos fechas</h2>
-    <div class="desc">Elige dos días y míralos lado a lado para ver cómo cambió el consumo.</div>
+    <h2>Comparar dos días</h2>
+    <div class="desc">Elige dos días y míralos lado a lado.</div>
     <div class="comp-fechas">
       <div class="comp-col">
         <label>Fecha A</label>
@@ -260,17 +239,53 @@
 
   </div><!-- fin vistaDia -->
 
-  <!-- ===== SECCIONES COMPARTIDAS (Resumen e Histórico) ===== -->
+  <!-- ===== DETALLE COMPARTIDO: donut + barco + alertas + tarjetas + investigar ===== -->
+  <!-- Se muestra en Hoy (sobre hoy), Resumen (sobre el ciclo) e Histórico (sobre el día elegido) -->
   <div id="seccionesDetalle">
+
+  <div class="seccion">
+    <h2 id="tReparto">El reparto</h2>
+    <div class="desc" id="repartoDesc">Quién gasta más internet. El primero es el que más consume.</div>
+    <div class="donut-wrap" id="donutWrap">
+      <div class="donut-box"><canvas id="donut" role="img" aria-label="Reparto del consumo de internet por grupo"></canvas>
+        <div class="donut-centro"><div class="big" id="dCentro"></div><div class="lbl">de 2.5 TB</div></div>
+      </div>
+      <div class="reparto" id="reparto"></div>
+    </div>
+    <div class="chart-box" id="barrasWrap" style="height:230px;display:none"><canvas id="barrasHoyAyer" role="img" aria-label="Comparación hoy vs ayer por grupo"></canvas></div>
+  </div>
+
+  <div class="seccion">
+    <h2>¿Quién gasta: tu gente o los visitantes?</h2>
+    <div class="desc">A la izquierda los pasajeros y clientes. A la derecha tu propio barco (cámaras, equipos, tripulación).</div>
+    <div class="mundos">
+      <div class="mundo afuera">
+        <div class="mt">👥 Visitantes</div>
+        <div class="mv" id="mAfuera"></div>
+        <div class="mp">pasajeros y clientes</div>
+      </div>
+      <div class="mundo adentro">
+        <div class="mt">⚓ Tu barco</div>
+        <div class="mv" id="mAdentro"></div>
+        <div class="mp">cámaras, equipos y tripulación</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seccion">
+    <h2>⚠️ Cosas para revisar</h2>
+    <div id="anomalias"></div>
+  </div>
+
   <div class="seccion">
     <h2 id="tTarjetas">Quién consume — el ciclo</h2>
-    <div class="desc">Reparto por grupo en tarjetas. Toca una para investigar sus consumidores abajo.</div>
+    <div class="desc">Toca cualquier grupo para ver el detalle abajo.</div>
     <div class="tarjetas" id="tarjetas"></div>
   </div>
 
   <div class="seccion">
-    <h2>Investigar y decidir</h2>
-    <div class="desc">Mira cada consumidor con su contexto. Tú decides si vale la pena frenarlo o no.</div>
+    <h2>El detalle, aparato por aparato</h2>
+    <div class="desc">Cada aparato y cuánto gasta. Tú decides si frenarlo.</div>
     <div class="grupoSel" id="grupoSel"></div>
     <div id="freeResumen"></div>
     <div id="consLista"></div>
@@ -332,9 +347,9 @@ const NOMBRE_PUERTO = {
 
 // contexto de decisión por grupo (neutro; tú decides al verlo)
 function contexto(grupo, nombre, gbVal){
-  if(grupo==="tplink") return `Access point TP-Link (192.168.88.254). ${gbVal>=20?'<b>Está gastando fuerte.</b> ':''}Revisa si su consumo te parece alto para decidir.`;
-  if(grupo==="dvr") return `Grabador de video (DVR). ${gbVal>=20?'<b>Consumo alto:</b> ':''}Si gasta mucho, probablemente sube video a la nube.`;
-  if(grupo==="cableado") return `Equipo cableado en este puerto. Edita su nombre cuando sepas qué es.`;
+  if(grupo==="tplink") return `El WiFi de las áreas comunes. ${gbVal>=20?'<b>Está gastando fuerte hoy.</b> ':''}Por aquí se conecta la gente.`;
+  if(grupo==="dvr") return `Las cámaras de seguridad. ${gbVal>=20?'<b>Gastando mucho hoy.</b> ':''}Si gastan, es porque suben video a internet.`;
+  if(grupo==="cableado") return `Un aparato conectado por cable. Aún no sabemos cuál es.`;
   if(grupo==="tripulacion") return `Tripulación. ${gbVal>=20?'<b>Consumo alto.</b> ':''}Frenarlo solo afecta a una persona del crew, no a huéspedes.`;
   if(grupo==="cliente_free") return `Free anónimo. ${gbVal>=10?'<b>Gastando mucho para una cortesía.</b> ':''}Frenarlo o cortarlo no afecta a nadie tuyo.`;
   if(grupo==="cliente_pago") return `Cliente que pagó por internet. <b>No conviene cortar</b>: pagó por esto.`;
@@ -476,6 +491,18 @@ function consumidoresDe(grupo){
     .sort((a,b)=>b.gbv-a.gbv)
     .map(x=>[nombreLegible(grupo,x.ident), x.gbv, contexto(grupo, x.ident, x.gbv), x.ident]);
 }
+// consumo (GB) de un identificador en un día específico
+function consumoIdentDia(ident, diaISO){
+  let bytes=0;
+  DIFFS.filter(d=>d.ident===ident && d.dia===diaISO).forEach(d=>{ bytes+=d.bytes; });
+  return bytes/GB_BYTES;
+}
+// fecha de "ayer" = último día con datos que no es hoy
+function fechaAyer(){
+  const hoyISO=fechaLocal(new Date());
+  const dias=diasDelCiclo().filter(d=>d!==hoyISO);
+  return dias.length ? dias[dias.length-1] : null;
+}
 // división del free en glotones/normales/fantasmas
 function claseFree(gbVal){
   if(gbVal>=10) return "glotones";
@@ -547,7 +574,7 @@ async function init(){
     return;
   }
   titular();
-  document.getElementById("simtag").textContent = "Datos en vivo · "+DIFFS.length+" registros este ciclo";
+  document.getElementById("simtag").textContent = "🟢 En vivo · se actualiza solo";
   try{ graficaDia(); }catch(e){ console.warn("gráfica día no disponible",e); }
   try{ graficaHora(); }catch(e){ console.warn("gráfica hora no disponible",e); }
   try{ donut(); }catch(e){ console.warn("donut no disponible",e); }
@@ -568,6 +595,34 @@ function tarjetas(){
       <div class="tj-sub">${cuenta} ${cuenta===1?'aparato':'aparatos'}</div>
     </div>`;
   }).join("");
+}
+
+function graficaHoyAyer(){
+  if(!document.getElementById("barrasHoyAyer")) return;
+  const serie = consumoPorDia();
+  const hoyISO = fechaLocal(new Date());
+  const anteriores = serie.filter(s=>s.dia!==hoyISO);
+  const ayerISO = anteriores.length ? anteriores[anteriores.length-1].dia : null;
+  const gHoy = grupoDelDia(hoyISO);
+  const gAyer = ayerISO ? grupoDelDia(ayerISO) : {};
+  const claves = Object.keys(GRUPOS).filter(k=>(gHoy[k]||0)>0 || (gAyer[k]||0)>0)
+    .sort((a,b)=>((gHoy[b]||0)+(gAyer[b]||0))-((gHoy[a]||0)+(gAyer[a]||0)));
+  const labels = claves.map(k=>GRUPOS[k].nom);
+  const datosHoy = claves.map(k=>+(gHoy[k]||0).toFixed(2));
+  const datosAyer = claves.map(k=>+(gAyer[k]||0).toFixed(2));
+  if(window._gha) window._gha.destroy();
+  window._gha = new Chart(document.getElementById("barrasHoyAyer"),{
+    type:"bar",
+    data:{labels,datasets:[
+      {label:"Hoy", data:datosHoy, backgroundColor:"#d9a514", borderRadius:4, maxBarThickness:22},
+      {label:"Ayer"+(ayerISO?" ("+etiquetaDia(ayerISO)+")":""), data:datosAyer, backgroundColor:"#5b8a9c", borderRadius:4, maxBarThickness:22}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:"#eef0e2",font:{size:12}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+": "+c.parsed.y+" GB"}}},
+      scales:{x:{ticks:{color:"#9cb29e",font:{size:10}},grid:{display:false}},
+        y:{ticks:{color:"#9cb29e",callback:v=>v+" GB"},grid:{color:"rgba(156,178,158,.1)"},beginAtZero:true}}}
+  });
 }
 
 function graficaHora(){
@@ -627,26 +682,34 @@ function seleccionarDia(diaISO){
 
 function titular(){
   const usado = totalMesGB();
-  const ritmo = usado / DIA_CICLO;                  // GB por día en este ciclo
-  const proyFin = Math.round(ritmo * DIAS_CICLO_TOTAL); // proyección al cierre del ciclo
-  const restante = PLAN_GB - usado;
+  const ritmo = usado / DIA_CICLO;
+  const proyFin = Math.round(ritmo * DIAS_CICLO_TOTAL);
   const diasQuedan = Math.max(0, Math.ceil((CICLO_FIN - Date.now())/MS_DIA));
-  const sePasa = proyFin > PLAN_GB;
-  const t = document.getElementById("titular");
-  t.className = "titular" + (sePasa ? "" : " ok");
-  document.querySelector("#titular .est").textContent = sePasa ? "Llegando al límite" : "Vas con margen";
-  const cierre = etiquetaDia(fechaLocal(CICLO_FIN));
-  if(sePasa){
-    document.getElementById("titFrase").innerHTML =
-      `Llevas <b>${gb(usado)}</b> de tus <b>2.5 TB</b> en este ciclo. A este ritmo cierras el <b>${cierre}</b> en <b>${gb(proyFin)}</b> — te <b>pasarías del plan</b>. Quedan ~<b>${diasQuedan} días</b> para el corte.`;
-  }else{
-    document.getElementById("titFrase").innerHTML =
-      `Llevas <b>${gb(usado)}</b> de tus <b>2.5 TB</b> en este ciclo. A este ritmo cierras el <b>${cierre}</b> en <b>${gb(proyFin)}</b>, dentro del plan. Vas con <b>${Math.round((1-proyFin/PLAN_GB)*100)}% de margen</b>. Quedan ~<b>${diasQuedan} días</b>.`;
+  const margen = Math.round((1-proyFin/PLAN_GB)*100);
+  // tres estados: bien (verde), ojo (ámbar), mal (rojo)
+  let estado, cara, est, sub;
+  if(proyFin > PLAN_GB){
+    estado="mal"; cara="🔴"; est="¡Cuidado! Te vas a pasar";
+    sub=`Si sigues así, este mes gastas más de lo que tienes. Quedan ${diasQuedan} días.`;
+  } else if(margen < 15){
+    estado="ojo"; cara="🟡"; est="Vas justo";
+    sub=`Vas a llegar al límite muy ajustado. Cuida el gasto estos ${diasQuedan} días.`;
+  } else {
+    estado="bien"; cara="🟢"; est="Todo bien";
+    sub=`Vas tranquila, con espacio de sobra. Quedan ${diasQuedan} días para el corte.`;
   }
+  const t = document.getElementById("titular");
+  t.className = "titular " + estado;
+  document.getElementById("semCara").textContent = cara;
+  document.getElementById("titEst").textContent = est;
+  document.getElementById("titSub").textContent = sub;
+  // frase con los números, más simple
+  document.getElementById("titFrase").innerHTML =
+    `Has usado <b>${gb(usado)}</b> de <b>2.5 TB</b> este mes.`;
   const pct = Math.min(100, usado/PLAN_GB*100);
   const proy = Math.max(0, Math.min(100,proyFin/PLAN_GB*100)-pct);
-  const color = sePasa ? "var(--coral)" : "var(--verde)";
-  const colorProy = sePasa ? "rgba(217,102,63,.35)" : "rgba(47,158,127,.3)";
+  const color = estado==="mal" ? "var(--coral)" : estado==="ojo" ? "var(--amar)" : "var(--verde)";
+  const colorProy = estado==="mal" ? "rgba(169,52,0,.35)" : estado==="ojo" ? "rgba(217,165,20,.3)" : "rgba(122,155,118,.3)";
   document.getElementById("barraplan").innerHTML =
     `<i style="width:${pct}%;background:${color}"></i><i style="width:${proy}%;background:${colorProy}"></i>`;
 }
@@ -711,33 +774,33 @@ function anomalias(){
       // alerta si hoy ya superó 1.5x su promedio diario y es consumo notable
       if(prom>1 && hoyVal > prom*1.5){
         const veces=(hoyVal/prom).toFixed(1);
-        a.push({ico:"🚨",t1:`${GRUPOS[k].nom} va disparado hoy: ${gb(hoyVal)}`,
-          t2:`Hoy ya lleva ${veces}× su promedio diario (~${gb(prom)}/día). Algo cambió — revísalo abajo.`});
+        a.push({ico:"🚨",t1:`${GRUPOS[k].nom} está gastando mucho hoy: ${gb(hoyVal)}`,
+          t2:`Hoy va ${veces} veces más de lo normal. Algo cambió — revísalo abajo.`});
       }
     }
   }
 
   // 1) operación vs huéspedes
   if(pctOper>=50){
-    a.push({ico:"🔍",t1:`Tu operación pesa el ${pctOper}% del internet`,
-      t2:`Equipos propios (TP-Link, cámaras, DVR, tripulación) suman más que los clientes. Mira abajo cuál es el que más gasta.`});
+    a.push({ico:"🔍",t1:`Tu propio barco usa el ${pctOper}% del internet`,
+      t2:`Las cámaras, equipos y tripulación gastan más que los visitantes. Mira abajo cuál es el que más usa.`});
   }
   // 2) el TP-Link, ahora medido aparte
   if(tg.tplink>0){
-    a.push({ico:"📡",t1:`El TP-Link gastó ${gb(tg.tplink)} = ${usd(tg.tplink)}`,
-      t2:`Es el access point (192.168.88.254). Revisa si su consumo te parece alto para decidir si controlarlo.`});
+    a.push({ico:"📡",t1:`El WiFi de las áreas gastó ${gb(tg.tplink)} (${usd(tg.tplink)})`,
+      t2:`Es el WiFi por donde se conecta la gente. Si gasta mucho, puedes controlarlo.`});
   }
   // 3) los DVR / cámaras
   if(tg.dvr>0){
-    a.push({ico:"📹",t1:`Los DVR gastaron ${gb(tg.dvr)} = ${usd(tg.dvr)}`,
-      t2:`Grabadores de video. Si el consumo es alto, probablemente suben video a la nube.`});
+    a.push({ico:"📹",t1:`Las cámaras gastaron ${gb(tg.dvr)} (${usd(tg.dvr)})`,
+      t2:`Si las cámaras gastan mucho, es porque están subiendo video a internet.`});
   }
   // 4) mayor consumidor individual
   let mayor=null;
   for(const k in GRUPOS){ consumidoresDe(k).forEach(c=>{ if(!mayor||c[1]>mayor.gb){mayor={nom:c[0],gb:c[1],grupo:k};} }); }
   if(mayor && mayor.gb>5){
-    a.push({ico:"📈",t1:`Tu mayor consumidor: ${mayor.nom} — ${gb(mayor.gb)} = ${usd(mayor.gb)}`,
-      t2:`Es ${GRUPOS[mayor.grupo].nom.toLowerCase()}. Revísalo abajo para decidir si conviene frenarlo.`});
+    a.push({ico:"📈",t1:`El que más gasta: ${mayor.nom} — ${gb(mayor.gb)} (${usd(mayor.gb)})`,
+      t2:`Míralo abajo para decidir si conviene frenarlo.`});
   }
   // 5) free con muchos aparatos
   const nFree = consumidoresDe("cliente_free").length;
@@ -802,13 +865,34 @@ function consumidores(){
     return;
   }
   const esFantasma = esFree && freeCat==="fantasmas";
-  document.getElementById("consLista").innerHTML=vis.map((r,i)=>`
+  const ayerISO = fechaAyer();
+  const modoComp = (vistaActual==="comp" && ayerISO);
+  document.getElementById("consLista").innerHTML=vis.map((r,i)=>{
+    let colGB, miniCmp="";
+    if(modoComp){
+      const ayerV = consumoIdentDia(r[3], ayerISO);
+      const maxV = Math.max(r[1], ayerV, 0.01);
+      const pctHoy = Math.round(r[1]/maxV*100);
+      const pctAyer = Math.round(ayerV/maxV*100);
+      let cambio="";
+      if(r[1]>ayerV+0.05) cambio=`<span style="color:var(--coral)">↑</span>`;
+      else if(r[1]<ayerV-0.05) cambio=`<span style="color:var(--verde)">↓</span>`;
+      colGB=`<div class="g">${gb(r[1])} ${cambio}</div>`;
+      miniCmp=`<div class="mini-cmp">
+        <div class="mini-fila"><span class="et">Hoy</span><span class="mini-track"><span class="mini-barra" style="width:${pctHoy}%;background:var(--amar)"></span></span><span class="vv">${gb(r[1])}</span></div>
+        <div class="mini-fila"><span class="et">Ayer</span><span class="mini-track"><span class="mini-barra" style="width:${pctAyer}%;background:var(--azul)"></span></span><span class="vv" style="color:var(--texto2)">${gb(ayerV)}</span></div>
+      </div>`;
+    } else {
+      colGB=`<div class="g">${gb(r[1])}</div><div class="d">${r[1]>0?usd(r[1])+(diaSel?'':'/mes'):'sin consumo'}</div>`;
+    }
+    return `
     <div class="cons">
       <div class="cons-top">
         <span class="cons-rank">${i+1}</span>
         <span class="cons-nom" style="border-left:3px solid ${g.col};padding-left:9px">${r[0]}</span>
-        <span class="cons-gb"><div class="g">${gb(r[1])}</div><div class="d">${r[1]>0?usd(r[1])+(diaSel?'':'/mes'):'sin consumo'}</div></span>
+        <span class="cons-gb">${colGB}</span>
       </div>
+      ${miniCmp}
       ${esFantasma ? `<div class="cons-decide"><div class="cons-ctx">Sin consumo en este ${diaSel?'día':'ciclo'}. Es un aparato que se conectó pero no gasta — se limpia solo del router.</div></div>`
       : `<div class="cons-decide">
         <div class="cons-ctx">${r[2]}</div>
@@ -817,7 +901,8 @@ function consumidores(){
           <button class="btn-eval" onclick="cortar(this)">Cortar</button>
         </div>
       </div>`}
-    </div>`).join("");
+    </div>`;
+  }).join("");
   const btn=document.getElementById("verMas");
   const ocultos = filtrada.length - 5;
   if(ocultos>0){
@@ -845,21 +930,36 @@ function verVista(v){
   document.getElementById("pestResumen").classList.toggle("activo", v==="resumen");
   document.getElementById("pestDia").classList.toggle("activo", v==="dia");
   document.getElementById("vistaComp").style.display = v==="comp" ? "" : "none";
-  document.getElementById("vistaResumen").style.display = v==="resumen" ? "" : "none";
   document.getElementById("vistaDia").style.display = v==="dia" ? "" : "none";
-  // las secciones de detalle (tarjetas + investigar) solo en resumen e histórico
-  document.getElementById("seccionesDetalle").style.display = (v==="comp") ? "none" : "";
+  // el detalle (donut, barco, alertas, tarjetas, investigar) se muestra en las 3 vistas
+  document.getElementById("seccionesDetalle").style.display = "";
 
   if(v==="comp"){
+    // radiografía del día de HOY, con barras hoy vs ayer en vez de donut
+    diaSel = fechaLocal(new Date());
+    document.getElementById("donutWrap").style.display="none";
+    document.getElementById("barrasWrap").style.display="";
+    document.getElementById("repartoDesc").textContent="Cada grupo: cuánto va hoy (ámbar) comparado con ayer (azul).";
     pintarHoy();
+    refrescarTodo();
+    try{ graficaHoyAyer(); }catch(e){ console.warn(e); }
+    document.getElementById("tReparto").textContent="Hoy vs ayer, por grupo";
   } else if(v==="resumen"){
+    // panorama del CICLO completo (donut)
     diaSel = null;
+    document.getElementById("donutWrap").style.display="";
+    document.getElementById("barrasWrap").style.display="none";
+    document.getElementById("tReparto").textContent="El reparto del ciclo";
+    document.getElementById("repartoDesc").textContent="Esto es lo que se está comiendo tu plan. El primero es tu mayor gasto. Toca para investigar.";
     marcarBarra();
     refrescarTodo();
   } else if(v==="dia"){
+    document.getElementById("donutWrap").style.display="";
+    document.getElementById("barrasWrap").style.display="none";
+    document.getElementById("tReparto").textContent="El reparto del día";
+    document.getElementById("repartoDesc").textContent="Reparto del día elegido. Toca un grupo para investigar.";
     const serie = consumoPorDia();
-    if(!diaSel && serie.length){
-      // preferir el último día completo (no hoy); si solo hay hoy, usar hoy
+    if(serie.length){
       const hoyISO = fechaLocal(new Date());
       const completos = serie.filter(s=>s.dia!==hoyISO);
       diaSel = completos.length ? completos[completos.length-1].dia : serie[serie.length-1].dia;
