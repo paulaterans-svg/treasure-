@@ -130,13 +130,13 @@
 
   <div class="seccion">
     <h2>Día a día</h2>
-    <div class="desc">Consumo de cada día del mes. Toca una barra para ver quién consumió ese día abajo.</div>
-    <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del mes"></canvas></div>
-    <div class="hoyhint" id="hoyHint">Mostrando el mes completo · toca un día para enfocarlo</div>
+    <div class="desc">Consumo de cada día del ciclo (corte el 20). Toca una barra para ver quién consumió ese día abajo.</div>
+    <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del ciclo"></canvas></div>
+    <div class="hoyhint" id="hoyHint">Mostrando el ciclo completo · toca un día para enfocarlo</div>
   </div>
 
   <div class="seccion">
-    <h2 id="tReparto">El reparto del mes</h2>
+    <h2 id="tReparto">El reparto del ciclo</h2>
     <div class="desc">Esto es lo que se está comiendo tu plan. El primero es tu mayor gasto. Toca para investigar.</div>
     <div class="donut-wrap">
       <div class="donut-box"><canvas id="donut" role="img" aria-label="Reparto del consumo de internet por grupo"></canvas>
@@ -169,7 +169,7 @@
   </div>
 
   <div class="seccion">
-    <h2 id="tTarjetas">Quién consume — el mes</h2>
+    <h2 id="tTarjetas">Quién consume — el ciclo</h2>
     <div class="desc">Reparto por grupo en tarjetas. Toca una para investigar sus consumidores abajo.</div>
     <div class="tarjetas" id="tarjetas"></div>
   </div>
@@ -243,11 +243,43 @@ function contexto(grupo, nombre, gbVal){
 let DIFFS = [];          // filas de v_consumo_diario
 let diaSel = null;
 let grupoActivo="cableado", verTodos=false;
-let HOY_DIA = new Date().getDate();
-let mesActual = new Date().toISOString().slice(0,7); // "2026-06"
+
+// ===== Ciclo de facturación: del día 20 18h00 al día 20 18h00 =====
+const CORTE_DIA = 20;
+const CORTE_HORA = 18; // 18h00 hora local Ecuador
+function inicioCicloActual(){
+  const ahora = new Date();
+  // inicio = el último día 20 a las 18h00 que ya pasó
+  let ini = new Date(ahora.getFullYear(), ahora.getMonth(), CORTE_DIA, CORTE_HORA, 0, 0);
+  if(ahora < ini){
+    // aún no llega el corte de este mes -> el ciclo arrancó el 20 del mes pasado
+    ini = new Date(ahora.getFullYear(), ahora.getMonth()-1, CORTE_DIA, CORTE_HORA, 0, 0);
+  }
+  return ini;
+}
+function finCicloActual(){
+  const ini = inicioCicloActual();
+  return new Date(ini.getFullYear(), ini.getMonth()+1, CORTE_DIA, CORTE_HORA, 0, 0);
+}
+const CICLO_INI = inicioCicloActual();
+const CICLO_FIN = finCicloActual();
+const MS_DIA = 86400000;
+// día del ciclo en que estamos (1 = primer día del ciclo)
+let DIA_CICLO = Math.max(1, Math.ceil((Date.now()-CICLO_INI)/MS_DIA));
+const DIAS_CICLO_TOTAL = Math.round((CICLO_FIN-CICLO_INI)/MS_DIA); // ~30/31
+let mesActual = new Date().toISOString().slice(0,7);
 
 const gb = v => v>=1000 ? (v/1000).toFixed(2)+" TB" : Math.round(v)+" GB";
 const usd = v => "$"+Math.round(v*COSTO_GB);
+
+// fecha local "YYYY-MM-DD" sin desfase de zona horaria
+function fechaLocal(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+// etiqueta corta de un día del ciclo (ej. "20/06")
+function etiquetaDia(diaISO){
+  const p=diaISO.split("-"); return p[2]+"/"+p[1];
+}
 
 // nombre legible del identificador según grupo
 function nombreLegible(grupo, ident){
@@ -258,24 +290,28 @@ function nombreLegible(grupo, ident){
 
 // ===== Carga desde Supabase =====
 async function cargarDatos(){
-  // leemos la vista de consumo diario del mes actual
-  const desde = mesActual + "-01";
+  // leemos la vista de consumo diario desde el inicio del ciclo (día 20)
+  const desde = fechaLocal(CICLO_INI);
   const url = `${SUPABASE_URL}/rest/v1/v_consumo_diario?select=*&dia=gte.${desde}&order=dia.asc`;
   const res = await fetch(url, {headers:{apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY}});
   if(!res.ok) throw new Error("HTTP "+res.status+" — "+(await res.text()).slice(0,150));
   const filas = await res.json();
   // anexar grupo a cada fila
   DIFFS = filas.map(f=>({
-    dia: f.dia,
-    diaNum: parseInt(f.dia.slice(8,10),10),
+    dia: f.dia,                       // "2026-06-20"
     grupo: tipoAGrupo(f.tipo, f.fuente),
     ident: f.identificador,
     bytes: Number(f.bytes_total||0)
   }));
 }
 
-// ===== Cálculos derivados (reemplazan los datos simulados) =====
-// total por grupo del mes completo (en GB)
+// lista ordenada de fechas presentes en el ciclo
+function diasDelCiclo(){
+  return [...new Set(DIFFS.map(d=>d.dia))].sort();
+}
+
+// ===== Cálculos derivados (leen de DIFFS reales) =====
+// total por grupo de TODO el ciclo (en GB)
 function totalGrupoCalc(){
   const o={};
   for(const k in GRUPOS) o[k]=0;
@@ -283,26 +319,23 @@ function totalGrupoCalc(){
   for(const k in o) o[k]=o[k]/GB_BYTES;
   return o;
 }
-// total por grupo de un día (GB)
-function grupoDelDia(diaNum){
+// total por grupo de un día concreto (GB) — diaSel es una fecha "YYYY-MM-DD"
+function grupoDelDia(diaISO){
   const o={};
   for(const k in GRUPOS) o[k]=0;
-  DIFFS.filter(d=>d.diaNum===diaNum).forEach(d=>{ o[d.grupo]+=d.bytes; });
+  DIFFS.filter(d=>d.dia===diaISO).forEach(d=>{ o[d.grupo]+=d.bytes; });
   for(const k in o) o[k]=o[k]/GB_BYTES;
   return o;
 }
-// consumo total por día del mes (array indexado por día)
+// consumo total por día del ciclo: [{dia, gb}]
 function consumoPorDia(){
   const m={};
-  DIFFS.forEach(d=>{ m[d.diaNum]=(m[d.diaNum]||0)+d.bytes; });
-  const maxDia=Math.max(HOY_DIA, ...Object.keys(m).map(Number).concat([1]));
-  const arr=[];
-  for(let i=1;i<=maxDia;i++) arr.push(+((m[i]||0)/GB_BYTES).toFixed(2));
-  return arr;
+  DIFFS.forEach(d=>{ m[d.dia]=(m[d.dia]||0)+d.bytes; });
+  return diasDelCiclo().map(dia=>({dia, gb:+((m[dia]||0)/GB_BYTES).toFixed(2)}));
 }
-// consumidores de un grupo (mes o día), ordenados, con contexto
+// consumidores de un grupo (ciclo o día), ordenados, con contexto
 function consumidoresDe(grupo){
-  const filtra = diaSel ? (d=>d.grupo===grupo && d.diaNum===diaSel) : (d=>d.grupo===grupo);
+  const filtra = diaSel ? (d=>d.grupo===grupo && d.dia===diaSel) : (d=>d.grupo===grupo);
   const acum={};
   DIFFS.filter(filtra).forEach(d=>{ acum[d.ident]=(acum[d.ident]||0)+d.bytes; });
   return Object.entries(acum)
@@ -339,12 +372,12 @@ async function init(){
   }
   if(!DIFFS.length){
     document.getElementById("titFrase").innerHTML =
-      `<span style="font-size:16px">Todavía no hay consumo registrado este mes. El router va guardando cada 15 minutos — vuelve en un rato y verás los datos llenándose.</span>`;
+      `<span style="font-size:16px">Todavía no hay consumo registrado en este ciclo. El router guarda cada 15 minutos — vuelve en un rato y verás los datos llenándose.</span>`;
     document.getElementById("barraplan").style.display="none";
     return;
   }
   titular();
-  document.getElementById("simtag").textContent = "Datos en vivo · "+DIFFS.length+" registros este mes";
+  document.getElementById("simtag").textContent = "Datos en vivo · "+DIFFS.length+" registros este ciclo";
   try{ graficaDia(); }catch(e){ console.warn("gráfica día no disponible",e); }
   try{ donut(); }catch(e){ console.warn("donut no disponible",e); }
   reparto(); mundos(); anomalias(); tarjetas(); selector(); consumidores();
@@ -352,7 +385,7 @@ async function init(){
 
 function tarjetas(){
   const dat=datosActuales();
-  document.getElementById("tTarjetas").textContent = diaSel ? ("Quién consume — día "+diaSel) : "Quién consume — el mes";
+  document.getElementById("tTarjetas").textContent = diaSel ? ("Quién consume — "+etiquetaDia(diaSel)) : "Quién consume — el ciclo";
   const orden=Object.entries(dat).sort((a,b)=>b[1]-a[1]);
   document.getElementById("tarjetas").innerHTML=orden.map(([k,v])=>{
     const g=GRUPOS[k];
@@ -366,53 +399,55 @@ function tarjetas(){
 }
 
 function graficaDia(){
-  const DIAS=consumoPorDia();
-  const labels=DIAS.map((_,i)=>i+1);
+  const serie=consumoPorDia();
+  const labels=serie.map(s=>etiquetaDia(s.dia));
+  const fechas=serie.map(s=>s.dia);
+  window._serieFechas=fechas;
   window._gd=new Chart(document.getElementById("grafDia"),{
     type:"bar",
-    data:{labels,datasets:[{data:DIAS,backgroundColor:DIAS.map(()=>"#2f9e7f"),borderRadius:5,maxBarThickness:26}]},
+    data:{labels,datasets:[{data:serie.map(s=>s.gb),backgroundColor:fechas.map(()=>"#2f9e7f"),borderRadius:5,maxBarThickness:26}]},
     options:{responsive:true,maintainAspectRatio:false,
-      onClick:(e,el)=>{ if(el.length) seleccionarDia(el[0].index+1); },
+      onClick:(e,el)=>{ if(el.length) seleccionarDia(fechas[el[0].index]); },
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+" GB ese día"}}},
-      scales:{x:{ticks:{color:"#9fc0c4"},grid:{display:false},title:{display:true,text:"día del mes",color:"#9fc0c4",font:{size:11}}},
+      scales:{x:{ticks:{color:"#9fc0c4"},grid:{display:false},title:{display:true,text:"día del ciclo (corte el 20)",color:"#9fc0c4",font:{size:11}}},
         y:{ticks:{color:"#9fc0c4",callback:v=>v+" GB"},grid:{color:"rgba(159,192,196,.1)"},beginAtZero:true}}}
   });
 }
 
-function seleccionarDia(d){
-  diaSel = (diaSel===d) ? null : d;
-  if(window._gd){
-    const DIAS=consumoPorDia();
-    const cols=DIAS.map((_,i)=> (i+1)===diaSel ? "#e0a93b":"#2f9e7f");
+function seleccionarDia(diaISO){
+  diaSel = (diaSel===diaISO) ? null : diaISO;
+  if(window._gd && window._serieFechas){
+    const cols=window._serieFechas.map(f=> f===diaSel ? "#e0a93b":"#2f9e7f");
     window._gd.data.datasets[0].backgroundColor=cols;
     window._gd.update();
   }
   if(diaSel){
-    document.getElementById("hoyHint").textContent="Mostrando el día "+diaSel+" · toca de nuevo para volver al mes";
+    document.getElementById("hoyHint").textContent="Mostrando el "+etiquetaDia(diaSel)+" · toca de nuevo para volver al ciclo";
   }else{
-    document.getElementById("hoyHint").textContent="Mostrando el mes completo · toca un día para enfocarlo";
+    document.getElementById("hoyHint").textContent="Mostrando el ciclo completo · toca un día para enfocarlo";
   }
   try{ donut(); }catch(e){} reparto(); mundos(); tarjetas(); consumidores();
 }
 
 function titular(){
-  const usadoMes = totalMesGB();
-  const ritmo = usadoMes / HOY_DIA;
-  const proyFin = Math.round(ritmo * 30);
-  const restante = PLAN_GB - usadoMes;
-  const diasQuedan = ritmo>0 ? Math.floor(restante/ritmo) : 99;
+  const usado = totalMesGB();
+  const ritmo = usado / DIA_CICLO;                  // GB por día en este ciclo
+  const proyFin = Math.round(ritmo * DIAS_CICLO_TOTAL); // proyección al cierre del ciclo
+  const restante = PLAN_GB - usado;
+  const diasQuedan = Math.max(0, Math.ceil((CICLO_FIN - Date.now())/MS_DIA));
   const sePasa = proyFin > PLAN_GB;
   const t = document.getElementById("titular");
   t.className = "titular" + (sePasa ? "" : " ok");
   document.querySelector("#titular .est").textContent = sePasa ? "Llegando al límite" : "Vas con margen";
+  const cierre = etiquetaDia(fechaLocal(CICLO_FIN));
   if(sePasa){
     document.getElementById("titFrase").innerHTML =
-      `Llevas <b>${gb(usadoMes)}</b> de tus <b>2.5 TB</b>. A este ritmo terminas el mes en <b>${gb(proyFin)}</b> — te <b>pasarías del plan</b>. Te quedan ~<b>${diasQuedan} días</b>.`;
+      `Llevas <b>${gb(usado)}</b> de tus <b>2.5 TB</b> en este ciclo. A este ritmo cierras el <b>${cierre}</b> en <b>${gb(proyFin)}</b> — te <b>pasarías del plan</b>. Quedan ~<b>${diasQuedan} días</b> para el corte.`;
   }else{
     document.getElementById("titFrase").innerHTML =
-      `Llevas <b>${gb(usadoMes)}</b> de tus <b>2.5 TB</b>. A este ritmo terminas el mes en <b>${gb(proyFin)}</b>, dentro de tu plan. Vas con <b>${Math.round((1-proyFin/PLAN_GB)*100)}% de margen</b>.`;
+      `Llevas <b>${gb(usado)}</b> de tus <b>2.5 TB</b> en este ciclo. A este ritmo cierras el <b>${cierre}</b> en <b>${gb(proyFin)}</b>, dentro del plan. Vas con <b>${Math.round((1-proyFin/PLAN_GB)*100)}% de margen</b>. Quedan ~<b>${diasQuedan} días</b>.`;
   }
-  const pct = Math.min(100, usadoMes/PLAN_GB*100);
+  const pct = Math.min(100, usado/PLAN_GB*100);
   const proy = Math.max(0, Math.min(100,proyFin/PLAN_GB*100)-pct);
   const color = sePasa ? "var(--coral)" : "var(--verde)";
   const colorProy = sePasa ? "rgba(217,102,63,.35)" : "rgba(47,158,127,.3)";
@@ -432,12 +467,12 @@ function donut(){
     options:{cutout:"68%",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+": "+gb(c.parsed)}}}}
   });
   document.getElementById("dCentro").textContent=gb(totDat);
-  document.querySelector(".donut-centro .lbl").textContent = diaSel ? ("día "+diaSel) : "de 2.5 TB";
+  document.querySelector(".donut-centro .lbl").textContent = diaSel ? etiquetaDia(diaSel) : "de 2.5 TB";
 }
 
 function reparto(){
   const dat=datosActuales();
-  document.getElementById("tReparto").textContent = diaSel ? ("El reparto del día "+diaSel) : "El reparto del mes";
+  document.getElementById("tReparto").textContent = diaSel ? ("El reparto del "+etiquetaDia(diaSel)) : "El reparto del ciclo";
   const orden=Object.entries(dat).sort((a,b)=>b[1]-a[1]);
   const tot=Object.values(dat).reduce((a,b)=>a+b,0)||1;
   const suf = diaSel ? "" : "/mes";
@@ -485,7 +520,7 @@ function anomalias(){
     a.push({ico:"⚠️",t1:`Free: ${nFree} aparatos conectados (deberían ser ~16)`,
       t2:`${nFree-16} de más. De esos, ${fd.glotones.n} gastan mucho (glotones) y ${fd.fantasmas.n} están sin consumo. Revisa los glotones abajo.`});
   }
-  if(!a.length) a.push({ico:"✓",t1:"Nada raro por ahora",t2:"El consumo se ve normal este mes."});
+  if(!a.length) a.push({ico:"✓",t1:"Nada raro por ahora",t2:"El consumo se ve normal en este ciclo."});
   document.getElementById("anomalias").innerHTML=a.map(x=>`
     <div class="anomalia"><div class="ico">${x.ico}</div>
       <div><div class="t1">${x.t1}</div><div class="t2">${x.t2}</div></div></div>`).join("");
