@@ -96,6 +96,21 @@
   .nota{background:rgba(224,169,59,.08);border:1px solid rgba(224,169,59,.3);border-radius:12px;padding:12px 16px;font-size:12px;color:#e8d3a8;margin-top:20px}
   .pie{color:var(--texto2);font-size:11px;text-align:center;margin-top:30px}
   .hoyhint{font-size:12px;color:var(--texto2);text-align:center;margin-top:8px;font-style:italic}
+  .pestanas{display:flex;gap:8px;margin:22px 0 4px}
+  .pest{flex:1;background:transparent;border:1px solid var(--linea);color:var(--texto2);
+    padding:11px 16px;border-radius:12px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:bold;transition:.15s}
+  .pest:hover{border-color:var(--texto2)}
+  .pest.activo{background:var(--mar);border-color:var(--mar);color:var(--texto)}
+  .hoy-box{display:flex;justify-content:space-between;align-items:center;gap:16px;
+    background:var(--card);border:1px solid var(--linea);border-radius:16px;padding:18px 22px;margin:18px 0}
+  .hoy-lbl{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--texto2)}
+  .hoy-val{font-size:30px;font-weight:bold;font-family:Georgia,serif;margin-top:4px}
+  .hoy-der{text-align:right}
+  .hoy-comp{font-size:16px;font-weight:bold}
+  .hoy-comp.bien{color:var(--verde)}
+  .hoy-comp.alto{color:var(--coral)}
+  .hoy-comp.normal{color:var(--texto2)}
+  .hoy-prom{font-size:12px;color:var(--texto2);margin-top:3px}
 
   .tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
   .tarjeta{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:14px 16px;cursor:pointer;transition:.15s}
@@ -137,12 +152,29 @@
     <div class="barraplan" id="barraplan"></div>
   </div>
 
-  <div class="seccion">
-    <h2>Día a día</h2>
-    <div class="desc">Consumo de cada día del ciclo (corte el 20). Toca una barra para ver quién consumió ese día abajo.</div>
-    <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del ciclo"></canvas></div>
-    <div class="hoyhint" id="hoyHint">Mostrando el ciclo completo · toca un día para enfocarlo</div>
+  <div class="pestanas">
+    <button class="pest activo" id="pestComp" onclick="verVista('comp')">Hoy vs ayer</button>
+    <button class="pest" id="pestResumen" onclick="verVista('resumen')">Resumen general</button>
+    <button class="pest" id="pestDia" onclick="verVista('dia')">Histórico</button>
   </div>
+
+  <!-- ===== VISTA COMPARATIVO (hoy vs ayer) ===== -->
+  <div id="vistaComp">
+    <div class="hoy-box" id="hoyBox">
+      <div class="hoy-izq">
+        <div class="hoy-lbl">Hoy hasta ahora</div>
+        <div class="hoy-val" id="hoyVal">—</div>
+      </div>
+      <div class="hoy-der">
+        <div class="hoy-comp" id="hoyComp">—</div>
+        <div class="hoy-prom" id="hoyProm"></div>
+      </div>
+    </div>
+    <div class="desc" style="text-align:center;margin-top:-6px">El día de hoy va sumando hora a hora. Se compara contra ayer (día completo), así que hasta la noche normalmente verás un porcentaje de lo de ayer.</div>
+  </div><!-- fin vistaComp -->
+
+  <!-- ===== VISTA RESUMEN ===== -->
+  <div id="vistaResumen" style="display:none">
 
   <div class="seccion">
     <h2 id="tReparto">El reparto del ciclo</h2>
@@ -177,6 +209,22 @@
     <div id="anomalias"></div>
   </div>
 
+  </div><!-- fin vistaResumen -->
+
+  <!-- ===== VISTA HISTÓRICO (por día) ===== -->
+  <div id="vistaDia" style="display:none">
+
+  <div class="seccion">
+    <h2>Consumo por día</h2>
+    <div class="desc">Cada barra es un día del ciclo (corte el 20). Toca el día que quieras para ver cuánto y quién consumió ese día.</div>
+    <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del ciclo"></canvas></div>
+    <div class="hoyhint" id="hoyHint">Toca un día para ver su detalle</div>
+  </div>
+
+  </div><!-- fin vistaDia -->
+
+  <!-- ===== SECCIONES COMPARTIDAS (Resumen e Histórico) ===== -->
+  <div id="seccionesDetalle">
   <div class="seccion">
     <h2 id="tTarjetas">Quién consume — el ciclo</h2>
     <div class="desc">Reparto por grupo en tarjetas. Toca una para investigar sus consumidores abajo.</div>
@@ -191,6 +239,7 @@
     <div id="consLista"></div>
     <button class="vermas" id="verMas" style="display:none"></button>
   </div>
+  </div><!-- fin seccionesDetalle -->
 
   <div class="nota">
     <b>Frenar (dejar lento)</b> deja al aparato conectado pero sin que pueda tragarse el plan con videos pesados — ideal para los glotones del free.
@@ -395,6 +444,37 @@ function datosActuales(){ return diaSel ? grupoDelDia(diaSel) : totalGrupoCalc()
 // totales del mes (para titular)
 function totalMesGB(){ return Object.values(totalGrupoCalc()).reduce((a,b)=>a+b,0); }
 
+// Hoy hasta ahora vs ayer (día completo anterior)
+function pintarHoy(){
+  const serie = consumoPorDia();           // [{dia, gb}] ordenado asc
+  if(!serie.length){ return; }
+  const hoyISO = fechaLocal(new Date());
+  const hoyReg = serie.find(s=>s.dia===hoyISO);
+  const hoyGB = hoyReg ? hoyReg.gb : 0;
+  // ayer = el último día con datos que NO es hoy
+  const anteriores = serie.filter(s=>s.dia!==hoyISO);
+  const ayer = anteriores.length ? anteriores[anteriores.length-1] : null;
+
+  document.getElementById("hoyVal").textContent = gb(hoyGB);
+  const comp = document.getElementById("hoyComp");
+  const prom = document.getElementById("hoyProm");
+
+  if(!ayer){
+    comp.className="hoy-comp normal"; comp.textContent="Aún sin ayer";
+    prom.textContent="Necesito el día de ayer para comparar";
+    return;
+  }
+  prom.textContent = "Ayer ("+etiquetaDia(ayer.dia)+", día completo): "+gb(ayer.gb);
+  if(hoyGB > ayer.gb){
+    comp.className="hoy-comp alto";
+    comp.textContent="↑ Ya superaste todo el día de ayer";
+  } else {
+    const pct = ayer.gb>0 ? Math.round(hoyGB/ayer.gb*100) : 0;
+    comp.className="hoy-comp bien";
+    comp.textContent="Vas en "+pct+"% de lo de ayer";
+  }
+}
+
 async function init(){
   try{
     await cargarDatos();
@@ -414,6 +494,7 @@ async function init(){
   try{ graficaDia(); }catch(e){ console.warn("gráfica día no disponible",e); }
   try{ donut(); }catch(e){ console.warn("donut no disponible",e); }
   reparto(); mundos(); anomalias(); selector(); tarjetas(); consumidores();
+  verVista("comp");   // arranca en Hoy vs ayer (oculta el detalle)
 }
 
 function tarjetas(){
@@ -438,28 +519,20 @@ function graficaDia(){
   window._serieFechas=fechas;
   window._gd=new Chart(document.getElementById("grafDia"),{
     type:"bar",
-    data:{labels,datasets:[{data:serie.map(s=>s.gb),backgroundColor:fechas.map(()=>"#2f9e7f"),borderRadius:5,maxBarThickness:26}]},
+    data:{labels,datasets:[{data:serie.map(s=>s.gb),backgroundColor:fechas.map(f=>f===diaSel?"#d9a514":"#7a9b76"),borderRadius:5,maxBarThickness:26}]},
     options:{responsive:true,maintainAspectRatio:false,
       onClick:(e,el)=>{ if(el.length) seleccionarDia(fechas[el[0].index]); },
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+" GB ese día"}}},
-      scales:{x:{ticks:{color:"#9fc0c4"},grid:{display:false},title:{display:true,text:"día del ciclo (corte el 20)",color:"#9fc0c4",font:{size:11}}},
-        y:{ticks:{color:"#9fc0c4",callback:v=>v+" GB"},grid:{color:"rgba(159,192,196,.1)"},beginAtZero:true}}}
+      scales:{x:{ticks:{color:"#9cb29e"},grid:{display:false},title:{display:true,text:"día del ciclo (corte el 20)",color:"#9cb29e",font:{size:11}}},
+        y:{ticks:{color:"#9cb29e",callback:v=>v+" GB"},grid:{color:"rgba(156,178,158,.1)"},beginAtZero:true}}}
   });
 }
 
 function seleccionarDia(diaISO){
-  diaSel = (diaSel===diaISO) ? null : diaISO;
-  if(window._gd && window._serieFechas){
-    const cols=window._serieFechas.map(f=> f===diaSel ? "#e0a93b":"#2f9e7f");
-    window._gd.data.datasets[0].backgroundColor=cols;
-    window._gd.update();
-  }
-  if(diaSel){
-    document.getElementById("hoyHint").textContent="Mostrando el "+etiquetaDia(diaSel)+" · toca de nuevo para volver al ciclo";
-  }else{
-    document.getElementById("hoyHint").textContent="Mostrando el ciclo completo · toca un día para enfocarlo";
-  }
-  try{ donut(); }catch(e){} reparto(); mundos(); tarjetas(); consumidores();
+  diaSel = diaISO;   // en vista día siempre hay uno elegido
+  marcarBarra();
+  document.getElementById("hoyHint").textContent="Mostrando el "+etiquetaDia(diaSel)+" · toca otra barra para cambiar";
+  refrescarTodo();
 }
 
 function titular(){
@@ -653,6 +726,49 @@ function cortar(b){
   const otro=b.parentElement.querySelector(".btn-frenar");
   if(b.classList.contains("marcado")){b.classList.remove("marcado");b.textContent="Cortar";}
   else{b.classList.add("marcado");b.textContent="Cortado ✓";if(otro){otro.classList.remove("marcado");otro.textContent="Frenar (dejar lento)";}}
+}
+
+let vistaActual = "comp";
+function verVista(v){
+  vistaActual = v;
+  document.getElementById("pestComp").classList.toggle("activo", v==="comp");
+  document.getElementById("pestResumen").classList.toggle("activo", v==="resumen");
+  document.getElementById("pestDia").classList.toggle("activo", v==="dia");
+  document.getElementById("vistaComp").style.display = v==="comp" ? "" : "none";
+  document.getElementById("vistaResumen").style.display = v==="resumen" ? "" : "none";
+  document.getElementById("vistaDia").style.display = v==="dia" ? "" : "none";
+  // las secciones de detalle (tarjetas + investigar) solo en resumen e histórico
+  document.getElementById("seccionesDetalle").style.display = (v==="comp") ? "none" : "";
+
+  if(v==="comp"){
+    pintarHoy();
+  } else if(v==="resumen"){
+    diaSel = null;
+    marcarBarra();
+    refrescarTodo();
+  } else if(v==="dia"){
+    const serie = consumoPorDia();
+    if(!diaSel && serie.length){
+      // preferir el último día completo (no hoy); si solo hay hoy, usar hoy
+      const hoyISO = fechaLocal(new Date());
+      const completos = serie.filter(s=>s.dia!==hoyISO);
+      diaSel = completos.length ? completos[completos.length-1].dia : serie[serie.length-1].dia;
+    }
+    marcarBarra();
+    refrescarTodo();
+  }
+}
+
+function marcarBarra(){
+  if(window._gd && window._serieFechas){
+    const cols=window._serieFechas.map(f=> f===diaSel ? "#d9a514":"#7a9b76");
+    window._gd.data.datasets[0].backgroundColor=cols; window._gd.update();
+  }
+}
+
+function refrescarTodo(){
+  try{ donut(); }catch(e){}
+  reparto(); mundos(); anomalias(); selector(); tarjetas(); consumidores();
 }
 
 init();
