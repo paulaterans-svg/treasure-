@@ -203,7 +203,9 @@ const COSTO_GB = COSTO_MES/PLAN_GB;
 const GB_BYTES = 1073741824;
 
 const GRUPOS = {
-  cableado:     {nom:"Red cableada", sub:"cámaras, TV, grabador", col:"#d9663f", mundo:"adentro"},
+  tplink:       {nom:"TP-Link (redes sociales)", sub:"el access point glotón", col:"#c0392b", mundo:"adentro"},
+  cableado:     {nom:"Red cableada", sub:"cámaras IP + PCs", col:"#d9663f", mundo:"adentro"},
+  dvr:          {nom:"DVR (48 cámaras)", sub:"grabadores de cámaras análogas", col:"#a0522d", mundo:"adentro"},
   tripulacion:  {nom:"Tripulación", sub:"crew con login", col:"#2f9e7f", mundo:"adentro"},
   cliente_free: {nom:"Clientes free", sub:"huéspedes gratis", col:"#4f9dd4", mundo:"afuera"},
   cliente_pago: {nom:"Clientes pago", sub:"internet premium", col:"#e0a93b", mundo:"afuera"},
@@ -213,27 +215,36 @@ const GRUPOS = {
 
 // mapea el 'tipo' que manda el router al grupo del dashboard
 function tipoAGrupo(tipo, fuente){
+  if(tipo==="tplink") return "tplink";
+  if(tipo==="dvr") return "dvr";
   if(tipo==="equipo_cableado") return "cableado";
   if(tipo==="tripulacion") return "tripulacion";
   if(tipo==="cliente_free") return "cliente_free";
   if(tipo==="cliente_pago") return "cliente_pago";
   if(tipo==="dueno") return "dueno";
   if(tipo==="equipo") return "equipo";
-  return "equipo"; // 'otro' y desconocidos van a equipos
+  return "equipo";
 }
 
-// nombres bonitos para los puertos ether (ve editándolos a medida que identifiques)
+// nombres de los puertos ether según el relevamiento de cámaras (doc de red)
+// ether4,6,7,8,10 = cámaras Hikvision (192.168.88.x). El TP-Link (.254) y PCs cuelgan mezclados.
 const NOMBRE_PUERTO = {
-  "ether6":"ether6 (sin identificar)",
-  "ether7":"ether7 (sin identificar)",
-  "ether8":"ether8 (¿TV salón?)",
+  "ether4":"ether4 · 1 cámara",
+  "ether6":"ether6 · 2 cámaras",
+  "ether7":"ether7 · 7 cámaras + PCs",
+  "ether8":"ether8 · 5 cámaras (incl. Salón) + TvSalón",
   "ether9":"ether9 (sin identificar)",
-  "ether10":"ether10 (¿grabador cámaras?)"
+  "ether10":"ether10 · 3 cámaras + TP-Link (Facebook)"
 };
 
-// contexto de decisión por grupo (genérico; el detalle real lo da el consumo)
+// contexto de decisión por grupo
 function contexto(grupo, nombre, gbVal){
-  if(grupo==="cableado") return `Equipo cableado de a bordo. <b>Si lo frenas/cortas</b>: revisa primero qué hay en este cable antes de decidir.`;
+  if(grupo==="tplink") return `Access point TP-Link. <b>El glotón confirmado</b>: por aquí navegan redes sociales (Facebook) sus usuarios. ${gbVal>=20?'Está gastando fuerte. ':''}No es cámara ni operación crítica — candidato a frenar o controlar quién se conecta.`;
+  if(grupo==="dvr") return `Grabador de las cámaras análogas. ${gbVal>=20?'<b>Consumo alto:</b> ':''}Si gasta mucho es porque sube video a la nube (Hik-Connect). <b>Si lo frenas</b>: pierdes vista remota de esas cámaras, pero siguen grabando local.`;
+  if(grupo==="cableado"){
+    if(nombre.includes("cámara")) return `Cámaras IP Hikvision. <b>Gastan muy poco en reposo</b> (~1-3 kbps c/u); solo suben cuando alguien las ve en remoto. Rara vez son el problema. No conviene cortar: es seguridad.`;
+    return `Equipo cableado. Revisa qué hay en este cable antes de decidir.`;
+  }
   if(grupo==="tripulacion") return `Tripulación. ${gbVal>=20?'<b>Consumo alto.</b> ':''}Frenarlo solo afecta a una persona del crew, no a huéspedes.`;
   if(grupo==="cliente_free") return `Free anónimo. ${gbVal>=10?'<b>Gastando mucho para una cortesía.</b> ':''}Frenarlo o cortarlo no afecta a nadie tuyo.`;
   if(grupo==="cliente_pago") return `Cliente que PAGÓ por internet. <b>No conviene cortar</b>: pagó por esto.`;
@@ -244,7 +255,7 @@ function contexto(grupo, nombre, gbVal){
 // --- estado, se llena desde Supabase ---
 let DIFFS = [];          // filas de v_consumo_diario
 let diaSel = null;
-let grupoActivo="cableado", verTodos=false;
+let grupoActivo="tplink", verTodos=false;
 
 // ===== Ciclo de facturación: del día 20 18h00 al día 20 18h00 =====
 const CORTE_DIA = 20;
@@ -283,9 +294,20 @@ function etiquetaDia(diaISO){
   const p=diaISO.split("-"); return p[2]+"/"+p[1];
 }
 
+// nombres legibles para las IPs de DVR y TP-Link
+const NOMBRE_IP = {
+  "192.168.88.254":"TP-Link ArcherAX6000",
+  "192.168.88.2":"DVR 1",
+  "192.168.88.3":"DVR 2",
+  "192.168.88.4":"DVR 3",
+  "192.168.88.5":"DVR 4",
+  "192.168.88.231":"DVR 5"
+};
+
 // nombre legible del identificador según grupo
 function nombreLegible(grupo, ident){
   if(grupo==="cableado") return NOMBRE_PUERTO[ident] || ident;
+  if(grupo==="tplink" || grupo==="dvr") return NOMBRE_IP[ident] || ident;
   if(grupo==="cliente_free") return "Aparato "+(ident.split(".").slice(-2).join(".").replace("/32","")||ident);
   return ident;
 }
@@ -388,13 +410,13 @@ async function init(){
   document.getElementById("simtag").textContent = "Datos en vivo · "+DIFFS.length+" registros este ciclo";
   try{ graficaDia(); }catch(e){ console.warn("gráfica día no disponible",e); }
   try{ donut(); }catch(e){ console.warn("donut no disponible",e); }
-  reparto(); mundos(); anomalias(); tarjetas(); selector(); consumidores();
+  reparto(); mundos(); anomalias(); selector(); tarjetas(); consumidores();
 }
 
 function tarjetas(){
   const dat=datosActuales();
   document.getElementById("tTarjetas").textContent = diaSel ? ("Quién consume — "+etiquetaDia(diaSel)) : "Quién consume — el ciclo";
-  const orden=Object.entries(dat).sort((a,b)=>b[1]-a[1]);
+  const orden=Object.entries(dat).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   document.getElementById("tarjetas").innerHTML=orden.map(([k,v])=>{
     const g=GRUPOS[k];
     const cuenta=consumidoresDe(k).length;
@@ -506,27 +528,37 @@ function mundos(){
 function anomalias(){
   const tg = totalGrupoCalc();
   const total = Object.values(tg).reduce((a,b)=>a+b,0)||1;
-  const oper = (tg.cableado+tg.tripulacion+tg.equipo+tg.dueno);
+  const oper = (tg.cableado+tg.dvr+tg.tplink+tg.tripulacion+tg.equipo+tg.dueno);
   const pctOper = Math.round(oper/total*100);
   const a=[];
   // 1) operación vs huéspedes
   if(pctOper>=50){
-    a.push({ico:"🔍",t1:`Tu operación se come el ${pctOper}% del internet, no los huéspedes`,
-      t2:`Cámaras (${gb(tg.cableado)}) + tripulación (${gb(tg.tripulacion)}) + equipos pesan más que los clientes. Ahí está tu agujero negro.`});
+    a.push({ico:"🔍",t1:`Tu operación pesa el ${pctOper}% del internet`,
+      t2:`Equipos propios (TP-Link, cámaras, DVR, tripulación) suman más que los clientes. Mira abajo cuál es el que más gasta.`});
   }
-  // 2) mayor consumidor individual de toda la red
+  // 2) el TP-Link, ahora medido aparte
+  if(tg.tplink>0){
+    a.push({ico:"📡",t1:`El TP-Link gastó ${gb(tg.tplink)} = ${usd(tg.tplink)}`,
+      t2:`Es el access point por donde navegan redes sociales. No es cámara ni operación crítica — el candidato más claro a controlar si gasta de más.`});
+  }
+  // 3) los DVR / cámaras
+  if(tg.dvr>0){
+    a.push({ico:"📹",t1:`Los DVR (48 cámaras análogas) gastaron ${gb(tg.dvr)} = ${usd(tg.dvr)}`,
+      t2:`Si es alto, están subiendo video a la nube. Si no usas la vista remota, ahí hay ahorro. Las cámaras IP, en cambio, casi no gastan.`});
+  }
+  // 4) mayor consumidor individual
   let mayor=null;
   for(const k in GRUPOS){ consumidoresDe(k).forEach(c=>{ if(!mayor||c[1]>mayor.gb){mayor={nom:c[0],gb:c[1],grupo:k};} }); }
   if(mayor && mayor.gb>5){
-    a.push({ico:"📈",t1:`Tu mayor consumidor: ${mayor.nom} — ${gb(mayor.gb)} = ${usd(mayor.gb)}/mes`,
+    a.push({ico:"📈",t1:`Tu mayor consumidor: ${mayor.nom} — ${gb(mayor.gb)} = ${usd(mayor.gb)}`,
       t2:`Es ${GRUPOS[mayor.grupo].nom.toLowerCase()}. Revísalo abajo para decidir si conviene frenarlo.`});
   }
-  // 3) free con muchos aparatos
+  // 5) free con muchos aparatos
   const nFree = consumidoresDe("cliente_free").length;
   if(nFree>16){
     const fd=freeDividido();
-    a.push({ico:"⚠️",t1:`Free: ${nFree} aparatos conectados (deberían ser ~16)`,
-      t2:`${nFree-16} de más. De esos, ${fd.glotones.n} gastan mucho (glotones) y ${fd.fantasmas.n} están sin consumo. Revisa los glotones abajo.`});
+    a.push({ico:"⚠️",t1:`Free: ${nFree} aparatos (un huésped suele traer 2-3, pero igual es mucho)`,
+      t2:`De esos, ${fd.glotones.n} gastan fuerte (glotones) y ${fd.fantasmas.n} están sin consumo (aparatos viejos que se limpian solos). Toca las cajas de abajo para verlos.`});
   }
   if(!a.length) a.push({ico:"✓",t1:"Nada raro por ahora",t2:"El consumo se ve normal en este ciclo."});
   document.getElementById("anomalias").innerHTML=a.map(x=>`
@@ -536,7 +568,9 @@ function anomalias(){
 
 function selector(){
   const tg=totalGrupoCalc();
-  const orden=Object.keys(GRUPOS).sort((a,b)=>tg[b]-tg[a]);
+  const orden=Object.keys(GRUPOS).filter(k=>tg[k]>0).sort((a,b)=>tg[b]-tg[a]);
+  // si el grupo activo quedó sin datos, saltar al primero que sí tiene
+  if(orden.length && !orden.includes(grupoActivo)) grupoActivo=orden[0];
   document.getElementById("grupoSel").innerHTML=orden.map(k=>
     `<button class="gb-tab ${k===grupoActivo?'on':''}" onclick="activar('${k}')">${GRUPOS[k].nom}</button>`).join("");
 }
