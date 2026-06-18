@@ -7,13 +7,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
-    --abismo:#0a1f2e; --texto:#e8f1ef; --texto2:#9fc0c4;
-    --verde:#2f9e7f; --coral:#d9663f; --amar:#e0a93b; --azul:#4f9dd4; --morado:#7e6bd4; --mar:#15506b;
-    --linea:rgba(159,192,196,.16); --card:rgba(255,255,255,.04);
+    /* Paleta inspirada en Sanzo Wada — Dictionary of Color Combinations */
+    --abismo:#0a1f2e; --texto:#eef0e2; --texto2:#9cb29e;
+    --verde:#7a9b76;      /* Sage / Warm Gray verdoso */
+    --coral:#a93400;      /* Burnt Sienna */
+    --amar:#d9a514;       /* Marigold */
+    --azul:#5b8a9c;       /* Dusty teal */
+    --morado:#8c7a9e;     /* Muted mauve */
+    --mar:#37535e;        /* Deep slate teal */
+    --rojo-et:#c9303e;    /* Etruscan Red */
+    --linea:rgba(156,178,158,.18); --card:rgba(238,240,226,.04);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--abismo);
-    background-image:radial-gradient(900px 480px at 82% -12%, rgba(21,80,107,.5), transparent 60%);
+    background-image:radial-gradient(900px 480px at 82% -12%, rgba(55,83,94,.55), transparent 60%);
     color:var(--texto);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5;min-height:100vh;padding:0 0 70px}
   .wrap{max-width:780px;margin:0 auto;padding:0 18px}
   header{padding:28px 0 6px}
@@ -70,6 +77,8 @@
   .cons-top{display:flex;align-items:center;gap:12px}
   .cons-rank{width:18px;color:var(--texto2);font-size:13px}
   .cons-nom{flex:1;min-width:0;font-size:15px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lapiz{background:transparent;border:none;color:var(--texto2);cursor:pointer;font-size:13px;padding:0 4px;opacity:.6;transition:.15s}
+  .lapiz:hover{opacity:1;color:var(--amar)}
   .cons-gb{text-align:right}
   .cons-gb .g{font-size:15px;font-weight:bold}
   .cons-gb .d{font-size:12px;color:var(--amar)}
@@ -203,14 +212,14 @@ const COSTO_GB = COSTO_MES/PLAN_GB;
 const GB_BYTES = 1073741824;
 
 const GRUPOS = {
-  tplink:       {nom:"TP-Link (redes sociales)", sub:"el access point glotón", col:"#c0392b", mundo:"adentro"},
-  cableado:     {nom:"Red cableada", sub:"cámaras IP + PCs", col:"#d9663f", mundo:"adentro"},
-  dvr:          {nom:"DVR (48 cámaras)", sub:"grabadores de cámaras análogas", col:"#a0522d", mundo:"adentro"},
-  tripulacion:  {nom:"Tripulación", sub:"crew con login", col:"#2f9e7f", mundo:"adentro"},
-  cliente_free: {nom:"Clientes free", sub:"huéspedes gratis", col:"#4f9dd4", mundo:"afuera"},
-  cliente_pago: {nom:"Clientes pago", sub:"internet premium", col:"#e0a93b", mundo:"afuera"},
-  equipo:       {nom:"Equipos", sub:"PCs y tablets de a bordo", col:"#15506b", mundo:"adentro"},
-  dueno:        {nom:"Dueños", sub:"acceso privado", col:"#7e6bd4", mundo:"adentro"}
+  tplink:       {nom:"TP-Link (redes sociales)", sub:"el access point glotón", col:"#c9303e", mundo:"adentro"},
+  cableado:     {nom:"Red cableada", sub:"cámaras IP + PCs", col:"#a93400", mundo:"adentro"},
+  dvr:          {nom:"DVR (48 cámaras)", sub:"grabadores de cámaras análogas", col:"#8a4b2d", mundo:"adentro"},
+  tripulacion:  {nom:"Tripulación", sub:"crew con login", col:"#7a9b76", mundo:"adentro"},
+  cliente_free: {nom:"Clientes free", sub:"huéspedes gratis", col:"#5b8a9c", mundo:"afuera"},
+  cliente_pago: {nom:"Clientes pago", sub:"internet premium", col:"#d9a514", mundo:"afuera"},
+  equipo:       {nom:"Equipos", sub:"PCs y tablets de a bordo", col:"#37535e", mundo:"adentro"},
+  dueno:        {nom:"Dueños", sub:"acceso privado", col:"#8c7a9e", mundo:"adentro"}
 };
 
 // mapea el 'tipo' que manda el router al grupo del dashboard
@@ -254,6 +263,7 @@ function contexto(grupo, nombre, gbVal){
 
 // --- estado, se llena desde Supabase ---
 let DIFFS = [];          // filas de v_consumo_diario
+let NOMBRES = {};        // mapa identificador -> nombre amigable (de Supabase)
 let diaSel = null;
 let grupoActivo="tplink", verTodos=false;
 
@@ -306,6 +316,8 @@ const NOMBRE_IP = {
 
 // nombre legible del identificador según grupo
 function nombreLegible(grupo, ident){
+  // si Paula le puso un nombre, ese manda
+  if(NOMBRES[ident]) return NOMBRES[ident];
   if(grupo==="cableado") return NOMBRE_PUERTO[ident] || ident;
   if(grupo==="tplink" || grupo==="dvr") return NOMBRE_IP[ident] || ident;
   if(grupo==="cliente_free") return "Aparato "+(ident.split(".").slice(-2).join(".").replace("/32","")||ident);
@@ -320,13 +332,32 @@ async function cargarDatos(){
   const res = await fetch(url, {headers:{apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY}});
   if(!res.ok) throw new Error("HTTP "+res.status+" — "+(await res.text()).slice(0,150));
   const filas = await res.json();
-  // anexar grupo a cada fila
   DIFFS = filas.map(f=>({
-    dia: f.dia,                       // "2026-06-20"
+    dia: f.dia,
     grupo: tipoAGrupo(f.tipo, f.fuente),
     ident: f.identificador,
     bytes: Number(f.bytes_total||0)
   }));
+  // cargar nombres editados (si la tabla existe)
+  try{
+    const rn = await fetch(`${SUPABASE_URL}/rest/v1/nombres_equipos?select=identificador,nombre`,
+      {headers:{apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY}});
+    if(rn.ok){ (await rn.json()).forEach(n=>{ NOMBRES[n.identificador]=n.nombre; }); }
+  }catch(e){ console.warn("nombres no disponibles aún",e); }
+}
+
+// guardar un nombre editado en Supabase (upsert por identificador)
+async function guardarNombre(ident, nombre){
+  NOMBRES[ident]=nombre; // optimista: actualiza ya en pantalla
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/nombres_equipos?on_conflict=identificador`,{
+      method:"POST",
+      headers:{apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY,
+        "Content-Type":"application/json", "Prefer":"resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify({identificador:ident, nombre:nombre, actualizado:new Date().toISOString()})
+    });
+    return res.ok;
+  }catch(e){ console.warn("no se pudo guardar el nombre",e); return false; }
 }
 
 // lista ordenada de fechas presentes en el ciclo
@@ -365,7 +396,7 @@ function consumidoresDe(grupo){
   return Object.entries(acum)
     .map(([ident,b])=>({ident, gbv:b/GB_BYTES}))
     .sort((a,b)=>b.gbv-a.gbv)
-    .map(x=>[nombreLegible(grupo,x.ident), x.gbv, contexto(grupo, x.ident, x.gbv)]);
+    .map(x=>[nombreLegible(grupo,x.ident), x.gbv, contexto(grupo, x.ident, x.gbv), x.ident]);
 }
 // división del free en glotones/normales/fantasmas
 function claseFree(gbVal){
@@ -620,7 +651,7 @@ function consumidores(){
     <div class="cons">
       <div class="cons-top">
         <span class="cons-rank">${i+1}</span>
-        <span class="cons-nom" style="border-left:3px solid ${g.col};padding-left:9px">${r[0]}</span>
+        <span class="cons-nom" style="border-left:3px solid ${g.col};padding-left:9px">${r[0]} <button class="lapiz" title="Editar nombre" onclick="editarNombre(event,'${r[3]}','${(r[0]||'').replace(/'/g,"")}')">✎</button></span>
         <span class="cons-gb"><div class="g">${gb(r[1])}</div><div class="d">${r[1]>0?usd(r[1])+(diaSel?'':'/mes'):'sin consumo'}</div></span>
       </div>
       ${esFantasma ? `<div class="cons-decide"><div class="cons-ctx">Sin consumo en este ${diaSel?'día':'ciclo'}. Es un aparato que se conectó pero no gasta — se limpia solo del router.</div></div>`
@@ -650,6 +681,19 @@ function cortar(b){
   const otro=b.parentElement.querySelector(".btn-frenar");
   if(b.classList.contains("marcado")){b.classList.remove("marcado");b.textContent="Cortar";}
   else{b.classList.add("marcado");b.textContent="Cortado ✓";if(otro){otro.classList.remove("marcado");otro.textContent="Frenar (dejar lento)";}}
+}
+
+async function editarNombre(ev, ident, actual){
+  ev.stopPropagation();
+  const nuevo = prompt("Ponle un nombre a este equipo:\n("+ident+")", actual||"");
+  if(nuevo===null) return;              // canceló
+  const limpio = nuevo.trim();
+  if(!limpio) return;                   // vacío, no guarda
+  const ok = await guardarNombre(ident, limpio);
+  // refrescar todo lo que muestra nombres
+  try{ donut(); }catch(e){}
+  reparto(); mundos(); selector(); tarjetas(); consumidores();
+  if(!ok) alert("Se guardó en pantalla, pero no se pudo sincronizar con Supabase. Revisa que creaste la tabla nombres_equipos.");
 }
 
 init();
