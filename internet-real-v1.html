@@ -111,6 +111,19 @@
   .hoy-comp.alto{color:var(--coral)}
   .hoy-comp.normal{color:var(--texto2)}
   .hoy-prom{font-size:12px;color:var(--texto2);margin-top:3px}
+  .comp-fechas{display:flex;align-items:flex-end;gap:14px;margin-bottom:18px}
+  .comp-col{flex:1}
+  .comp-col label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--texto2);margin-bottom:5px}
+  .comp-col select{width:100%;background:var(--card);border:1px solid var(--linea);color:var(--texto);
+    padding:9px 11px;border-radius:10px;font-size:14px;font-family:inherit}
+  .comp-vs{color:var(--texto2);font-weight:bold;padding-bottom:9px}
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .comp-tarj{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:16px}
+  .comp-tarj .ct-fecha{font-size:12px;color:var(--texto2);text-transform:uppercase;letter-spacing:1px}
+  .comp-tarj .ct-total{font-size:26px;font-weight:bold;font-family:Georgia,serif;margin:4px 0 12px}
+  .comp-tarj .ct-fila{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-top:1px solid var(--linea)}
+  .comp-tarj .ct-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+  .comp-dif{text-align:center;font-size:14px;margin-top:14px;padding:12px;border-radius:12px;background:var(--card)}
 
   .tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
   .tarjeta{background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:14px 16px;cursor:pointer;transition:.15s}
@@ -171,6 +184,13 @@
       </div>
     </div>
     <div class="desc" style="text-align:center;margin-top:-6px">El día de hoy va sumando hora a hora. Se compara contra ayer (día completo), así que hasta la noche normalmente verás un porcentaje de lo de ayer.</div>
+
+    <div class="seccion" style="margin-top:18px">
+      <h2>A qué hora se gasta (hoy)</h2>
+      <div class="desc">Consumo de cada hora del día de hoy. Te muestra cuándo se dispara el internet.</div>
+      <div class="chart-box" style="height:190px"><canvas id="grafHora" role="img" aria-label="Consumo de internet por hora del día"></canvas></div>
+      <div class="hoyhint" id="horaHint"></div>
+    </div>
   </div><!-- fin vistaComp -->
 
   <!-- ===== VISTA RESUMEN ===== -->
@@ -211,14 +231,31 @@
 
   </div><!-- fin vistaResumen -->
 
-  <!-- ===== VISTA HISTÓRICO (por día) ===== -->
+  <!-- ===== VISTA HISTÓRICO (por día + comparar 2 fechas) ===== -->
   <div id="vistaDia" style="display:none">
 
   <div class="seccion">
     <h2>Consumo por día</h2>
-    <div class="desc">Cada barra es un día del ciclo (corte el 20). Toca el día que quieras para ver cuánto y quién consumió ese día.</div>
+    <div class="desc">Cada barra es un día del ciclo (corte el 20). Toca una barra para ver su detalle abajo, o usa el comparador de fechas.</div>
     <div class="chart-box" style="height:200px"><canvas id="grafDia" role="img" aria-label="Consumo de internet por día del ciclo"></canvas></div>
     <div class="hoyhint" id="hoyHint">Toca un día para ver su detalle</div>
+  </div>
+
+  <div class="seccion">
+    <h2>Comparar dos fechas</h2>
+    <div class="desc">Elige dos días y míralos lado a lado para ver cómo cambió el consumo.</div>
+    <div class="comp-fechas">
+      <div class="comp-col">
+        <label>Fecha A</label>
+        <select id="selFechaA" onchange="compararFechas()"></select>
+      </div>
+      <div class="comp-vs">vs</div>
+      <div class="comp-col">
+        <label>Fecha B</label>
+        <select id="selFechaB" onchange="compararFechas()"></select>
+      </div>
+    </div>
+    <div id="compResultado"></div>
   </div>
 
   </div><!-- fin vistaDia -->
@@ -307,6 +344,7 @@ function contexto(grupo, nombre, gbVal){
 
 // --- estado, se llena desde Supabase ---
 let DIFFS = [];          // filas de v_consumo_diario
+let HORAS = [];          // filas de v_consumo_horario (consumo por hora)
 let diaSel = null;
 let grupoActivo="tplink", verTodos=false;
 
@@ -379,6 +417,25 @@ async function cargarDatos(){
     ident: f.identificador,
     bytes: Number(f.bytes_total||0)
   }));
+  // datos por hora (para la gráfica horaria); si la vista no existe, seguimos sin ella
+  try{
+    const rh = await fetch(`${SUPABASE_URL}/rest/v1/v_consumo_horario?select=dia,hora,tipo,fuente,bytes_total&dia=gte.${desde}&order=dia.asc,hora.asc`,
+      {headers:{apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY}});
+    if(rh.ok){
+      HORAS = (await rh.json()).map(f=>({
+        dia: f.dia, hora: Number(f.hora),
+        grupo: tipoAGrupo(f.tipo, f.fuente),
+        bytes: Number(f.bytes_total||0)
+      }));
+    }
+  }catch(e){ console.warn("consumo horario no disponible",e); }
+}
+
+// consumo por hora (GB) de un día dado, sumando todos los grupos
+function consumoPorHora(diaISO){
+  const slots = new Array(24).fill(0);
+  HORAS.filter(h=>h.dia===diaISO).forEach(h=>{ slots[h.hora]+=h.bytes; });
+  return slots.map(b=>+(b/GB_BYTES).toFixed(2));
 }
 
 // lista ordenada de fechas presentes en el ciclo
@@ -492,6 +549,7 @@ async function init(){
   titular();
   document.getElementById("simtag").textContent = "Datos en vivo · "+DIFFS.length+" registros este ciclo";
   try{ graficaDia(); }catch(e){ console.warn("gráfica día no disponible",e); }
+  try{ graficaHora(); }catch(e){ console.warn("gráfica hora no disponible",e); }
   try{ donut(); }catch(e){ console.warn("donut no disponible",e); }
   reparto(); mundos(); anomalias(); selector(); tarjetas(); consumidores();
   verVista("comp");   // arranca en Hoy vs ayer (oculta el detalle)
@@ -510,6 +568,38 @@ function tarjetas(){
       <div class="tj-sub">${cuenta} ${cuenta===1?'aparato':'aparatos'}</div>
     </div>`;
   }).join("");
+}
+
+function graficaHora(){
+  if(!document.getElementById("grafHora")) return;
+  const hoyISO = fechaLocal(new Date());
+  const serie = consumoPorHora(hoyISO);
+  const horaActual = new Date().getHours();
+  const labels = serie.map((_,h)=> String(h).padStart(2,"0")+"h");
+  // resaltar la hora pico
+  const max = Math.max(...serie, 0);
+  const cols = serie.map((v,h)=>{
+    if(h>horaActual) return "rgba(156,178,158,.15)"; // horas futuras, tenue
+    if(v===max && max>0) return "#c9303e";            // hora pico
+    return "#5b8a9c";
+  });
+  if(window._gh) window._gh.destroy();
+  window._gh = new Chart(document.getElementById("grafHora"),{
+    type:"bar",
+    data:{labels,datasets:[{data:serie,backgroundColor:cols,borderRadius:4,maxBarThickness:18}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+" GB a las "+c.label}}},
+      scales:{x:{ticks:{color:"#9cb29e",font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false}},
+        y:{ticks:{color:"#9cb29e",callback:v=>v+" GB"},grid:{color:"rgba(156,178,158,.1)"},beginAtZero:true}}}
+  });
+  // texto de la hora pico
+  const hint=document.getElementById("horaHint");
+  if(max>0){
+    const horaPico = serie.indexOf(max);
+    hint.textContent = "Hora de mayor consumo hoy: "+String(horaPico).padStart(2,"0")+":00 ("+max+" GB esa hora)";
+  } else {
+    hint.textContent = "Aún sin consumo registrado hoy";
+  }
 }
 
 function graficaDia(){
@@ -607,6 +697,26 @@ function anomalias(){
   const oper = (tg.cableado+tg.dvr+tg.tplink+tg.tripulacion+tg.equipo+tg.dueno);
   const pctOper = Math.round(oper/total*100);
   const a=[];
+
+  // 0) ALERTA: ¿algún grupo se disparó hoy vs su promedio diario?
+  const hoyISO = fechaLocal(new Date());
+  const dias = diasDelCiclo();
+  const completos = dias.filter(d=>d!==hoyISO);
+  if(completos.length>=2){          // necesitamos al menos 2 días para un promedio con sentido
+    const hoyG = grupoDelDia(hoyISO);
+    for(const k in GRUPOS){
+      // promedio diario del grupo en días completos
+      const prom = completos.reduce((s,d)=>s+grupoDelDia(d)[k],0)/completos.length;
+      const hoyVal = hoyG[k]||0;
+      // alerta si hoy ya superó 1.5x su promedio diario y es consumo notable
+      if(prom>1 && hoyVal > prom*1.5){
+        const veces=(hoyVal/prom).toFixed(1);
+        a.push({ico:"🚨",t1:`${GRUPOS[k].nom} va disparado hoy: ${gb(hoyVal)}`,
+          t2:`Hoy ya lleva ${veces}× su promedio diario (~${gb(prom)}/día). Algo cambió — revísalo abajo.`});
+      }
+    }
+  }
+
   // 1) operación vs huéspedes
   if(pctOper>=50){
     a.push({ico:"🔍",t1:`Tu operación pesa el ${pctOper}% del internet`,
@@ -755,8 +865,50 @@ function verVista(v){
       diaSel = completos.length ? completos[completos.length-1].dia : serie[serie.length-1].dia;
     }
     marcarBarra();
+    llenarSelectoresFecha();
     refrescarTodo();
   }
+}
+
+function llenarSelectoresFecha(){
+  const serie = consumoPorDia();           // [{dia, gb}] orden asc
+  if(!serie.length) return;
+  const opts = serie.map(s=>`<option value="${s.dia}">${etiquetaDia(s.dia)} · ${s.gb} GB</option>`).join("");
+  const selA=document.getElementById("selFechaA"), selB=document.getElementById("selFechaB");
+  if(!selA.dataset.lleno){
+    selA.innerHTML=opts; selB.innerHTML=opts;
+    // por defecto: A = penúltimo día, B = último día (para comparar ayer vs hoy o los dos últimos)
+    const n=serie.length;
+    selA.value = serie[Math.max(0,n-2)].dia;
+    selB.value = serie[n-1].dia;
+    selA.dataset.lleno="1";
+  }
+  compararFechas();
+}
+
+function compararFechas(){
+  const selA=document.getElementById("selFechaA"), selB=document.getElementById("selFechaB");
+  if(!selA||!selB||!selA.value) return;
+  const fA=selA.value, fB=selB.value;
+  const gA=grupoDelDia(fA), gB=grupoDelDia(fB);
+  const totA=Object.values(gA).reduce((a,b)=>a+b,0);
+  const totB=Object.values(gB).reduce((a,b)=>a+b,0);
+  // grupos presentes en cualquiera de las dos fechas, ordenados por consumo
+  const claves=Object.keys(GRUPOS).filter(k=>gA[k]>0||gB[k]>0).sort((a,b)=>(gB[b]+gA[b])-(gB[a]+gA[a]));
+  const filas=(g)=>claves.map(k=>`<div class="ct-fila"><span><span class="ct-dot" style="background:${GRUPOS[k].col}"></span>${GRUPOS[k].nom}</span><span>${gb(g[k])}</span></div>`).join("");
+  const col=(fecha,tot,g)=>`<div class="comp-tarj">
+      <div class="ct-fecha">${etiquetaDia(fecha)}</div>
+      <div class="ct-total">${gb(tot)} <small style="font-size:13px;color:var(--texto2)">· ${usd(tot)}</small></div>
+      ${filas(g)}
+    </div>`;
+  const dif=totB-totA;
+  const pct = totA>0 ? Math.round(Math.abs(dif)/totA*100) : 0;
+  let txtDif;
+  if(Math.abs(dif)<0.5) txtDif=`Las dos fechas consumieron casi lo mismo (${gb(totA)}).`;
+  else if(dif>0) txtDif=`El <b>${etiquetaDia(fB)}</b> se consumió <b style="color:var(--coral)">${gb(dif)} más</b> que el ${etiquetaDia(fA)} (+${pct}%).`;
+  else txtDif=`El <b>${etiquetaDia(fB)}</b> se consumió <b style="color:var(--verde)">${gb(Math.abs(dif))} menos</b> que el ${etiquetaDia(fA)} (−${pct}%).`;
+  document.getElementById("compResultado").innerHTML =
+    `<div class="comp-grid">${col(fA,totA,gA)}${col(fB,totB,gB)}</div><div class="comp-dif">${txtDif}</div>`;
 }
 
 function marcarBarra(){
