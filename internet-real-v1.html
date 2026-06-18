@@ -102,7 +102,9 @@
   .tj-sub{font-size:12px;color:var(--texto2);margin-top:2px}
 
   .free3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
-  .f3{border-radius:12px;padding:12px 14px;border:1px solid var(--linea)}
+  .f3{border-radius:12px;padding:12px 14px;border:1px solid var(--linea);cursor:pointer;transition:.15s}
+  .f3:hover{transform:translateY(-1px)}
+  .f3.sel{outline:2px solid var(--espuma);outline-offset:1px}
   .f3.glotones{background:rgba(217,102,63,.1);border-color:rgba(217,102,63,.4)}
   .f3.normales{background:var(--card)}
   .f3.fantasmas{background:rgba(159,192,196,.05)}
@@ -344,6 +346,11 @@ function consumidoresDe(grupo){
     .map(x=>[nombreLegible(grupo,x.ident), x.gbv, contexto(grupo, x.ident, x.gbv)]);
 }
 // división del free en glotones/normales/fantasmas
+function claseFree(gbVal){
+  if(gbVal>=10) return "glotones";
+  if(gbVal>0) return "normales";
+  return "fantasmas";
+}
 function freeDividido(){
   const lista=consumidoresDe("cliente_free");
   const glot=lista.filter(r=>r[1]>=10).length;
@@ -355,6 +362,7 @@ function freeDividido(){
     fantasmas:{n:fant, desc:"sin consumo · se limpian solos"}
   };
 }
+let freeCat = "glotones"; // categoría del free que se está viendo
 
 // datos del mes o día según selección (para donut/reparto/mundos/tarjetas)
 function datosActuales(){ return diaSel ? grupoDelDia(diaSel) : totalGrupoCalc(); }
@@ -533,54 +541,68 @@ function selector(){
     `<button class="gb-tab ${k===grupoActivo?'on':''}" onclick="activar('${k}')">${GRUPOS[k].nom}</button>`).join("");
 }
 
-function activar(k){ grupoActivo=k; verTodos=false; selector(); tarjetas(); consumidores();
+function activar(k){ grupoActivo=k; verTodos=false; if(k==="cliente_free") freeCat="glotones"; selector(); tarjetas(); consumidores();
   document.getElementById("consLista").scrollIntoView({behavior:"smooth",block:"nearest"}); }
+
+function verFree(cat){ freeCat=cat; verTodos=false; consumidores(); }
 
 function consumidores(){
   const lista = consumidoresDe(grupoActivo);
   const g=GRUPOS[grupoActivo];
   const esFree = grupoActivo==="cliente_free";
 
-  // resumen del free dividido en 3
+  // resumen del free dividido en 3 (cajas clicables)
   const fr=document.getElementById("freeResumen");
   if(esFree){
     const fd=freeDividido();
+    const caja=(cat,obj)=>`<div class="f3 ${cat} ${freeCat===cat?'sel':''}" onclick="verFree('${cat}')">
+        <div class="n">${obj.n}</div><div class="l">${cat.charAt(0).toUpperCase()+cat.slice(1)}</div><div class="l2">${obj.desc}</div></div>`;
     fr.innerHTML=`
       <div class="free3">
-        <div class="f3 glotones"><div class="n">${fd.glotones.n}</div><div class="l">Glotones</div><div class="l2">${fd.glotones.desc}</div></div>
-        <div class="f3 normales"><div class="n">${fd.normales.n}</div><div class="l">Normales</div><div class="l2">${fd.normales.desc}</div></div>
-        <div class="f3 fantasmas"><div class="n">${fd.fantasmas.n}</div><div class="l">Fantasmas</div><div class="l2">${fd.fantasmas.desc}</div></div>
+        ${caja('glotones',fd.glotones)}
+        ${caja('normales',fd.normales)}
+        ${caja('fantasmas',fd.fantasmas)}
       </div>
-      <div style="font-size:12px;color:var(--texto2);margin-bottom:14px;font-style:italic">De los ${lista.length}, solo los ${fd.glotones.n} glotones merecen tu atención. Abajo, los mayores:</div>`;
+      <div style="font-size:12px;color:var(--texto2);margin-bottom:14px">Tocas una caja para ver esos aparatos. Mostrando: <b style="color:var(--espuma)">${freeCat}</b>.</div>`;
   } else { fr.innerHTML=""; }
 
-  const conConsumo = lista.filter(r=>r[1]>0);
-  const vis = verTodos ? conConsumo : conConsumo.slice(0,5);
+  // filtrar la lista
+  let filtrada;
+  if(esFree){
+    filtrada = lista.filter(r=>claseFree(r[1])===freeCat);
+  } else {
+    filtrada = lista.filter(r=>r[1]>0);
+  }
+
+  const vis = verTodos ? filtrada : filtrada.slice(0,5);
   if(!vis.length){
-    document.getElementById("consLista").innerHTML='<div style="color:var(--texto2);font-size:14px;padding:14px 0">Nadie de este grupo ha consumido este '+(diaSel?'día':'mes')+' todavía.</div>';
+    const msg = esFree ? `No hay aparatos en la categoría "${freeCat}".` : `Nadie de este grupo ha consumido este ${diaSel?'día':'ciclo'} todavía.`;
+    document.getElementById("consLista").innerHTML='<div style="color:var(--texto2);font-size:14px;padding:14px 0">'+msg+'</div>';
     document.getElementById("verMas").style.display="none";
     return;
   }
+  const esFantasma = esFree && freeCat==="fantasmas";
   document.getElementById("consLista").innerHTML=vis.map((r,i)=>`
     <div class="cons">
       <div class="cons-top">
         <span class="cons-rank">${i+1}</span>
         <span class="cons-nom" style="border-left:3px solid ${g.col};padding-left:9px">${r[0]}</span>
-        <span class="cons-gb"><div class="g">${gb(r[1])}</div><div class="d">${usd(r[1])}${diaSel?'':'/mes'}</div></span>
+        <span class="cons-gb"><div class="g">${gb(r[1])}</div><div class="d">${r[1]>0?usd(r[1])+(diaSel?'':'/mes'):'sin consumo'}</div></span>
       </div>
-      <div class="cons-decide">
+      ${esFantasma ? `<div class="cons-decide"><div class="cons-ctx">Sin consumo en este ${diaSel?'día':'ciclo'}. Es un aparato que se conectó pero no gasta — se limpia solo del router.</div></div>`
+      : `<div class="cons-decide">
         <div class="cons-ctx">${r[2]}</div>
         <div style="display:flex;gap:6px">
           <button class="btn-frenar" onclick="frenar(this)">Frenar (dejar lento)</button>
           <button class="btn-eval" onclick="cortar(this)">Cortar</button>
         </div>
-      </div>
+      </div>`}
     </div>`).join("");
   const btn=document.getElementById("verMas");
-  const ocultos = conConsumo.length - 5;
+  const ocultos = filtrada.length - 5;
   if(ocultos>0){
     btn.style.display="block";
-    btn.textContent = verTodos ? "Ver menos" : `Ver los otros ${ocultos} de este grupo`;
+    btn.textContent = verTodos ? "Ver menos" : `Ver los otros ${ocultos}`;
     btn.onclick=()=>{verTodos=!verTodos;consumidores();};
   } else btn.style.display="none";
 }
