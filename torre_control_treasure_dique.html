@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#0b1220; --bg2:#0e1626; --panel:#111d31; --panel2:#16243b; --line:#22344f;
@@ -164,7 +164,7 @@ input[type=range]{accent-color:var(--cyan)}
 .scrim{position:fixed;inset:0;background:rgba(5,9,17,.66);backdrop-filter:blur(3px);z-index:40;display:none;
   align-items:center;justify-content:center;padding:20px}
 .scrim.on{display:flex}
-.modal{width:min(560px,96vw);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);
+.modal{width:min(640px,96vw);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);
   border-radius:16px;box-shadow:var(--shadow)}
 .modal .mh{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
 .modal .mh h3{margin:0;font-size:15px}
@@ -213,8 +213,10 @@ input[type=range]{accent-color:var(--cyan)}
 .bar.pkg .seg{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:3px;box-sizing:border-box;border:1px solid rgba(0,0,0,.30)}
 .bar.pkg .seg.segnight{background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.20) 0 3px,transparent 3px 6px)}
 .bar.pkg .seglab{font-family:var(--mono);font-size:8px;font-weight:700;white-space:nowrap;pointer-events:none}
-.pstep{display:grid;grid-template-columns:15px 1.05fr 1.8fr 84px 32px 78px 24px;gap:5px;align-items:center;margin-bottom:6px}
-.pstep.isk{margin-left:14px;border-left:2px solid var(--cyan-d);padding-left:6px}
+.pstep{border:1px solid var(--line);border-radius:9px;padding:7px 8px;margin-bottom:7px}
+.pstep.isk{margin-left:14px;border-left:2px solid var(--cyan-d)}
+.pstep-r1{display:grid;grid-template-columns:15px 1fr 1.7fr;gap:6px;align-items:center;margin-bottom:5px}
+.pstep-r2{display:grid;grid-template-columns:110px 36px 1fr 26px 26px 28px;gap:7px;align-items:center}
 .pstep-tog{background:transparent;border:1px solid var(--line);border-radius:6px;height:28px;cursor:pointer;filter:grayscale(1) opacity(.45);font-size:13px}
 .pstep-tog.on{filter:none;border-color:#6E5A8E;background:#241f33}
 .pstep-seq{background:transparent;border:1px solid var(--line);border-radius:6px;height:28px;cursor:pointer;color:var(--ink2);font-family:var(--mono);font-size:9.5px;white-space:nowrap}
@@ -222,6 +224,51 @@ input[type=range]{accent-color:var(--cyan)}
 .pstep-ini{font-family:var(--mono);font-size:9px;color:var(--ink3);text-align:center;text-transform:uppercase}
 .turnobtn{padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font:inherit;font-size:13px;text-align:left}
 .turnobtn.noche{border-color:#6E5A8E;background:#241f33;color:#cdbfe6}
+.btn.danger{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;font-weight:600}
+.deplink{color:var(--cyan);font-weight:600}
+.grpz td{background:#0f1b2a;padding:0;border-top:1px solid #16283c}
+.gnamez{font-size:11px;color:var(--ink2);padding:5px 10px 5px 22px;font-weight:600;letter-spacing:.02em}
+.gnamez .gp{color:var(--ink3);font-weight:400}
+.grp,.grpz{cursor:pointer;user-select:none}
+.caret{display:inline-block;width:13px;color:var(--ink3);font-size:10px}
+.pickbanner{position:fixed;top:0;left:0;right:0;z-index:1000;background:#1b6f63;color:#eafff8;padding:11px 16px;display:flex;align-items:center;gap:16px;justify-content:center;font-size:13.5px;box-shadow:0 2px 12px rgba(0,0,0,.45)}
+.pickbanner button{background:#00000030;border:1px solid #ffffff66;color:#fff;border-radius:8px;padding:5px 13px;cursor:pointer;font:inherit}
+.pickbanner button:hover{background:#00000055}
+.toastmsg{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:1000;background:#12332b;color:#dffaf0;border:1px solid #2f6f60;padding:10px 18px;border-radius:10px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.45);display:none}
+.numstep{display:flex;align-items:stretch;gap:0}
+.numstep input{border-radius:0;text-align:center;border-left:none;border-right:none}
+.numstep .nsb{width:38px;flex:0 0 38px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-size:18px;line-height:1;cursor:pointer;user-select:none}
+.numstep .nsb:first-child{border-radius:8px 0 0 8px}
+.numstep .nsb:last-child{border-radius:0 8px 8px 0}
+.numstep .nsb:hover{background:var(--cyan-d);color:#06231b}
+.fogrid{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;max-height:44vh;overflow:auto;padding-right:4px}
+.fochk{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);cursor:pointer;padding:3px 0}
+.fochk input{width:15px;height:15px}
+.areachip{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:4px 6px 4px 11px;margin:0 6px 6px 0;font-size:12.5px}
+.areachip button{background:transparent;border:none;color:var(--ink3);cursor:pointer;font-size:12px}
+.areachip button:hover{color:var(--red)}
+.arbol{font-size:13px}
+.af{border-bottom:1px solid var(--line);padding:2px 0}
+.af>summary{cursor:pointer;padding:9px 4px;list-style:none;display:flex;align-items:center;gap:10px}
+.af>summary::-webkit-details-marker{display:none}
+.af>summary::before{content:'▸';color:var(--ink3);transition:transform .15s}
+.af[open]>summary::before{transform:rotate(90deg)}
+.fh{font-weight:700;font-size:14px;color:var(--cyan)}
+.ct{font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.az{margin:0 0 4px 18px}
+.az>summary{cursor:pointer;padding:6px 4px;list-style:none;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.az>summary::-webkit-details-marker{display:none}
+.az>summary::before{content:'▸';color:var(--ink3);font-size:10px;transition:transform .15s}
+.az[open]>summary::before{transform:rotate(90deg)}
+.tr{display:flex;gap:9px;align-items:flex-start;padding:6px 8px 6px 22px;border-radius:8px;cursor:pointer}
+.tr:hover{background:var(--panel2)}
+.tr-dot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:0 0 9px}
+.tr-main{flex:1;min-width:0}
+.tr-top{display:flex;gap:10px;justify-content:space-between;align-items:baseline;flex-wrap:wrap}
+.tr-name{font-weight:600}
+.tr-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink3);white-space:nowrap}
+.tr-pasos{font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.5}
+.tr-pasos span{white-space:nowrap}
 .hoja-wrap{padding:14px 16px}
 .hsheet{background:#fff;color:#1a2430;border-radius:10px;padding:22px 24px;margin:0 auto 18px;max-width:780px;box-shadow:0 1px 5px rgba(0,0,0,.3)}
 .hsheet .empty{color:#8a96a3;padding:24px;text-align:center}
@@ -262,7 +309,10 @@ input[type=range]{accent-color:var(--cyan)}
 .pstep-n{font-family:var(--mono);font-size:10px;color:var(--ink3);text-align:center}
 .pstep select,.pstep input{padding:5px 6px;font-size:11.5px}
 .pstep-x{background:transparent;border:1px solid var(--line);color:var(--ink2);border-radius:6px;cursor:pointer;height:28px}
-.pstep-x:hover{border-color:var(--red);color:var(--red)}
+".pstep-x:hover{border-color:var(--red);color:var(--red)}
+.pstep-mv{background:transparent;border:1px solid var(--line);color:var(--ink2);border-radius:6px;cursor:pointer;height:28px;font-size:10px;padding:0}
+.pstep-mv:hover:not(:disabled){border-color:var(--cyan-d);color:var(--cyan)}
+.pstep-mv:disabled{opacity:.3;cursor:default}
 .od-wrap{max-height:60vh;overflow:auto;padding:6px 14px 16px}
 .od-day{border:1px solid var(--line);border-radius:11px;margin-top:10px;overflow:hidden}
 .od-dh{background:var(--panel2);padding:8px 12px;font-size:13px;border-bottom:1px solid var(--line)}
@@ -305,6 +355,7 @@ input[type=range]{accent-color:var(--cyan)}
       <button class="tab" data-v="zone">Por zona</button>
       <button class="tab" data-v="crew">Cuadrillas</button>
       <button class="tab" data-v="orden">Hoja cuadrilla</button>
+      <button class="tab" data-v="arbol">Lista</button>
       <button class="tab" data-v="table">Tabla</button>
       <button class="tab" data-v="config">Reglas</button>
     </div>
@@ -328,11 +379,13 @@ input[type=range]{accent-color:var(--cyan)}
 
 <script>
 /* ============================ DATA ============================ */
-const SEED = /*seed*/[{"id":"F2-04","fase":"Pre-dique y arranque","act":"Transporte motores UIO → GYE (camión)","equipo":"Tripulación","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Llega desde UIO en días previos"},{"id":"PRE-01","fase":"Pre-dique y arranque","act":"Limpieza y preparación de bodega y estanterías","equipo":"Tripulación","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Días previos a la subida (en tierra)"},{"id":"PRE-02","fase":"Pre-dique y arranque","act":"Recepción de material desde UIO (muebles, teca, mármol, vidrios, Alucobond)","equipo":"Subcontrato","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Días previos · llega todo desde UIO"},{"id":"F1-04","fase":"Pre-dique y arranque","act":"Inventario y vaciado del barco","equipo":"Tripulación","turno":"DÍA","start":4,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F1-02","fase":"Pre-dique y arranque","act":"Reunión de arranque / asignación de frentes","equipo":"Múltiple","turno":"DÍA","start":5,"dias":1,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F2-01","fase":"Casco – Obra viva","act":"Obra viva — limpieza e inspección casco","equipo":"TAERA","turno":"DÍA","start":5,"dias":6,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":""},{"id":"OV-01","fase":"Casco – Obra viva","act":"Mantenimiento de hélices y ejes","equipo":"Subcontrato","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-03","fase":"Casco – Obra viva","act":"Válvulas de fondo (sea chests) y pasacascos","equipo":"Subcontrato","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-02","fase":"Casco – Obra viva","act":"Mantenimiento de timón y limera","equipo":"Subcontrato","turno":"DÍA","start":6,"dias":2,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-04","fase":"Casco – Obra viva","act":"Cambio de ánodos de zinc","equipo":"TAERA","turno":"DÍA","start":8,"dias":1,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"F2-02","fase":"Casco – Obra viva","act":"Antifouling (aplicación 2 capas)","equipo":"TAERA","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":""},{"id":"F1-01","fase":"Casco – Obra muerta","act":"Atraque y posicionamiento en parrilla TAERA","equipo":"TAERA","turno":"DÍA","start":4,"dias":1,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F1-03","fase":"Casco – Obra muerta","act":"Llegada botes inflables y armado de cama","equipo":"Tripulación","turno":"DÍA","start":4,"dias":2,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F2-03","fase":"Casco – Obra muerta","act":"Obra muerta y servicios astillero (TAERA)","equipo":"TAERA","turno":"DÍA","start":4,"dias":22,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F3-48","fase":"Casco – Obra muerta","act":"Instalación defensas proa botes inflables","equipo":"Subcontrato","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F4-09","fase":"Casco – Obra muerta","act":"Salida de parrilla / reflotar (TAERA)","equipo":"TAERA","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F1-05","fase":"Cámara de máquinas y áreas de servicio","act":"Desmontaje Sala de Máquinas","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F1-06","fase":"Cámara de máquinas y áreas de servicio","act":"Extracción 2 motores viejos","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F1-07","fase":"Cámara de máquinas y áreas de servicio","act":"Extracción generador viejo","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-09","fase":"Cámara de máquinas y áreas de servicio","act":"Mantenimiento generador 90 kVA babor","equipo":"Mecánicos","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-10","fase":"Cámara de máquinas y áreas de servicio","act":"Trabajos fibra Sala de Máquinas","equipo":"Fibreros A","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-05","fase":"Cámara de máquinas y áreas de servicio","act":"Recepción e inspección motores en astillero","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":1,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-06","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación motores C12 babor + estribor","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":6,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-07","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación generador 90 kVA estribor","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":5,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-08","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación generador 30 kVA (3er generador)","equipo":"Mecánicos","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F3-01","fase":"Cámara de máquinas y áreas de servicio","act":"Pintura área Sala de Máquinas","equipo":"Pintores","turno":"NOCHE","start":10,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"BH-01","fase":"Cámara de máquinas y áreas de servicio","act":"Adecuación y equipos de cocina (galley)","equipo":"Subcontrato","turno":"DÍA","start":11,"dias":6,"pct":0,"estado":"Pendiente","zona":"Cocina (galley)","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"BH-02","fase":"Cámara de máquinas y áreas de servicio","act":"Renovación de cuartos de tripulación","equipo":"Subcontrato","turno":"DÍA","start":13,"dias":5,"pct":0,"estado":"Pendiente","zona":"Cuartos tripulación","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"BH-03","fase":"Cámara de máquinas y áreas de servicio","act":"Adecuación de lavandería","equipo":"Subcontrato","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"Lavandería","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"F1-08","fase":"Cubierta 100","act":"Desmontaje Owner Suite (Cubierta 100)","equipo":"Carpinteros B","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F1-09","fase":"Cubierta 100","act":"Desmontaje exterior Cubiertas 100 y 200","equipo":"Tripulación","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-11","fase":"Cubierta 100","act":"Instalación columna pescante C100 (acero)","equipo":"Acero","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-13","fase":"Cubierta 100","act":"Apertura antepechos babor/estribor C100","equipo":"Fibreros B","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-16","fase":"Cubierta 100","act":"Ejecución visera de sombra sobre C100","equipo":"Fibreros C","turno":"DÍA","start":7,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-17","fase":"Cubierta 100","act":"Refuerzo estructural mamparo bar C100","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-03","fase":"Cubierta 100","act":"Nivelado cubierta exterior","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-10","fase":"Cubierta 100","act":"Fibra + trabajos en baño Owner Suite","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-12","fase":"Cubierta 100","act":"Ampliación, closet, peinadora Owner Suite","equipo":"Carpinteros B","turno":"DÍA","start":9,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-05","fase":"Cubierta 100","act":"Cielo falso Alucobond exterior C100","equipo":"Alucobond","turno":"DÍA","start":11,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-11","fase":"Cubierta 100","act":"Renovación completa baño Owner Suite","equipo":"Cuadrilla A","turno":"DÍA","start":11,"dias":4,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-07","fase":"Cubierta 100","act":"Instalación mueble fijo exterior C100","equipo":"Carpinteros B","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-13","fase":"Cubierta 100","act":"Piso vinyl Owner Suite","equipo":"Carpinteros B","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-04","fase":"Cubierta 100","act":"Instalación defensa caucho popa C100","equipo":"Fibreros B","turno":"DÍA","start":13,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-14","fase":"Cubierta 100","act":"Cielo falso + espaldar + sofá Owner Suite","equipo":"Tapiceros","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-17","fase":"Cubierta 100","act":"Reemplazo piso vinyl sala principal","equipo":"Carpinteros B","turno":"DÍA","start":13,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-19","fase":"Cubierta 100","act":"Renovación baño Cabina 2","equipo":"Cuadrilla A","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-06","fase":"Cubierta 100","act":"Teca cubierta exterior C100 (paquete)","equipo":"Carpinteros A","turno":"DÍA","start":14,"dias":7,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":"Ejemplo de PAQUETE: pasos en secuencia","pasos":[{"gremio":"Carpinteros A","act":"Desmontar teca vieja","medios":2,"turno":"DÍA","pct":0},{"gremio":"Fibreros B","act":"Nivelar piso","medios":4,"turno":"DÍA","pct":0},{"gremio":"Carpinteros A","act":"Instalar teca nueva","medios":6,"turno":"DÍA","pct":0},{"gremio":"Carpinteros A","act":"Pulido y sellado","medios":1,"turno":"DÍA","pct":0}]},{"id":"F3-08","fase":"Cubierta 100","act":"Cambio acrílico → vidrio puerta principal","equipo":"Vidrieros","turno":"DÍA","start":14,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-15","fase":"Cubierta 100","act":"Instalación eléctrica + 2 TVs 65\" Owner Suite","equipo":"Eléctricos","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-20","fase":"Cubierta 100","act":"Renovación baño Cabina 3","equipo":"Cuadrilla A","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-18","fase":"Cubierta 100","act":"Instalación mármol: bar, samovar y mesas","equipo":"Marmolistas","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-21","fase":"Cubierta 100","act":"Renovación baño Cabina 4","equipo":"Cuadrilla A","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-09","fase":"Cubierta 100","act":"Pintura paredes exteriores + columnas C100","equipo":"Pintores","turno":"DÍA-NOCHE","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-22","fase":"Cubierta 100","act":"Renovación baño Cabina 5","equipo":"Cuadrilla A","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Cabinas 2-5","obs":""},{"id":"F3-23","fase":"Cubierta 100","act":"Iluminación cálida C100","equipo":"Eléctricos","turno":"DÍA","start":17,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-16","fase":"Cubierta 100","act":"Pintura Owner Suite","equipo":"Pintores","turno":"NOCHE","start":18,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Owner Suite","obs":""},{"id":"F3-24","fase":"Cubierta 100","act":"Pintura sala + cabinas C100","equipo":"Pintores","turno":"DÍA-NOCHE","start":19,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F2-14","fase":"Cubierta 200","act":"Modificación antepecho C200","equipo":"Fibreros B","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F2-12","fase":"Cubierta 200","act":"Fabricación/inst. pescantes botes C200","equipo":"Acero","turno":"DÍA","start":7,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F2-18","fase":"Cubierta 200","act":"Reubicación apoyos + refuerzo bao C200","equipo":"Fibreros B","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-26","fase":"Cubierta 200","act":"Cielo falso Alucobond exterior C200","equipo":"Alucobond","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-30","fase":"Cubierta 200","act":"Renovación baño Cabina 6","equipo":"Cuadrilla B","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-25","fase":"Cubierta 200","act":"Instalación teca C200 (59 m²)","equipo":"Carpinteros A","turno":"DÍA","start":15,"dias":5,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-27","fase":"Cubierta 200","act":"Baranda vidrio templado/laminado popa C200","equipo":"Vidrieros","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-31","fase":"Cubierta 200","act":"Renovación baño Cabina 7","equipo":"Cuadrilla B","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-34","fase":"Cubierta 200","act":"Closets + TV integrada Cabinas 6 y 7","equipo":"Carpinteros B","turno":"DÍA","start":15,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-29","fase":"Cubierta 200","act":"Sofá exterior sala C200","equipo":"Subcontrato","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-32","fase":"Cubierta 200","act":"Renovación baño Cabina 8","equipo":"Cuadrilla B","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-35","fase":"Cubierta 200","act":"Muebles wetsuits puente de mando","equipo":"Carpinteros B","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Puente","obs":""},{"id":"F3-28","fase":"Cubierta 200","act":"Ventanas baños C200 (vidrio)","equipo":"Vidrieros","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-33","fase":"Cubierta 200","act":"Renovación baño Cabina 9","equipo":"Cuadrilla B","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-36","fase":"Cubierta 200","act":"Puerta ingreso Cabina 8","equipo":"Carpinteros B","turno":"DÍA","start":17,"dias":2,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-37","fase":"Cubierta 200","act":"Iluminación cálida C200","equipo":"Eléctricos","turno":"DÍA","start":18,"dias":2,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-38","fase":"Cubierta 200","act":"Pintura interior + exterior C200","equipo":"Pintores","turno":"DÍA-NOCHE","start":20,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F1-10","fase":"Sundeck","act":"Desmontaje Sundeck","equipo":"Tripulación","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F2-15","fase":"Sundeck","act":"Modificación antepecho popa Sundeck","equipo":"Fibreros C","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F2-19","fase":"Sundeck","act":"Instalación piscina prefabricada Sundeck","equipo":"Fibreros C","turno":"DÍA","start":11,"dias":5,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-40","fase":"Sundeck","act":"Mesón BBQ y samovar (fibra)","equipo":"Fibreros C","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-39","fase":"Sundeck","act":"Hidrosanitaria piscina + conexiones","equipo":"Plomeros","turno":"DÍA","start":14,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-41","fase":"Sundeck","act":"Instalación teca Sundeck","equipo":"Carpinteros A","turno":"DÍA","start":17,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-42","fase":"Sundeck","act":"Instalación mobiliario exterior Sundeck","equipo":"Subcontrato","turno":"DÍA","start":18,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-43","fase":"Sundeck","act":"Pasamanos de vidrio Sundeck","equipo":"Vidrieros","turno":"DÍA","start":19,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-44","fase":"Sundeck","act":"Iluminación Sundeck","equipo":"Eléctricos","turno":"DÍA","start":20,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-45","fase":"Sundeck","act":"Pintura gelcoat Sundeck","equipo":"Pintores","turno":"NOCHE","start":21,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-46","fase":"Sistemas del barco","act":"Limpieza y mantenimiento A/C (todo el barco)","equipo":"A/C","turno":"DÍA","start":11,"dias":8,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F3-47","fase":"Sistemas del barco","act":"Sistema contra incendio (insp. + mant.)","equipo":"Subcontrato","turno":"DÍA","start":18,"dias":4,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F3-02","fase":"Pruebas y entrega","act":"Prueba preliminar generadores (pre-comisión)","equipo":"Mecánicos","turno":"DÍA","start":14,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-01","fase":"Pruebas y entrega","act":"Pruebas motores nuevos (banco y carga)","equipo":"Mecánicos","turno":"DÍA","start":23,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-02","fase":"Pruebas y entrega","act":"Prueba generadores + transferencia automática","equipo":"Mecánicos","turno":"DÍA","start":23,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-03","fase":"Pruebas y entrega","act":"Prueba sistema A/C","equipo":"A/C","turno":"DÍA","start":25,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-05","fase":"Pruebas y entrega","act":"Reposición muebles, equipos y accesorios","equipo":"Tripulación","turno":"DÍA","start":25,"dias":3,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-04","fase":"Pruebas y entrega","act":"Prueba sistema contra incendio","equipo":"Subcontrato","turno":"DÍA","start":26,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-06","fase":"Pruebas y entrega","act":"Inspección final + punch list","equipo":"Múltiple","turno":"DÍA","start":27,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-08","fase":"Pruebas y entrega","act":"Limpieza general del barco","equipo":"Tripulación","turno":"DÍA","start":27,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-07","fase":"Pruebas y entrega","act":"Correcciones finales (punch list)","equipo":"Múltiple","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-10","fase":"Pruebas y entrega","act":"Sea trial y prueba de navegación","equipo":"Mecánicos","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":""}];
-const EQUIPOS=["TAERA","Mecánicos","Fibreros A","Fibreros B","Fibreros C","Carpinteros A","Carpinteros B","Cuadrilla A","Cuadrilla B","Pintores","Alucobond","Vidrieros","Eléctricos","Plomeros","A/C","Marmolistas","Tapiceros","Acero","Tripulación","Subcontrato","Múltiple"];
+const SEED = /*seed*/[{"id":"F2-04","fase":"Pre-dique y arranque","act":"Transporte motores UIO → GYE (camión)","equipo":"Tripulación","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Llega desde UIO en días previos"},{"id":"PRE-01","fase":"Pre-dique y arranque","act":"Limpieza y preparación de bodega y estanterías","equipo":"Tripulación","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Días previos a la subida (en tierra)"},{"id":"PRE-02","fase":"Pre-dique y arranque","act":"Recepción de material desde UIO (muebles, teca, mármol, vidrios, Alucobond)","equipo":"Subcontrato","turno":"DÍA","start":1,"dias":3,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":"Días previos · llega todo desde UIO"},{"id":"F1-04","fase":"Pre-dique y arranque","act":"Inventario y vaciado del barco","equipo":"Tripulación","turno":"DÍA","start":4,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F1-02","fase":"Pre-dique y arranque","act":"Reunión de arranque / asignación de frentes","equipo":"Múltiple","turno":"DÍA","start":5,"dias":1,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F2-01","fase":"Casco – Obra viva","act":"Obra viva — limpieza e inspección casco","equipo":"TAERA","turno":"DÍA","start":5,"dias":6,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":""},{"id":"OV-01","fase":"Casco – Obra viva","act":"Mantenimiento de hélices y ejes","equipo":"Subcontrato","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-03","fase":"Casco – Obra viva","act":"Válvulas de fondo (sea chests) y pasacascos","equipo":"Subcontrato","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-02","fase":"Casco – Obra viva","act":"Mantenimiento de timón y limera","equipo":"Subcontrato","turno":"DÍA","start":6,"dias":2,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"OV-04","fase":"Casco – Obra viva","act":"Cambio de ánodos de zinc","equipo":"TAERA","turno":"DÍA","start":8,"dias":1,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"F2-02","fase":"Casco – Obra viva","act":"Antifouling (aplicación 2 capas)","equipo":"TAERA","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"Obra Viva","obs":""},{"id":"F1-01","fase":"Casco – Obra muerta","act":"Atraque y posicionamiento en parrilla TAERA","equipo":"TAERA","turno":"DÍA","start":4,"dias":1,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F1-03","fase":"Casco – Obra muerta","act":"Llegada botes inflables y armado de cama","equipo":"Tripulación","turno":"DÍA","start":4,"dias":2,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F2-03","fase":"Casco – Obra muerta","act":"Obra muerta y servicios astillero (TAERA)","equipo":"TAERA","turno":"DÍA","start":4,"dias":22,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F3-48","fase":"Casco – Obra muerta","act":"Instalación defensas proa botes inflables","equipo":"Subcontrato","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F4-09","fase":"Casco – Obra muerta","act":"Salida de parrilla / reflotar (TAERA)","equipo":"TAERA","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Parrilla TAERA","obs":""},{"id":"F1-05","fase":"Cámara de máquinas y áreas de servicio","act":"Desmontaje Sala de Máquinas","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F1-06","fase":"Cámara de máquinas y áreas de servicio","act":"Extracción 2 motores viejos","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F1-07","fase":"Cámara de máquinas y áreas de servicio","act":"Extracción generador viejo","equipo":"Mecánicos","turno":"DÍA","start":5,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-09","fase":"Cámara de máquinas y áreas de servicio","act":"Mantenimiento generador 90 kVA babor","equipo":"Mecánicos","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-10","fase":"Cámara de máquinas y áreas de servicio","act":"Trabajos fibra Sala de Máquinas","equipo":"Fibreros A","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-05","fase":"Cámara de máquinas y áreas de servicio","act":"Recepción e inspección motores en astillero","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":1,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-06","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación motores C12 babor + estribor","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":6,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-07","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación generador 90 kVA estribor","equipo":"Mecánicos","turno":"DÍA","start":8,"dias":5,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F2-08","fase":"Cámara de máquinas y áreas de servicio","act":"Instalación generador 30 kVA (3er generador)","equipo":"Mecánicos","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F3-01","fase":"Cámara de máquinas y áreas de servicio","act":"Pintura área Sala de Máquinas","equipo":"Pintores","turno":"NOCHE","start":10,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"BH-01","fase":"Cámara de máquinas y áreas de servicio","act":"Adecuación y equipos de cocina (galley)","equipo":"Subcontrato","turno":"DÍA","start":11,"dias":6,"pct":0,"estado":"Pendiente","zona":"Cocina (galley)","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"BH-02","fase":"Cámara de máquinas y áreas de servicio","act":"Renovación de cuartos de tripulación","equipo":"Subcontrato","turno":"DÍA","start":13,"dias":5,"pct":0,"estado":"Pendiente","zona":"Cuartos tripulación","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"BH-03","fase":"Cámara de máquinas y áreas de servicio","act":"Adecuación de lavandería","equipo":"Subcontrato","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"Lavandería","obs":"⚠ NUEVO · estimado — confirmar días y cuadrilla"},{"id":"F1-08","fase":"Cubierta 100","act":"Desmontaje Owner Suite (Cubierta 100)","equipo":"Carpinteros B","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F1-09","fase":"Cubierta 100","act":"Desmontaje exterior Cubiertas 100 y 200","equipo":"Tripulación","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-11","fase":"Cubierta 100","act":"Instalación columna pescante C100 (acero)","equipo":"Acero","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-13","fase":"Cubierta 100","act":"Apertura antepechos babor/estribor C100","equipo":"Fibreros B","turno":"DÍA","start":6,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-16","fase":"Cubierta 100","act":"Ejecución visera de sombra sobre C100","equipo":"Fibreros C","turno":"DÍA","start":7,"dias":5,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F2-17","fase":"Cubierta 100","act":"Refuerzo estructural mamparo bar C100","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-03","fase":"Cubierta 100","act":"Nivelado cubierta exterior","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":2,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-10","fase":"Cubierta 100","act":"Fibra + trabajos en baño Owner Suite","equipo":"Fibreros B","turno":"DÍA","start":8,"dias":5,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-12","fase":"Cubierta 100","act":"Ampliación, closet, peinadora Owner Suite","equipo":"Carpinteros B","turno":"DÍA","start":9,"dias":5,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-05","fase":"Cubierta 100","act":"Cielo falso Alucobond exterior C100","equipo":"Alucobond","turno":"DÍA","start":11,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-11","fase":"Cubierta 100","act":"Renovación completa baño Owner Suite","equipo":"Cuadrilla A","turno":"DÍA","start":11,"dias":4,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-07","fase":"Cubierta 100","act":"Instalación mueble fijo exterior C100","equipo":"Carpinteros B","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-13","fase":"Cubierta 100","act":"Piso vinyl Owner Suite","equipo":"Carpinteros B","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-04","fase":"Cubierta 100","act":"Instalación defensa caucho popa C100","equipo":"Fibreros B","turno":"DÍA","start":13,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-14","fase":"Cubierta 100","act":"Cielo falso + espaldar + sofá Owner Suite","equipo":"Tapiceros","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-17","fase":"Cubierta 100","act":"Reemplazo piso vinyl sala principal","equipo":"Carpinteros B","turno":"DÍA","start":13,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-19","fase":"Cubierta 100","act":"Renovación baño Cabina 2","equipo":"Cuadrilla A","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"Cabina 2","obs":""},{"id":"F3-06","fase":"Cubierta 100","act":"Teca cubierta exterior C100 (paquete)","equipo":"Carpinteros A","turno":"DÍA","start":14,"dias":7,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":"Ejemplo de PAQUETE: pasos en secuencia","pasos":[{"gremio":"Carpinteros A","act":"Desmontar teca vieja","medios":2,"turno":"DÍA","pct":0},{"gremio":"Fibreros B","act":"Nivelar piso","medios":4,"turno":"DÍA","pct":0},{"gremio":"Carpinteros A","act":"Instalar teca nueva","medios":6,"turno":"DÍA","pct":0},{"gremio":"Carpinteros A","act":"Pulido y sellado","medios":1,"turno":"DÍA","pct":0}]},{"id":"F3-08","fase":"Cubierta 100","act":"Cambio acrílico → vidrio puerta principal","equipo":"Vidrieros","turno":"DÍA","start":14,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-15","fase":"Cubierta 100","act":"Instalación eléctrica + 2 TVs 65\" Owner Suite","equipo":"Eléctricos","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-20","fase":"Cubierta 100","act":"Renovación baño Cabina 3","equipo":"Cuadrilla A","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 3","obs":""},{"id":"F3-18","fase":"Cubierta 100","act":"Instalación mármol: bar, samovar y mesas","equipo":"Marmolistas","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F3-21","fase":"Cubierta 100","act":"Renovación baño Cabina 4","equipo":"Cuadrilla A","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 4","obs":""},{"id":"F3-09","fase":"Cubierta 100","act":"Pintura paredes exteriores + columnas C100","equipo":"Pintores","turno":"DÍA-NOCHE","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Exterior","obs":""},{"id":"F3-22","fase":"Cubierta 100","act":"Renovación baño Cabina 5","equipo":"Cuadrilla A","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 5","obs":""},{"id":"F3-23","fase":"Cubierta 100","act":"Iluminación cálida C100","equipo":"Eléctricos","turno":"DÍA","start":17,"dias":2,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-16","fase":"Cubierta 100","act":"Pintura Owner Suite","equipo":"Pintores","turno":"NOCHE","start":18,"dias":2,"pct":0,"estado":"Pendiente","zona":"Cabina 1 · Owner","obs":""},{"id":"F3-24","fase":"Cubierta 100","act":"Pintura sala + cabinas C100","equipo":"Pintores","turno":"DÍA-NOCHE","start":19,"dias":3,"pct":0,"estado":"Pendiente","zona":"C100 Sala Ppal.","obs":""},{"id":"F2-14","fase":"Cubierta 200","act":"Modificación antepecho C200","equipo":"Fibreros B","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F2-12","fase":"Cubierta 200","act":"Fabricación/inst. pescantes botes C200","equipo":"Acero","turno":"DÍA","start":7,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F2-18","fase":"Cubierta 200","act":"Reubicación apoyos + refuerzo bao C200","equipo":"Fibreros B","turno":"DÍA","start":9,"dias":4,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-26","fase":"Cubierta 200","act":"Cielo falso Alucobond exterior C200","equipo":"Alucobond","turno":"DÍA","start":12,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-30","fase":"Cubierta 200","act":"Renovación baño Cabina 6","equipo":"Cuadrilla B","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"Cabina 6","obs":""},{"id":"F3-25","fase":"Cubierta 200","act":"Instalación teca C200 (59 m²)","equipo":"Carpinteros A","turno":"DÍA","start":15,"dias":5,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-27","fase":"Cubierta 200","act":"Baranda vidrio templado/laminado popa C200","equipo":"Vidrieros","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-31","fase":"Cubierta 200","act":"Renovación baño Cabina 7","equipo":"Cuadrilla B","turno":"DÍA","start":15,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 7","obs":""},{"id":"F3-34","fase":"Cubierta 200","act":"Closets + TV integrada Cabinas 6 y 7","equipo":"Carpinteros B","turno":"DÍA","start":15,"dias":4,"pct":0,"estado":"Pendiente","zona":"Cabina 6","obs":""},{"id":"F3-29","fase":"Cubierta 200","act":"Sofá exterior sala C200","equipo":"Subcontrato","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F3-32","fase":"Cubierta 200","act":"Renovación baño Cabina 8","equipo":"Cuadrilla B","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 8","obs":""},{"id":"F3-35","fase":"Cubierta 200","act":"Muebles wetsuits puente de mando","equipo":"Carpinteros B","turno":"DÍA","start":16,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Puente","obs":""},{"id":"F3-28","fase":"Cubierta 200","act":"Ventanas baños C200 (vidrio)","equipo":"Vidrieros","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-33","fase":"Cubierta 200","act":"Renovación baño Cabina 9","equipo":"Cuadrilla B","turno":"DÍA","start":17,"dias":3,"pct":0,"estado":"Pendiente","zona":"Cabina 9","obs":""},{"id":"F3-36","fase":"Cubierta 200","act":"Puerta ingreso Cabina 8","equipo":"Carpinteros B","turno":"DÍA","start":17,"dias":2,"pct":0,"estado":"Pendiente","zona":"Cabina 8","obs":""},{"id":"F3-37","fase":"Cubierta 200","act":"Iluminación cálida C200","equipo":"Eléctricos","turno":"DÍA","start":18,"dias":2,"pct":0,"estado":"Pendiente","zona":"C200 Cabinas 6-9","obs":""},{"id":"F3-38","fase":"Cubierta 200","act":"Pintura interior + exterior C200","equipo":"Pintores","turno":"DÍA-NOCHE","start":20,"dias":3,"pct":0,"estado":"Pendiente","zona":"C200 Exterior","obs":""},{"id":"F1-10","fase":"Sundeck","act":"Desmontaje Sundeck","equipo":"Tripulación","turno":"DÍA","start":5,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F2-15","fase":"Sundeck","act":"Modificación antepecho popa Sundeck","equipo":"Fibreros C","turno":"DÍA","start":6,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F2-19","fase":"Sundeck","act":"Instalación piscina prefabricada Sundeck","equipo":"Fibreros C","turno":"DÍA","start":11,"dias":5,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-40","fase":"Sundeck","act":"Mesón BBQ y samovar (fibra)","equipo":"Fibreros C","turno":"DÍA","start":13,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-39","fase":"Sundeck","act":"Hidrosanitaria piscina + conexiones","equipo":"Plomeros","turno":"DÍA","start":14,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-41","fase":"Sundeck","act":"Instalación teca Sundeck","equipo":"Carpinteros A","turno":"DÍA","start":17,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-42","fase":"Sundeck","act":"Instalación mobiliario exterior Sundeck","equipo":"Subcontrato","turno":"DÍA","start":18,"dias":4,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-43","fase":"Sundeck","act":"Pasamanos de vidrio Sundeck","equipo":"Vidrieros","turno":"DÍA","start":19,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-44","fase":"Sundeck","act":"Iluminación Sundeck","equipo":"Eléctricos","turno":"DÍA","start":20,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-45","fase":"Sundeck","act":"Pintura gelcoat Sundeck","equipo":"Pintores","turno":"NOCHE","start":21,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sundeck","obs":""},{"id":"F3-46","fase":"Sistemas del barco","act":"Limpieza y mantenimiento A/C (todo el barco)","equipo":"A/C","turno":"DÍA","start":11,"dias":8,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F3-47","fase":"Sistemas del barco","act":"Sistema contra incendio (insp. + mant.)","equipo":"Subcontrato","turno":"DÍA","start":18,"dias":4,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F3-02","fase":"Pruebas y entrega","act":"Prueba preliminar generadores (pre-comisión)","equipo":"Mecánicos","turno":"DÍA","start":14,"dias":2,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-01","fase":"Pruebas y entrega","act":"Pruebas motores nuevos (banco y carga)","equipo":"Mecánicos","turno":"DÍA","start":23,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-02","fase":"Pruebas y entrega","act":"Prueba generadores + transferencia automática","equipo":"Mecánicos","turno":"DÍA","start":23,"dias":3,"pct":0,"estado":"Pendiente","zona":"Sala de Máquinas","obs":""},{"id":"F4-03","fase":"Pruebas y entrega","act":"Prueba sistema A/C","equipo":"A/C","turno":"DÍA","start":25,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-05","fase":"Pruebas y entrega","act":"Reposición muebles, equipos y accesorios","equipo":"Tripulación","turno":"DÍA","start":25,"dias":3,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-04","fase":"Pruebas y entrega","act":"Prueba sistema contra incendio","equipo":"Subcontrato","turno":"DÍA","start":26,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-06","fase":"Pruebas y entrega","act":"Inspección final + punch list","equipo":"Múltiple","turno":"DÍA","start":27,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-08","fase":"Pruebas y entrega","act":"Limpieza general del barco","equipo":"Tripulación","turno":"DÍA","start":27,"dias":2,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-07","fase":"Pruebas y entrega","act":"Correcciones finales (punch list)","equipo":"Múltiple","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Todo el barco","obs":""},{"id":"F4-10","fase":"Pruebas y entrega","act":"Sea trial y prueba de navegación","equipo":"Mecánicos","turno":"DÍA","start":28,"dias":1,"pct":0,"estado":"Pendiente","zona":"Logística / Ext.","obs":""}];
+const EQUIPOS=["TAERA","Mecánicos","Fibreros A","Fibreros B","Fibreros C","Carpinteros A","Carpinteros B","Maestro A","Maestro B","Cuadrilla A","Cuadrilla B","Pintores","Alucobond","Vidrieros","Eléctricos","Plomeros","A/C","Marmolistas","Tapiceros","Acero","Tripulación","Subcontrato","Múltiple"];
 const TURNOS=["DÍA","DÍA-NOCHE","NOCHE"];
 const ESTADOS=["Pendiente","En Proceso","Listo","Bloqueado"];
-const ZONAS=["Sala de Máquinas","Cocina (galley)","Cuartos tripulación","Lavandería","C100 Exterior","C100 Owner Suite","C100 Sala Ppal.","C100 Cabinas 2-5","C200 Exterior","C200 Cabinas 6-9","C200 Puente","Sundeck","Obra Viva","Todo el barco","Logística / Ext.","Parrilla TAERA"];
+const BASE_ZONAS=["Cabina 1 · Owner","Cabina 2","Cabina 3","Cabina 4","Cabina 5","Cabina 6","Cabina 7","Cabina 8","Cabina 9","Pasillo First Floor","Salón","Upper Deck","Ext. First Floor","Ext. Upper Deck","Sundeck","Sala de Máquinas","Cocina (galley)","Cuartos tripulación","Lavandería","C100 Exterior","C100 Owner Suite","C100 Sala Ppal.","C100 Cabinas 2-5","C200 Exterior","C200 Cabinas 6-9","C200 Puente","Obra Viva","Todo el barco","Logística / Ext.","Parrilla TAERA"];
+let ZONAS=[...BASE_ZONAS];
+function rebuildZonas(){const extra=(S.zonasX||[]).filter(z=>z&&!BASE_ZONAS.includes(z));ZONAS=[...BASE_ZONAS,...extra];}
 const START=new Date(2026,7,8);            // idx1 = 8 ago (Previo -3); subida 11 ago = idx4
 const SUBIDA=4;                              // idx de la subida = "Día 0"
 const BUFFER=[26,27,28];   // Día 22-24 (2-4 sep)
@@ -357,7 +410,7 @@ async function load(){
   try{ const s=localStorage.getItem(KEY); if(s) return JSON.parse(s);}catch(e){}
   return null;
 }
-function snapshot(){return JSON.stringify({tasks:S.tasks,caps:S.caps,cap:S.cap,horarios:S.horarios});}
+function snapshot(){return JSON.stringify({tasks:S.tasks,caps:S.caps,cap:S.cap,horarios:S.horarios,zonasX:S.zonasX});}
 async function persist(){
   const blob=snapshot(); let ok=false;
   try{ if(window.storage){ await window.storage.set(KEY,blob,false); ok=true; } }catch(e){}
@@ -371,24 +424,25 @@ const SB_URL_DEFAULT="https://tzqvsdpzysdppwqrjdfw.supabase.co";
 const SB_KEY_DEFAULT="sb_publishable_0etSrFpFVA3tRSbp3oijmA_NU4J9jDg";
 const SB_TABLE="presupuesto";      // reusa la misma tabla del presupuesto
 const SB_DOC="dique";              // registro aparte (el presupuesto usa id 'treasure')
-let SB=null, SBstate='off';
+let SB=null, SBstate='off', SBerr='';
 function sbCfg(){try{const s=localStorage.getItem(SB_CFG_KEY);if(s){const o=JSON.parse(s);if(o&&o.url&&o.key)return o;}}catch(e){}
   if(SB_URL_DEFAULT&&SB_KEY_DEFAULT.length>20)return {url:SB_URL_DEFAULT,key:SB_KEY_DEFAULT};
   return null;}
+function waitSupabase(ms){const t0=Date.now();return new Promise(res=>{(function chk(){if(window.supabase)return res(true);if(Date.now()-t0>(ms||5000))return res(false);setTimeout(chk,120);})();});}
 function sbInit(){SB=null;const c=sbCfg();
-  if(c&&c.url&&c.key&&window.supabase){try{SB=window.supabase.createClient(c.url,c.key);SBstate='ok';}catch(e){SB=null;SBstate='error';}}
-  else SBstate='off';
+  if(c&&c.url&&c.key&&window.supabase){try{SB=window.supabase.createClient(c.url,c.key);SBstate='ok';SBerr='';}catch(e){SB=null;SBstate='error';SBerr=(e&&e.message)||'no se pudo crear el cliente';}}
+  else {SBstate='off';SBerr=window.supabase?'':'la librería de Supabase no cargó (¿sin internet o CDN bloqueado?)';}
   return SB;}
 async function sbPull(){if(!SB)return null;
   try{const r=await SB.from(SB_TABLE).select('data').eq('id',SB_DOC).maybeSingle();
-    if(r.error){SBstate='error';return null;} SBstate='ok'; return r.data?r.data.data:null;}catch(e){SBstate='error';return null;}}
+    if(r.error){SBstate='error';SBerr=r.error.message||JSON.stringify(r.error);return null;} SBstate='ok';SBerr=''; return r.data?r.data.data:null;}catch(e){SBstate='error';SBerr=(e&&e.message)||'error de red';return null;}}
 async function sbPush(){if(!SB)return false;
   try{SBstate='saving';sbStatus();
     const r=await SB.from(SB_TABLE).upsert({id:SB_DOC,data:JSON.parse(snapshot()),updated_at:new Date().toISOString()});
-    SBstate=r.error?'error':'ok';sbStatus();return !r.error;}catch(e){SBstate='error';sbStatus();return false;}}
+    if(r.error){SBstate='error';SBerr=r.error.message||JSON.stringify(r.error);}else{SBstate='ok';SBerr='';}sbStatus();return !r.error;}catch(e){SBstate='error';SBerr=(e&&e.message)||'error de red';sbStatus();return false;}}
 function sbStatus(){const e=el('cloudst');if(!e)return;
   const map={off:['sin nube','var(--ink3)'],ok:['☁ en la nube','var(--green)'],saving:['☁ guardando…','var(--cyan)'],error:['☁ revisar nube','var(--red)']};
-  const v=map[SBstate]||map.off; e.textContent=v[0]; e.style.color=v[1];}
+  const v=map[SBstate]||map.off; e.textContent=v[0]; e.style.color=v[1]; e.title=SBerr||'';}
 function setStatus(s){const e=el('lastsave');if(!e)return;
   if(s==='saving')e.innerHTML='guardando…';
   else if(s==='saved'){const d=new Date();e.innerHTML='✓ guardado '+d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});}
@@ -406,8 +460,24 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 /* ============================ STATE ============================ */
 const DEF_HOR={diaMan:'08–12',diaTar:'13–18',nocTar:'13–18',nocNoc:'19–23'};
-let S={tasks:[],caps:{...DEFAULT_CAP},cap:{...DEFAULT_CAPT},view:'gantt',colorBy:'equipo',simDay:0,fFase:'',parteBy:'equipo',ordenEq:'',horarios:{...DEF_HOR}};
+let S={tasks:[],caps:{...DEFAULT_CAP},cap:{...DEFAULT_CAPT},view:'gantt',colorBy:'equipo',simDay:0,fFase:'',parteBy:'equipo',ordenEq:'',horarios:{...DEF_HOR},zonasX:[]};
 function uid(){return 'T'+Math.random().toString(36).slice(2,7).toUpperCase();}
+function faseNum(fase){const i=[...new Set(SEED.map(s=>s.fase))].indexOf(fase);return i>=0?i+1:0;}
+function genId(fase){const n=faseNum(fase);const pref=n>0?('F'+n):'X';let max=0;
+  S.tasks.forEach(t=>{const m=(t.id||'').match(new RegExp('^'+pref+'-(\\d+)$'));if(m){const k=+m[1];if(k>max)max=k;}});
+  return pref+'-'+String(max+1).padStart(2,'0');}
+function migrateCabins(){let n=0;
+  S.tasks.forEach(t=>{const z=t.zona||'',a=t.act||'';
+    if(z==='C100 Owner Suite'){t.zona='Cabina 1 · Owner';n++;}
+    else if(z==='C100 Cabinas 2-5'||z==='C200 Cabinas 6-9'){const mm=a.match(/[Cc]abinas?\s+(\d)/);if(mm){t.zona='Cabina '+mm[1];n++;}}
+    if(t.equipo==='Maestro'){t.equipo='Maestro A';n++;}
+    if(Array.isArray(t.pasos))t.pasos.forEach(p=>{if(p.gremio==='Maestro'){p.gremio='Maestro A';n++;}});});
+  return n;}
+function renumberIds(){const faseList=[...new Set(SEED.map(s=>s.fase))];const byF={};
+  S.tasks.forEach(t=>{(byF[t.fase]=byF[t.fase]||[]).push(t);});
+  Object.keys(byF).forEach(f=>{const n=faseList.indexOf(f);const pref=n>=0?('F'+(n+1)):'X';
+    byF[f].slice().sort((a,b)=>a.start-b.start||(a.id||'').localeCompare(b.id||'')).forEach((t,i)=>{t.id=pref+'-'+String(i+1).padStart(2,'0');});});
+  commit();}
 function phaseOf(t){const m=(t.id||'').match(/^F(\d)/);return m?'F'+m[1]:'F0';}
 function isPkg(t){return Array.isArray(t.pasos)&&t.pasos.length>0;}
 function pkgLayout(t){
@@ -430,7 +500,7 @@ function endOf(t){return t.start+taskDays(t)-1;}
 function blocksOf(t){
   const H0=2*(t.start-1);
   if(isPkg(t)){const L=pkgLayout(t);const gg=L.groups.map(g=>[...new Set(g.map(s=>s.gremio))]);
-    return L.steps.map(s=>({tid:t.id,equipo:s.gremio,zona:t.zona,turno:s.turno||'DÍA',name:s.act||t.act,hi0:H0+s.start,hi1:H0+s.start+s.m-1,pct:s.pct||0,paso:true,lane:s.lane,lanes:s.lanes,par:!!s.par,g:s.g,gg,taskName:t.act}));}
+    return L.steps.map(s=>({tid:t.id,equipo:s.gremio,zona:s.zona||t.zona,turno:s.turno||'DÍA',name:s.act||t.act,hi0:H0+s.start,hi1:H0+s.start+s.m-1,pct:s.pct||0,paso:true,lane:s.lane,lanes:s.lanes,par:!!s.par,g:s.g,gg,taskName:t.act}));}
   return [{tid:t.id,equipo:t.equipo,zona:t.zona,turno:t.turno,name:t.act,hi0:H0,hi1:H0+t.dias*2-1,pct:t.pct,paso:false,taskName:t.act}];
 }
 function allBlocks(){const o=[];S.tasks.forEach(t=>blocksOf(t).forEach(b=>o.push(b)));return o;}
@@ -563,7 +633,7 @@ function dlabel(d){const dt=dateOf(d);return `${diaLong(d)} · ${dt.getDate()} $
 
 /* ============================ RENDER ============================ */
 const el=id=>document.getElementById(id);
-function render(){renderAlerts();renderKPI();renderView();}
+function render(){rebuildZonas();renderAlerts();renderKPI();renderView();}
 
 function renderKPI(){
   const m=metrics();
@@ -618,6 +688,7 @@ function renderAlerts(){
 
 function renderView(){
   const v=S.view;
+  const _sc=el('view').querySelector('.gscroll');const _sl=_sc?_sc.scrollLeft:0,_st=_sc?_sc.scrollTop:0;
   el('colorCtl').style.display=v==='gantt'?'flex':'none';
   el('filterCtl').style.display=(v==='gantt'||v==='table')?'flex':'none';
   if(v==='gantt')el('view').innerHTML=ganttHTML();
@@ -626,9 +697,11 @@ function renderView(){
   else if(v==='zone')el('view').innerHTML=zoneHTML();
   else if(v==='crew')el('view').innerHTML=crewHTML();
   else if(v==='orden')el('view').innerHTML=ordenHTML();
+  else if(v==='arbol')el('view').innerHTML=arbolHTML();
   else if(v==='table')el('view').innerHTML=tableHTML();
   else if(v==='config')el('view').innerHTML=configHTML();
   wireView();
+  const _sc2=el('view').querySelector('.gscroll');if(_sc2){_sc2.scrollLeft=_sl;_sc2.scrollTop=_st;}
 }
 
 function dayHeaders(extraCls){
@@ -645,14 +718,26 @@ function ganttHTML(){
   for(let d=1;d<=N;d++){const zs=[...new Set(BLK0.filter(b=>blkActiveDay(b,d)).map(b=>b.zona))];
     zs.forEach(z=>{const cap=S.caps[z]??1;const info=zoneInfoDay(z,d,BLK0);
       if(info.n>cap&&info.teams>1)info.arr.forEach(b=>conf[b.tid+'_'+d]=1);});}
-  // group by frente, preserve seed order, optional fase filter
+  // group by frente (orden lógico) y ordenar tareas por día de inicio
   let list=S.tasks.filter(t=>!S.fFase||t.fase===S.fFase);
   const order=[];const groups={};
   list.forEach(t=>{if(!groups[t.fase]){groups[t.fase]=[];order.push(t.fase);}groups[t.fase].push(t);});
+  const _fo=[...new Set(SEED.map(s=>s.fase))];
+  order.sort((a,b)=>{const ia=_fo.indexOf(a),ib=_fo.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+  order.forEach(f=>groups[f].sort((a,b)=>a.start-b.start||taskDays(a)-taskDays(b)||(a.id||'').localeCompare(b.id||'')));
   let rows='';
   order.forEach(fr=>{
-    rows+=`<tr class="grp"><td colspan="${N+1}"><div class="gname">${fr} <span class="gp">· ${groups[fr].length} tareas</span></div></td></tr>`;
-    groups[fr].forEach(t=>{
+    const frCol=!!COLLAPSE['fr:'+fr];
+    rows+=`<tr class="grp" data-fr="${esc(fr)}"><td colspan="${N+1}"><div class="gname"><span class="caret">${frCol?'▸':'▾'}</span> ${fr} <span class="gp">· ${groups[fr].length} tareas</span></div></td></tr>`;
+    if(frCol)return;
+    const byZ={},zorder=[];
+    groups[fr].forEach(t=>{if(!byZ[t.zona]){byZ[t.zona]=[];zorder.push(t.zona);}byZ[t.zona].push(t);});
+    zorder.sort((a,b)=>{const ia=ZONAS.indexOf(a),ib=ZONAS.indexOf(b);return (ia<0?999:ia)-(ib<0?999:ib);});
+    zorder.forEach(z=>{
+      const zc=zorder.length>1&&!!COLLAPSE['zn:'+fr+'|'+z];
+      if(zorder.length>1)rows+=`<tr class="grpz" data-fz="${esc(fr)}|${esc(z)}"><td colspan="${N+1}"><div class="gnamez"><span class="caret">${zc?'▸':'▾'}</span> ${esc(z)} <span class="gp">· ${byZ[z].length}</span></div></td></tr>`;
+      if(zc)return;
+      byZ[z].forEach(t=>{
       let cells='';
       for(let d=1;d<=N;d++){const buf=BUFFER.includes(d);const wk=isWknd(d);const tdy=S.simDay===d;const cf=conf[t.id+'_'+d];
         let bar='';
@@ -670,10 +755,11 @@ function ganttHTML(){
       }
       rows+=`<tr class="trow" id="row_${t.id}">
         <td class="lblcol"><div class="task-l" data-id="${t.id}">
-          <span class="id">${t.id}</span>
+          <span class="id">${t.dep?'🔗 ':''}${t.id}</span>
           <span class="swatch" style="background:${barColor(t)}"></span>
-          <span class="nm">${t.act}<br><span class="meta">${isPkg(t)?(t.pasos.length+' pasos · '+t.zona):(t.equipo+' · '+t.turno+' · '+t.zona)}</span></span>
+          <span class="nm">${t.act}<br><span class="meta">${isPkg(t)?(t.pasos.length+' pasos · '+t.zona):(t.equipo+' · '+t.turno+' · '+t.zona)}${t.dep?` · <span class="deplink">${t.dep.type==='par'?'∥ a la vez que':'↳ después de'} ${t.dep.on}</span>`:''}</span></span>
         </div></td>${cells}</tr>`;
+      });
     });
   });
   return `<div class="card"><div class="gscroll"><table class="gtable">
@@ -868,8 +954,38 @@ function crewSheetHTML(eq,BLK){
     <div class="hfoot">${horarioLeyenda()} · "recibes de / entregas a" = de quién depende tu trabajo</div>
   </div>`;
 }
+function arbolHTML(){
+  const faseOrder=[...new Set(SEED.map(s=>s.fase))];
+  const byFase={};
+  S.tasks.forEach(t=>{(byFase[t.fase]=byFase[t.fase]||[]).push(t);});
+  const fases=Object.keys(byFase).sort((a,b)=>{const ia=faseOrder.indexOf(a),ib=faseOrder.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+  const zonaOrder=z=>{const i=ZONAS.indexOf(z);return i<0?999:i;};
+  let out='';
+  fases.forEach(f=>{
+    const arr=byFase[f];
+    const byZ={};arr.forEach(t=>{(byZ[t.zona]=byZ[t.zona]||[]).push(t);});
+    const zonas=Object.keys(byZ).sort((a,b)=>zonaOrder(a)-zonaOrder(b));
+    const doneF=arr.filter(t=>t.estado==='Listo').length;
+    let inner='';
+    zonas.forEach(z=>{
+      const ts=byZ[z].slice().sort((a,b)=>a.start-b.start||a.id.localeCompare(b.id));
+      const rows=ts.map(t=>{
+        const col=EST_COL[t.estado]||'#8392A1';
+        const meta=isPkg(t)?(t.pasos.length+' pasos'):(esc(t.equipo)+(t.turno==='NOCHE'?' · 🌙':''));
+        const pasosLine=isPkg(t)?`<div class="tr-pasos">${t.pasos.map((p,i)=>`${i>0?(p.par?' ∥ ':' → '):''}<span>${esc(p.gremio)}: ${esc(p.act||'')}</span>`).join('')}</div>`:'';
+        return `<div class="tr" data-id="${t.id}"><span class="tr-dot" style="background:${col}"></span>
+          <div class="tr-main"><div class="tr-top"><span class="tr-name">${esc(t.act)}</span><span class="tr-meta">${meta} · ${diaShort(t.start)} · ${taskDays(t)}d · ${t.pct}%</span></div>${pasosLine}</div></div>`;
+      }).join('');
+      inner+=`<details class="az" open><summary><b>${esc(z)}</b> <span class="ct">${ts.length} trabajo(s)</span></summary>${rows}</details>`;
+    });
+    out+=`<details class="af" open><summary><span class="fh">${esc(f)}</span> <span class="ct">${arr.length} tarea(s) · ${doneF} listas · ${zonas.length} área(s)</span></summary>${inner}</details>`;
+  });
+  return `<div class="card" style="padding:10px 14px"><div class="arbol">${out||'<div class="empty">Sin tareas.</div>'}</div></div>`;
+}
+
 function tableHTML(){
-  let list=S.tasks.filter(t=>!S.fFase||t.fase===S.fFase);
+  const _fo=[...new Set(SEED.map(s=>s.fase))];
+  let list=S.tasks.filter(t=>!S.fFase||t.fase===S.fFase).slice().sort((a,b)=>{const d=(_fo.indexOf(a.fase)<0?99:_fo.indexOf(a.fase))-(_fo.indexOf(b.fase)<0?99:_fo.indexOf(b.fase));return d||a.start-b.start||(a.id||'').localeCompare(b.id||'');});
   const rows=list.map(t=>`<tr data-id="${t.id}">
     <td class="id">${t.id}</td>
     <td>${t.act}<br><span class="id">${t.fase}</span></td>
@@ -906,6 +1022,12 @@ function configHTML(){
       <span>🌙 Noche — tramo 1</span><input data-hor="nocTar" value="${esc((S.horarios||DEF_HOR).nocTar)}" style="text-align:center">
       <span>🌙 Noche — tramo 2</span><input data-hor="nocNoc" value="${esc((S.horarios||DEF_HOR).nocNoc)}" style="text-align:center">
     </div>
+    <h3 style="margin:22px 0 4px">Áreas / zonas propias</h3>
+    <p style="color:var(--ink2);font-size:12.5px;margin:0 0 10px;max-width:680px">Agregá las áreas físicas que uses (cabinas, cubiertas, salón, etc.). Aparecen en el desplegable de <b>Zona</b> de cada tarea y se guardan en tu nube. Las de fábrica no se pueden borrar; las tuyas sí.</p>
+    <div id="areaList" style="margin-bottom:8px">${(S.zonasX||[]).length?(S.zonasX||[]).map((z,i)=>`<span class="areachip">${esc(z)}<button data-rmarea="${i}" title="quitar">✕</button></span>`).join(''):'<span class="id">Sin áreas propias todavía — las que ves en el desplegable son las de fábrica.</span>'}</div>
+    <div style="display:flex;gap:8px;max-width:460px"><input id="newArea" placeholder="Ej. Cabina 10, Comedor tripulación…" style="flex:1"><button class="btn ghost" id="addArea">＋ Agregar</button></div>
+    <div style="margin-top:14px"><button class="btn ghost" id="renumBtn">Renumerar códigos por frente (F1-01, F2-01…)</button>
+      <span class="id" style="margin-left:8px">Ordena TODOS los códigos por frente y día. Los originales están mezclados.</span></div>
     <h3 style="margin:22px 0 4px">Nube (Supabase) — respaldo automático</h3>
     <p style="color:var(--ink2);font-size:12.5px;margin:0 0 10px;max-width:680px">Conectado a tu mismo proyecto Supabase del presupuesto. Cada cambio se guarda en la nube y en este navegador a la vez — no tenés que crear nada ni pegar claves. Podés abrir el tablero desde otra compu y traer tus datos con «Bajar de la nube».</p>
     <div class="id" style="margin:0 0 10px">Estado actual: <b id="cloudst2" style="font-family:var(--mono)"></b></div>
@@ -928,6 +1050,8 @@ function configHTML(){
 function wireView(){
   if(S.view==='gantt'){
     el('view').querySelectorAll('.task-l').forEach(n=>n.onclick=()=>openEdit(n.dataset.id));
+    el('view').querySelectorAll('.grp[data-fr]').forEach(r=>r.onclick=()=>{const k='fr:'+r.dataset.fr;COLLAPSE[k]=!COLLAPSE[k];renderView();});
+    el('view').querySelectorAll('.grpz[data-fz]').forEach(r=>r.onclick=()=>{const k='zn:'+r.dataset.fz;COLLAPSE[k]=!COLLAPSE[k];renderView();});
     setupGanttDrag();
   }
   if(S.view==='table'){
@@ -966,15 +1090,22 @@ function wireView(){
     el('view').querySelectorAll('[data-cap]').forEach(inp=>inp.onchange=()=>{S.caps[inp.dataset.cap]=clamp(+inp.value,1,99);commit();});
     el('view').querySelectorAll('[data-hor]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.hor;S.horarios={...(S.horarios||DEF_HOR)};S.horarios[k]=inp.value.trim()||DEF_HOR[k];commit();});
     const cs2=el('cloudst2');if(cs2)cs2.textContent={off:'sin conectar',ok:'conectado ✓',saving:'guardando…',error:'sin conexión — revisá'}[SBstate]||'—';
+    const rb=el('renumBtn');if(rb)rb.onclick=()=>{if(confirm('¿Renumerar TODOS los códigos por frente? Los actuales se reemplazan (no afecta tus datos ni la nube, solo las etiquetas).'))renumberIds();};
+    const aa=el('addArea');if(aa)aa.onclick=()=>{const v=el('newArea').value.trim();if(!v)return;if(ZONAS.includes(v)){alert('Esa área ya existe.');return;}S.zonasX=[...(S.zonasX||[]),v];commit();};
+    const na=el('newArea');if(na)na.onkeydown=e=>{if(e.key==='Enter')el('addArea').click();};
+    el('view').querySelectorAll('[data-rmarea]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rmarea;S.zonasX=(S.zonasX||[]).filter((_,j)=>j!==i);commit();});
     const g=el('sbSave');if(g)g.onclick=()=>{const url=el('sbUrl').value.trim(),key=el('sbKey').value.trim();
       if(!url||!key){alert('Pegá la URL y la llave pública (anon).');return;}
       localStorage.setItem(SB_CFG_KEY,JSON.stringify({url,key}));sbInit();sbStatus();
       alert(SB?'Conectado. La primera vez usá «Subir a la nube» para guardar tus datos actuales; o «Bajar» si ya hay datos arriba.':'No se pudo iniciar (revisá URL/llave).');};
-    const tb=el('sbTest');if(tb)tb.onclick=async()=>{if(!sbInit()){alert('Primero guardá URL y llave y conectá.');return;}const d=await sbPull();sbStatus();
-      alert(SBstate==='ok'?('Conexión OK. '+(d?'Hay datos en la nube.':'La nube está vacía — subí tus datos.')):'Falló. Revisá URL/llave y que exista la tabla (corré el SQL de abajo).');};
+    const tb=el('sbTest');if(tb)tb.onclick=async()=>{if(!sbInit()){alert('No se pudo conectar: '+(SBerr||'revisá URL/llave.'));return;}const d=await sbPull();sbStatus();
+      alert(SBstate==='ok'?('Conexión OK. '+(d?'Hay datos en la nube.':'La nube está vacía — subí tus datos.')):('Falló la conexión.\n\nMotivo: '+(SBerr||'desconocido')+'\n\nRevisá internet, o que la tabla y sus permisos existan.'));};
     const up=el('sbUp');if(up)up.onclick=async()=>{if(!sbInit()){alert('Conectá primero.');return;}if(!confirm('¿Subir tus datos actuales a la nube? Sobrescribe lo que haya arriba.'))return;const ok=await sbPush();alert(ok?'Subido a la nube.':'No se pudo subir (revisá conexión y tabla).');};
     const dn=el('sbDown');if(dn)dn.onclick=async()=>{if(!sbInit()){alert('Conectá primero.');return;}const d=await sbPull();if(!d){alert('No hay datos en la nube todavía.');return;}if(!confirm('¿Bajar los datos de la nube y reemplazar lo que ves en pantalla?'))return;
-      if(d.tasks){S.tasks=d.tasks;if(d.caps)S.caps={...DEFAULT_CAP,...d.caps};if(d.cap)S.cap={...DEFAULT_CAPT,...d.cap};if(d.horarios)S.horarios={...DEF_HOR,...d.horarios};commit();alert('Datos de la nube cargados ('+S.tasks.length+' tareas).');}};
+      if(d.tasks){S.tasks=d.tasks;if(d.caps)S.caps={...DEFAULT_CAP,...d.caps};if(d.cap)S.cap={...DEFAULT_CAPT,...d.cap};if(d.horarios)S.horarios={...DEF_HOR,...d.horarios};if(d.zonasX)S.zonasX=d.zonasX;commit();alert('Datos de la nube cargados ('+S.tasks.length+' tareas).');}};
+  }
+  if(S.view==='arbol'){
+    el('view').querySelectorAll('.tr[data-id]').forEach(r=>r.onclick=()=>openEdit(r.dataset.id));
   }
   if(S.view==='orden'){
     const sel=el('ordenSel'); if(sel)sel.onchange=()=>{S.ordenEq=sel.value;renderView();};
@@ -1018,10 +1149,31 @@ function hideTip(){const t=el('dragTip');if(t)t.style.display='none';}
 function highlight(ids){ids.forEach(id=>{const r=el('row_'+id);if(r){r.scrollIntoView({block:'center',behavior:'smooth'});r.classList.remove('hl');void r.offsetWidth;r.classList.add('hl');}});}
 function getT(id){return S.tasks.find(t=>t.id===id);}
 function clamp(v,a,b){return Math.max(a,Math.min(b,isNaN(v)?a:v));}
-function commit(){save();render();}
+function dependsOn(a,b){let cur=a,g=0;while(cur&&g++<300){const c=getT(cur);if(!c||!c.dep)return false;if(c.dep.on===b)return true;cur=c.dep.on;}return false;}
+function resolveDeps(){
+  for(let pass=0;pass<S.tasks.length+2;pass++){let ch=false;
+    S.tasks.forEach(t=>{if(t.dep&&t.dep.on){const p=getT(t.dep.on);
+      if(p&&p.id!==t.id){const ns=clamp(t.dep.type==='par'?p.start:(p.start+taskDays(p)),1,200);if(ns!==t.start){t.start=ns;ch=true;}}
+      else if(!p){t.dep=null;}}});
+    if(!ch)break;}
+}
+function commit(){resolveDeps();save();render();}
+let PICK=null;
+let COLLAPSE={};
+function showPickBanner(){let b=el('pickBanner');if(!b){b=document.createElement('div');b.id='pickBanner';b.className='pickbanner';document.body.appendChild(b);}
+  const src=getT(PICK.srcId);b.innerHTML=`<span>🔗 Encadenando <b>${src?src.id:''}</b> — tocá la tarea a la que va <b>${PICK.type==='par'?'∥ a la vez':'→ después'}</b> (en el Gantt o en la Lista)</span><button id="pickCancel">Cancelar</button>`;
+  b.style.display='flex';el('pickCancel').onclick=()=>{PICK=null;hidePickBanner();};}
+function hidePickBanner(){const b=el('pickBanner');if(b)b.style.display='none';}
+function applyPick(id){const src=getT(PICK.srcId);const type=PICK.type;PICK=null;hidePickBanner();
+  if(!src||id===src.id)return;
+  if(dependsOn(id,src.id)){toast('No se puede: haría un bucle.');return;}
+  src.dep={on:id,type};resolveDeps();commit();
+  toast('Encadenada '+src.id+' '+(type==='par'?'∥ a la vez que ':'→ después de ')+id);}
+function toast(msg){let t=el('toastMsg');if(!t){t=document.createElement('div');t.id='toastMsg';t.className='toastmsg';document.body.appendChild(t);}t.textContent=msg;t.style.display='block';clearTimeout(t._tm);t._tm=setTimeout(()=>{t.style.display='none';},2800);}
 
 /* ---- edit modal ---- */
 function openEdit(id){
+  if(PICK&&id&&id!==PICK.srcId){applyPick(id);return;}
   const t=id?getT(id):{id:uid(),fase:'Pre-dique y arranque',act:'',equipo:'Fibreros B',turno:'DÍA',start:SUBIDA+1,dias:1,pct:0,estado:'Pendiente',zona:'C100 Exterior',obs:''};
   const isNew=!id;
   let pasos=isPkg(t)?JSON.parse(JSON.stringify(t.pasos)):[];
@@ -1030,16 +1182,24 @@ function openEdit(id){
     <div class="mh"><h3>${isNew?'Nueva tarea':'Editar '+t.id}</h3><span class="x" id="mx">×</span></div>
     <div class="mb">
       <div class="fld full"><label>Actividad / entregable</label><input id="m_act" type="text" value="${esc(t.act)}"></div>
-      <div class="fld full"><label>Frente / fase</label><input id="m_fase" type="text" value="${esc(t.fase)}" list="faselist">
-        <datalist id="faselist">${[...new Set(SEED.map(s=>s.fase))].map(f=>`<option>${f}</option>`).join('')}</datalist></div>
+      <div class="fld full"><label>Frente / fase</label><select id="m_fase">${[...new Set(SEED.map(s=>s.fase))].map(f=>`<option ${f===t.fase?'selected':''}>${f}</option>`).join('')}${[...new Set(SEED.map(s=>s.fase))].includes(t.fase)?'':`<option selected>${esc(t.fase)}</option>`}</select></div>
       <div class="fld"><label>Zona física</label><select id="m_zo">${ZONAS.map(o=>`<option ${o===t.zona?'selected':''}>${o}</option>`).join('')}</select></div>
       <div class="fld"><label>Estado</label><select id="m_es">${ESTADOS.map(o=>`<option ${o===t.estado?'selected':''}>${o}</option>`).join('')}</select></div>
-      <div class="fld"><label>Día de inicio (D0 = subida; previos en negativo)</label><input id="m_start" type="number" min="${1-SUBIDA}" max="${NDAYS()-SUBIDA}" value="${t.start-SUBIDA}"></div>
+      <div class="fld"><label>Día de inicio</label><select id="m_start">${(()=>{let o='';const cur=t.start-SUBIDA;for(let dd=1-SUBIDA;dd<=NDAYS()-SUBIDA;dd++){const lbl=dd<0?('Previo '+dd):(dd===0?'Día 0 · subida':('Día '+dd));o+=`<option value="${dd}" ${dd===cur?'selected':''}>${lbl}</option>`;}return o;})()}</select></div>
+      <div class="fld full"><label>Encadenar a otra tarea (opcional) — esto define el día de inicio</label>
+        <div style="display:flex;gap:6px">
+          <select id="m_deptype" style="flex:0 0 158px">
+            <option value="" ${!t.dep?'selected':''}>— sin enlace —</option>
+            <option value="after" ${t.dep&&t.dep.type==='after'?'selected':''}>→ después de</option>
+            <option value="par" ${t.dep&&t.dep.type==='par'?'selected':''}>∥ a la vez que</option>
+          </select>
+          <select id="m_depon" style="flex:1"><option value="">(elegí la tarea)</option>${S.tasks.filter(x=>x.id!==t.id).sort((a,b)=>a.start-b.start).map(x=>`<option value="${x.id}" ${t.dep&&t.dep.on===x.id?'selected':''}>${x.id} · ${esc(x.act)}</option>`).join('')}</select>
+        </div><button type="button" class="btn ghost" id="m_deppick" style="margin-top:7px;width:100%">🎯 Elegir tarea complementaria en el Gantt / Lista</button></div>
       <div class="fld full"><label>% avance</label><div class="rangewrap"><input id="m_pct" type="range" min="0" max="100" value="${t.pct}" style="flex:1"><b id="m_pctv">${t.pct}%</b></div></div>
       <div class="fld full" style="border-top:1px solid var(--line);padding-top:12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;color:var(--ink)"><input type="checkbox" id="m_ispkg" ${isPkg(t)?'checked':''}> 📦 Es un paquete (varios pasos en secuencia, distintos gremios)</label></div>
       <div class="fld" id="m_simplewrap" style="display:${isPkg(t)?'none':''}"><label>Equipo</label><select id="m_eq">${EQUIPOS.map(o=>`<option ${o===t.equipo?'selected':''}>${o}</option>`).join('')}</select></div>
       <div class="fld" id="m_simplewrap2" style="display:${isPkg(t)?'none':''}"><label>Turno</label><button type="button" id="m_tu" class="turnobtn ${simpleNight?'noche':''}">${simpleNight?'🌙 De noche':'☀️ De día'}</button><span class="id" style="margin-top:5px;line-height:1.4">${horarioLeyenda()}</span></div>
-      <div class="fld" id="m_diaswrap" style="display:${isPkg(t)?'none':''}"><label>Duración (días)</label><input id="m_dias" type="number" min="0.5" step="0.5" max="60" value="${t.dias||1}"></div>
+      <div class="fld" id="m_diaswrap" style="display:${isPkg(t)?'none':''}"><label>Duración</label><select id="m_dias">${(()=>{const opts=[[0.5,'½ día'],[1,'1 día'],[1.5,'1½ días'],[2,'2 días'],[3,'3 días'],[4,'4 días'],[5,'5 días'],[6,'6 días'],[7,'7 días'],[8,'8 días'],[10,'10 días'],[12,'12 días'],[14,'14 días'],[18,'18 días'],[21,'21 días'],[24,'24 días']];const cur=t.dias||1;const has=opts.some(o=>o[0]===cur);let s=opts.map(o=>`<option value="${o[0]}" ${o[0]===cur?'selected':''}>${o[1]}</option>`).join('');if(!has)s=`<option value="${cur}" selected>${cur} días</option>`+s;return s;})()}</select></div>
       <div class="fld full" id="m_pkgwrap" style="display:${isPkg(t)?'block':'none'}">
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
           <select id="m_tpl"><option value="">— usar plantilla —</option>${Object.keys(PLANTILLAS).map(k=>`<option>${k}</option>`).join('')}</select>
@@ -1047,18 +1207,19 @@ function openEdit(id){
           <span class="id" id="m_pkgdur"></span>
         </div>
         <div id="m_pasos"></div>
-        <div class="id" style="margin-top:6px;line-height:1.5">Elegí la <b>duración</b> de cada paso. <b>🌙</b> = turno de noche. <b>→ después</b> = espera al paso de arriba; <b>∥ a la vez</b> = arranca junto con él (mismo entregable, dos gremios). La mañana/tarde la calcula el sistema solo.<br><b>Horarios:</b> ${horarioLeyenda()}</div>
+        <div class="id" style="margin-top:6px;line-height:1.5">Duración por paso · <b>🌙</b> noche · <b>→ después</b> / <b>∥ a la vez</b> encadenan los pasos. Horarios: Día 08–12 y 13–18 · Noche 13–18 y 19–23.</div>
       </div>
       <div class="fld full"><label>Obs. / motivo de bloqueo</label><textarea id="m_obs">${esc(t.obs)}</textarea></div>
     </div>
     <div class="mf">
-      <div>${isNew?'':'<button class="btn ghost" id="m_del">🗑 Eliminar</button>'}</div>
+      <div style="display:flex;gap:8px">${isNew?'':'<button class="btn ghost" id="m_del">🗑 Eliminar</button><button class="btn ghost" id="m_fan">⧉ Repartir a áreas</button>'}</div>
       <div style="display:flex;gap:8px"><button class="btn ghost" id="m_cancel">Cancelar</button><button class="btn primary" id="m_save">Guardar</button></div>
     </div>`;
   el('scrim').classList.add('on');
   const pr=el('m_pct');pr.oninput=()=>el('m_pctv').textContent=pr.value+'%';
   el('mx').onclick=el('m_cancel').onclick=closeModal;
   {const tb=el('m_tu');if(tb)tb.onclick=()=>{simpleNight=!simpleNight;tb.className='turnobtn '+(simpleNight?'noche':'');tb.textContent=simpleNight?'🌙 De noche':'☀️ De día';};}
+  el('modal').querySelectorAll('.nsb').forEach(b=>{b.onclick=()=>{const inp=el(b.dataset.nt);if(!inp)return;const mn=inp.min!==''?+inp.min:-999,mx=inp.max!==''?+inp.max:999;let v=(+inp.value||0)+(+b.dataset.d);v=Math.max(mn,Math.min(mx,v));inp.value=v;};});
   const DURS=[['½ día',1],['1 día',2],['1½ días',3],['2 días',4],['3 días',6],['4 días',8],['5 días',10]];
   function renderPasos(){
     const wrap=el('m_pasos');
@@ -1070,13 +1231,16 @@ function openEdit(id){
       const seq= i===0? '<span class="pstep-ini">inicio</span>'
         : `<button class="pstep-seq ${par?'par':''}" data-pp="${i}" type="button" title="${par?'arranca junto con el paso de arriba':'espera a que termine el de arriba'}">${par?'∥ a la vez':'→ después'}</button>`;
       return `<div class="pstep ${par?'isk':''}" data-i="${i}">
-        <span class="pstep-n">${i+1}</span>
-        <select data-pf="gremio">${EQUIPOS.map(o=>`<option ${o===p.gremio?'selected':''}>${o}</option>`).join('')}</select>
-        <input type="text" data-pf="act" value="${esc(p.act||'')}" placeholder="qué se hace">
-        <select data-pf="medios" title="duración">${dopts}</select>
-        <button class="pstep-tog ${night?'on':''}" data-pn="${i}" type="button" title="${night?'turno de noche (clic para día)':'turno de día (clic para noche)'}">🌙</button>
-        ${seq}
-        <button class="pstep-x" data-prm="${i}" type="button">✕</button></div>`;}).join('')
+        <div class="pstep-r1"><span class="pstep-n">${i+1}</span>
+          <select data-pf="gremio">${EQUIPOS.map(o=>`<option ${o===p.gremio?'selected':''}>${o}</option>`).join('')}</select>
+          <input type="text" data-pf="act" value="${esc(p.act||'')}" placeholder="qué se hace"></div>
+        <div class="pstep-r2">
+          <select data-pf="medios" title="duración">${dopts}</select>
+          <button class="pstep-tog ${night?'on':''}" data-pn="${i}" type="button" title="${night?'turno de noche (clic para día)':'turno de día (clic para noche)'}">🌙</button>
+          ${seq}
+          <button class="pstep-mv" data-pup="${i}" ${i===0?'disabled':''} type="button" title="subir">▲</button>
+          <button class="pstep-mv" data-pdn="${i}" ${i===pasos.length-1?'disabled':''} type="button" title="bajar">▼</button>
+          <button class="pstep-x" data-prm="${i}" type="button">✕</button></div></div>`;}).join('')
       :'<div class="id" style="padding:6px">Sin pasos — agregá uno o elegí una plantilla.</div>';
     const tot=pasos.length?pkgMedios({pasos}):0;
     el('m_pkgdur').textContent=pasos.length?`dura ${tot/2} día(s) en total`:'';
@@ -1085,6 +1249,8 @@ function openEdit(id){
     wrap.querySelectorAll('[data-pn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pn;pasos[i].turno=pasos[i].turno==='NOCHE'?'DÍA':'NOCHE';renderPasos();});
     wrap.querySelectorAll('[data-pp]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pp;pasos[i].par=!pasos[i].par;renderPasos();});
     wrap.querySelectorAll('[data-prm]').forEach(b=>b.onclick=()=>{pasos.splice(+b.dataset.prm,1);renderPasos();});
+    wrap.querySelectorAll('[data-pup]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pup;if(i>0){const x=pasos[i];pasos[i]=pasos[i-1];pasos[i-1]=x;if(pasos[0])pasos[0].par=false;renderPasos();}});
+    wrap.querySelectorAll('[data-pdn]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pdn;if(i<pasos.length-1){const x=pasos[i];pasos[i]=pasos[i+1];pasos[i+1]=x;if(pasos[0])pasos[0].par=false;renderPasos();}});
   }
   if(isPkg(t))renderPasos();
   el('m_ispkg').onchange=()=>{const on=el('m_ispkg').checked;
@@ -1093,22 +1259,54 @@ function openEdit(id){
     if(on&&!pasos.length){pasos=[{gremio:t.equipo||'Carpinteros A',act:'',medios:2,turno:'DÍA',par:false}];}
     if(on)renderPasos();};
   el('m_tpl').onchange=()=>{const k=el('m_tpl').value;if(k&&PLANTILLAS[k]){pasos=JSON.parse(JSON.stringify(PLANTILLAS[k]));renderPasos();el('m_tpl').value='';}};
-  el('m_addpaso').onclick=()=>{const last=pasos[pasos.length-1];pasos.push({gremio:last?last.gremio:(t.equipo||'Carpinteros A'),act:'',medios:2,turno:'DÍA',par:false});renderPasos();};
-  if(!isNew)el('m_del').onclick=()=>{if(confirm('¿Eliminar '+t.id+'?')){S.tasks=S.tasks.filter(x=>x.id!==t.id);closeModal();commit();}};
-  el('m_save').onclick=()=>{
+  el('m_addpaso').onclick=()=>{const last=pasos[pasos.length-1];pasos.push({gremio:last?last.gremio:(t.equipo||'Carpinteros A'),act:'',medios:2,turno:'DÍA',par:false});renderPasos();const ps=el('m_pasos').querySelectorAll('.pstep');if(ps.length)ps[ps.length-1].scrollIntoView({block:'nearest'});const li=ps[ps.length-1]&&ps[ps.length-1].querySelector('[data-pf="act"]');if(li)li.focus();};
+  if(!isNew){const db=el('m_del');let armed=false,tmr=null;
+    db.onclick=()=>{
+      if(!armed){armed=true;db.textContent='¿Seguro? Eliminar';db.classList.add('danger');tmr=setTimeout(()=>{armed=false;db.textContent='🗑 Eliminar';db.classList.remove('danger');},3500);return;}
+      clearTimeout(tmr);S.tasks=S.tasks.filter(x=>x.id!==t.id);closeModal();commit();};}
+  if(!isNew){const fb=el('m_fan');if(fb)fb.onclick=()=>fanoutUI(t.id);}
+  {const dp=el('m_deppick');if(dp)dp.onclick=()=>{const ty=(el('m_deptype')&&el('m_deptype').value)||'after';const srcId=collectAndSave();if(srcId===null)return;PICK={srcId,type:ty};closeModal();if(!['gantt','arbol','table'].includes(S.view))S.view='gantt';commit();showPickBanner();};}
+  function collectAndSave(){
     const ispkg=el('m_ispkg').checked && pasos.length>0;
     const nt={...t,act:el('m_act').value.trim()||'(sin nombre)',fase:el('m_fase').value.trim()||'OTROS',
       zona:el('m_zo').value,estado:el('m_es').value,
       start:clamp((+el('m_start').value)+SUBIDA,1,200),pct:clamp(+el('m_pct').value,0,100),obs:el('m_obs').value.trim()};
-    if(ispkg){nt.pasos=pasos.map((p,i)=>({gremio:p.gremio,act:(p.act||'').trim(),medios:Math.max(1,+p.medios||2),turno:p.turno||'DÍA',par:i>0&&!!p.par,pct:p.pct||0}));
+    if(ispkg){nt.pasos=pasos.map((p,i)=>({gremio:p.gremio,act:(p.act||'').trim(),medios:Math.max(1,+p.medios||2),turno:p.turno||'DÍA',par:i>0&&!!p.par,zona:p.zona||'',pct:p.pct||0}));
       nt.equipo=nt.pasos[0].gremio;nt.turno=nt.pasos[0].turno;nt.dias=Math.ceil(nt.pasos.reduce((s,p)=>s+p.medios,0)/2);}
     else{nt.pasos=[];nt.equipo=el('m_eq').value;nt.turno=simpleNight?'NOCHE':'DÍA';nt.dias=clamp(+el('m_dias').value,0.5,60);}
     if(nt.pct===100&&nt.estado!=='Listo')nt.estado='Listo';
-    if(isNew)S.tasks.push(nt); else {const i=S.tasks.findIndex(x=>x.id===t.id);S.tasks[i]=nt;}
+    const dtype=el('m_deptype')?el('m_deptype').value:'';const don=el('m_depon')?el('m_depon').value:'';
+    if(dtype&&don){ if(dependsOn(don,t.id)){alert('No se puede: esa tarea ya depende de esta (haría un bucle).');return null;} nt.dep={on:don,type:dtype}; } else { nt.dep=null; }
+    if(isNew){nt.id=genId(nt.fase);S.tasks.push(nt);} else {const i=S.tasks.findIndex(x=>x.id===t.id);S.tasks[i]=nt;}
+    resolveDeps();
+    return nt.id;
+  }
+  el('m_save').onclick=()=>{ if(collectAndSave()!==null){closeModal();commit();} };
+}
+function fanoutUI(id){
+  const t=getT(id); if(!t)return;
+  const zs=ZONAS.filter(z=>z!==t.zona);
+  el('modal').innerHTML=`
+    <div class="mh"><h3>Repartir a varias áreas</h3><span class="x" id="mx2">×</span></div>
+    <div class="mb">
+      <p class="id" style="line-height:1.5">Crea una copia ${isPkg(t)?'del <b>paquete completo</b> (con todos sus pasos)':'de esta tarea'} en cada área que marques. Todas empiezan el mismo día (<b>${diaLong(t.start)}</b>) y después son independientes. Usa la versión <b>guardada</b> — si cambiaste algo, guardá primero.</p>
+      <div style="margin:6px 0 8px"><label class="fochk" style="font-weight:600"><input type="checkbox" id="fo_all"> Marcar / desmarcar todas</label></div>
+      <div class="fogrid">${zs.map(z=>`<label class="fochk"><input type="checkbox" class="foz" value="${esc(z)}"> ${z}</label>`).join('')}</div>
+    </div>
+    <div class="mf"><div class="id">Origen: <b>${esc(t.zona)}</b> · "${esc(t.act)}"</div>
+      <div style="display:flex;gap:8px"><button class="btn ghost" id="fo_cancel">Cancelar</button><button class="btn primary" id="fo_go">Crear copias</button></div></div>`;
+  el('scrim').classList.add('on');
+  el('mx2').onclick=el('fo_cancel').onclick=closeModal;
+  el('fo_all').onchange=e=>{el('modal').querySelectorAll('.foz').forEach(c=>c.checked=e.target.checked);};
+  el('fo_go').onclick=()=>{
+    const picked=[...el('modal').querySelectorAll('.foz:checked')].map(c=>c.value);
+    if(!picked.length){alert('Marcá al menos un área.');return;}
+    picked.forEach(z=>{const c=JSON.parse(JSON.stringify(t));c.zona=z;c.pct=0;c.estado='Pendiente';c.obs='';c.id=genId(c.fase);S.tasks.push(c);});
     closeModal();commit();
+    alert('Listo: creé '+picked.length+' copia(s), una por área.');
   };
 }
-function dupTask(id){const t=getT(id);const c={...t,id:uid(),act:t.act+' (copia)',pct:0,estado:'Pendiente',obs:''};
+function dupTask(id){const t=getT(id);const c={...t,act:t.act+' (copia)',pct:0,estado:'Pendiente',obs:''};c.id=genId(c.fase);
   const i=S.tasks.findIndex(x=>x.id===id);S.tasks.splice(i+1,0,c);commit();}
 function closeModal(){el('scrim').classList.remove('on');}
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
@@ -1130,12 +1328,12 @@ el('simRange').oninput=e=>{S.simDay=+e.target.value;syncSim();};
 el('addBtn').onclick=()=>openEdit(null);
 el('alHd')&&(el('alHd').onclick=()=>{});
 el('resetBtn').onclick=()=>{if(confirm('¿Restaurar el cronograma original (87 tareas) y borrar tus cambios guardados?')){
-  S.tasks=JSON.parse(JSON.stringify(SEED));S.caps={...DEFAULT_CAP};S.cap={...DEFAULT_CAPT};S.horarios={...DEF_HOR};commit();}};
+  S.tasks=JSON.parse(JSON.stringify(SEED));S.caps={...DEFAULT_CAP};S.cap={...DEFAULT_CAPT};S.horarios={...DEF_HOR};S.zonasX=[];commit();}};
 el('jsonBtn').onclick=()=>{const blob=new Blob([JSON.stringify({tasks:S.tasks,caps:S.caps,cap:S.cap},null,2)],{type:'application/json'});
   dl(blob,'treasure_dique_backup.json');};
 el('impBtn').onclick=()=>el('impFile').click();
 el('impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const o=JSON.parse(r.result);if(o.tasks){S.tasks=o.tasks;if(o.caps)S.caps=o.caps;if(o.cap)S.cap=o.cap;if(o.horarios)S.horarios={...DEF_HOR,...o.horarios};commit();alert('Importado: '+S.tasks.length+' tareas.');}}catch(err){alert('Archivo inválido');}};
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(o.tasks){S.tasks=o.tasks;if(o.caps)S.caps=o.caps;if(o.cap)S.cap=o.cap;if(o.horarios)S.horarios={...DEF_HOR,...o.horarios};if(o.zonasX)S.zonasX=o.zonasX;commit();alert('Importado: '+S.tasks.length+' tareas.');}}catch(err){alert('Archivo inválido');}};
   r.readAsText(f);};
 el('xlsxBtn').onclick=exportXLSX;
 function dl(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
@@ -1163,18 +1361,30 @@ function fmt(d){return `${d.getDate()} ${MO[d.getMonth()]}`;}
 
 /* ============================ INIT ============================ */
 (async function(){
-  sbInit();sbStatus();
-  let cloud=null;
-  if(SB){cloud=await sbPull();sbStatus();}
-  const cloudEmpty=SB&&!cloud&&SBstate==='ok';
-  const saved=cloud||await load();
-  if(saved&&saved.tasks&&saved.tasks.length){S.tasks=saved.tasks;if(saved.caps)S.caps={...DEFAULT_CAP,...saved.caps};if(saved.cap)S.cap={...DEFAULT_CAPT,...saved.cap};if(saved.horarios)S.horarios={...DEF_HOR,...saved.horarios};
-    document.getElementById('lastsave').textContent=cloud?'datos de la nube':'sesión restaurada';
-    if(cloud){try{localStorage.setItem(KEY,snapshot());}catch(e){}}}
+  // 1) Mostrar YA lo local (sin esperar a la nube) para que no quede en blanco
+  const local=await load();
+  if(local&&local.tasks&&local.tasks.length){S.tasks=local.tasks;if(local.caps)S.caps={...DEFAULT_CAP,...local.caps};if(local.cap)S.cap={...DEFAULT_CAPT,...local.cap};if(local.horarios)S.horarios={...DEF_HOR,...local.horarios};if(local.zonasX)S.zonasX=local.zonasX;
+    document.getElementById('lastsave').textContent='sesión restaurada';}
   else {S.tasks=JSON.parse(JSON.stringify(SEED));}
-  if(cloudEmpty){try{await sbPush();}catch(e){}}
-  sbStatus();
+  const _mcL=migrateCabins(); if(_mcL>0){try{localStorage.setItem(KEY,snapshot());}catch(e){}}
   render();
+  // 2) Sincronizar con la nube en segundo plano (sin bloquear el dibujo)
+  await waitSupabase(5000);
+  sbInit();sbStatus();
+  if(SB){
+    let cloud=null; try{cloud=await sbPull();}catch(e){}
+    if(SBstate==='error'){await new Promise(r=>setTimeout(r,1500));try{cloud=await sbPull();}catch(e){}}
+    sbStatus();
+    if(cloud&&cloud.tasks&&cloud.tasks.length){
+      const before=snapshot();
+      S.tasks=cloud.tasks;if(cloud.caps)S.caps={...DEFAULT_CAP,...cloud.caps};if(cloud.cap)S.cap={...DEFAULT_CAPT,...cloud.cap};if(cloud.horarios)S.horarios={...DEF_HOR,...cloud.horarios};if(cloud.zonasX)S.zonasX=cloud.zonasX;
+      const _mcC=migrateCabins();
+      try{localStorage.setItem(KEY,snapshot());}catch(e){}
+      document.getElementById('lastsave').textContent='datos de la nube';
+      if(snapshot()!==before)render();   // sólo re-dibuja si la nube trae algo distinto
+      if(_mcC>0){try{await sbPush();}catch(e){} toast('Dividí '+_mcC+' tarea(s) en su cabina.');}
+    } else if(!cloud&&SBstate==='ok'){ try{await sbPush();}catch(e){} }  // nube vacía: sembrar
+  }
 })();
 </script>
 </body>
