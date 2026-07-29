@@ -169,6 +169,17 @@ td.comp{font-family:'DM Mono',monospace;color:var(--muted)}td.comp.zero{color:#3
 .chev{color:var(--faint);margin-right:7px;font-size:10px}
 .samt{font-family:'DM Mono';font-size:12px;color:var(--muted);flex:0 0 auto}
 .sim-result{border-top:1px solid var(--line);padding-top:14px}
+.cmp-tot{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media(max-width:640px){.cmp-tot{grid-template-columns:1fr 1fr}}
+.ctile{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.ctile span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);margin-bottom:3px}
+.ctile b{font-family:'DM Mono';font-size:19px;color:var(--ink)}
+.strow .cnum{font-family:'DM Mono';font-size:12.5px;color:var(--muted);flex:0 0 88px;text-align:right}
+.strow.chdr{background:transparent;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);border-bottom:1px solid var(--line)}
+.strow.chdr .cnum{color:var(--faint)}
+.cmpreal{width:80px;font-family:'DM Mono';font-size:12px;text-align:right;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:6px;padding:4px 6px;color:var(--ink)}
+.cmpreal.ovr{border-color:var(--brass);color:var(--brass);background:rgba(216,181,74,.08)}
+.cmpreal::placeholder{color:var(--faint);font-style:italic}
 .sim-big{font-size:14px;color:var(--muted)}.sim-big b{font-family:'DM Mono';font-size:32px;color:var(--brass);margin:0 5px;vertical-align:-2px}
 .sim-of{font-size:13px;color:var(--faint)}
 .sim-bar{height:13px;border-radius:7px;background:rgba(197,83,71,.22);overflow:hidden;margin:11px 0}
@@ -287,6 +298,7 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:30px;bor
     <div class="tab active" data-v="presupuesto" onclick="tab('presupuesto')">Presupuesto</div>
     <div class="tab" data-v="partidas" onclick="tab('partidas')">Planilla detallada</div>
     <div class="tab" data-v="resumen" onclick="tab('resumen')">Resumen y decisiones</div>
+    <div class="tab" data-v="comparar" onclick="tab('comparar')">Presupuesto vs Real</div>
     <div class="tab" data-v="salud" onclick="tab('salud')">Salud del presupuesto</div>
   </div>
 
@@ -358,6 +370,20 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:30px;bor
         <div class="panel" style="border-color:var(--brass2)"><h2>Impuestos del dique</h2><p class="desc">IVA de ítems marcados (15%) + aranceles de importación.</p><div id="impuestos"></div></div>
       </div>
     </details>
+  </div>
+
+  <div class="view" id="v-comparar">
+    <div class="panel" style="border-color:var(--brass2)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap">
+        <div><h2>Presupuesto base vs Real</h2><p class="desc" id="baseInfo" style="margin:0">Aún no fijas una base. Congela el presupuesto de hoy para empezar a comparar.</p></div>
+        <button class="btn brass" onclick="fijarBase()" id="btnBase">Fijar presupuesto base</button>
+      </div>
+      <div class="cmp-tot" id="cmpTotales"></div>
+    </div>
+    <div class="panel">
+      <p class="desc">Escribe el <b>Real</b> de cada trabajo a medida que lo sabes (por ejemplo, lo que costó el baño). Si lo dejas vacío, usa el cálculo de sus líneas. Verde = por debajo del presupuesto; rojo = por encima. Toca el nombre para abrir.</p>
+      <div id="cmpTree" class="simtree"></div>
+    </div>
   </div>
 
   <div class="view" id="v-salud">
@@ -881,9 +907,40 @@ function healthChecks(){const ps=state.partidas,out=[];
   if(tot>0&&estimadoPeso/tot>0.5)out.push({sev:'amber',t:'Mucho presupuesto sin confirmar',d:(estimadoPeso/tot*100).toFixed(0)+'% del total está estimado o sin costear. Subí a Cotizado/Confirmado lo que ya tengas en firme.',n:''});
   if(!out.length)out.push({sev:'ok',t:'Todo en orden',d:'No se detectaron problemas en los chequeos automáticos.',n:''});
   return out;}
+let CMP={openF:{},openA:{}};
+function fijarBase(){if(!confirm('¿Fijar el presupuesto de hoy como base? Reemplaza la base anterior si existía.'))return;const totals={};state.partidas.forEach(p=>{totals[p.id]=total(p);});state.baseline={at:new Date().toISOString(),totals};save(true);renderCompare();}
+function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
+function baseOf(p){return (state.baseline&&state.baseline.totals&&(p.id in state.baseline.totals))?state.baseline.totals[p.id]:null;}
+function realOf(p){return (p.realManual!=null&&p.realManual!=='')?(+p.realManual||0):total(p);}
+function setReal(id,v){const p=state.partidas.find(x=>x.id===id);if(!p)return;if(v===''||v==null)delete p.realManual;else p.realManual=parseFloat(v)||0;save(true);renderCompare();}
+function dColor(d){return d>0.5?'var(--coral)':(d<-0.5?'var(--green)':'var(--muted)');}
+function toggleCF(f){CMP.openF[f]=!CMP.openF[f];renderCompare();}
+function toggleCA(k){CMP.openA[k]=!CMP.openA[k];renderCompare();}
+function renderCompare(){const ps=state.partidas,has=!!(state.baseline&&state.baseline.totals);
+  const info=document.getElementById('baseInfo'),btn=document.getElementById('btnBase');
+  if(info)info.innerHTML=has?`Base fijada el <b>${fmtDate(state.baseline.at)}</b>. Real = valor actual. Vuelve a fijarla solo si cambia el plan.`:'Aún no fijas una base. Congela el presupuesto de hoy para empezar a comparar.';
+  if(btn)btn.textContent=has?'Volver a fijar base':'Fijar presupuesto base';
+  const realT=ps.reduce((s,p)=>s+realOf(p),0),baseT=has?ps.reduce((s,p)=>s+(baseOf(p)||0),0):0,dT=realT-baseT,pagT=ps.reduce((s,p)=>s+pagado(p),0);
+  const ct=document.getElementById('cmpTotales');
+  if(ct)ct.innerHTML=has?`<div class="ctile"><span>Presupuesto base</span><b>${fmt(baseT)}</b></div><div class="ctile"><span>Real (actual)</span><b>${fmt(realT)}</b></div><div class="ctile"><span>Diferencia</span><b style="color:${dColor(dT)}">${dT>0?'+':''}${fmt(dT)}${baseT>0?' · '+(dT/baseT*100).toFixed(1)+'%':''}</b></div><div class="ctile"><span>Pagado</span><b>${fmt(pagT)}</b></div>`:'';
+  const el=document.getElementById('cmpTree');if(!el)return;
+  if(!has){el.innerHTML='<p class="desc" style="padding:16px">Fija una base para ver la comparación.</p>';return;}
+  const byF={};ps.forEach(p=>{const f=p.frente||'(sin frente)';(byF[f]=byF[f]||[]).push(p);});
+  const sumB=arr=>arr.reduce((s,p)=>s+(baseOf(p)||0),0),sumR=arr=>arr.reduce((s,p)=>s+realOf(p),0);
+  let h=`<div class="strow chdr"><span class="sname" style="cursor:default">Frente / área / trabajo</span><span class="cnum">Base</span><span class="cnum">Real</span><span class="cnum">Δ</span></div>`;
+  Object.keys(byF).map(f=>({f,ps:byF[f]})).sort((a,b)=>sumR(b.ps)-sumR(a.ps)).forEach(({f,ps:fps})=>{const b=sumB(fps),r=sumR(fps),d=r-b,open=CMP.openF[f];
+    h+=`<div class="strow lvl0"><span class="sname" onclick="toggleCF('${esc(f)}')"><span class="chev">${open?'▾':'▸'}</span>${esc(f)}</span><span class="cnum">${fmt0(b)}</span><span class="cnum">${fmt0(r)}</span><span class="cnum" style="color:${dColor(d)}">${d>0?'+':''}${fmt0(d)}</span></div>`;
+    if(open){const byA={};fps.forEach(p=>{const a=p.area||'(sin área)';(byA[a]=byA[a]||[]).push(p);});
+      Object.keys(byA).map(a=>({a,ps:byA[a]})).sort((x,y)=>sumR(y.ps)-sumR(x.ps)).forEach(({a,ps:aps})=>{const ab=sumB(aps),ar=sumR(aps),ad=ar-ab,ak=f+'¦'+a,aopen=CMP.openA[ak];
+        h+=`<div class="strow lvl1"><span class="sname" onclick="toggleCA('${esc(ak)}')"><span class="chev">${aopen?'▾':'▸'}</span>${esc(a)}</span><span class="cnum">${fmt0(ab)}</span><span class="cnum">${fmt0(ar)}</span><span class="cnum" style="color:${dColor(ad)}">${ad>0?'+':''}${fmt0(ad)}</span></div>`;
+        if(aopen)aps.slice().sort((x,y)=>realOf(y)-realOf(x)).forEach(p=>{const pb=baseOf(p),pr=realOf(p),pd=pb!=null?pr-pb:null,ov=(p.realManual!=null&&p.realManual!=='');
+          h+=`<div class="strow lvl2"><span class="sname tname">${esc(p.codigo||'')} ${esc(p.trabajo||'')}</span><span class="cnum">${pb!=null?fmt0(pb):'—'}</span><span class="cnum"><input class="cmpreal ${ov?'ovr':''}" type="number" step="any" value="${ov?esc(p.realManual):''}" placeholder="${fmt0(total(p)).replace(/[$\s]/g,'')}" onchange="setReal('${p.id}',this.value)" title="Escribe el monto real. Vacío = usa el cálculo de las líneas."></span><span class="cnum" style="color:${pd!=null?dColor(pd):'var(--faint)'}">${pd!=null?(pd>0?'+':'')+fmt0(pd):'nuevo'}</span></div>`;});
+      });}
+  });
+  el.innerHTML=h;}
 function renderSalud(){const h=healthChecks();document.getElementById('healthList').innerHTML=h.map(x=>`<div class="hrow h-${x.sev}"><span class="ic">${x.sev==='red'?'⛔':x.sev==='amber'?'⚠':'✓'}</span><div><div class="tt">${esc(x.t)}</div><div class="ds">${esc(x.d)}</div></div>${x.n!==''?`<span class="pill">${x.n}</span>`:''}</div>`).join('');}
 
-function tab(n){activeView=n;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===n));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('v-'+n).classList.add('active');if(n==='presupuesto')renderPresupuesto();if(n==='partidas')renderTable();if(n==='resumen')renderResumen();if(n==='salud')renderSalud();}
+function tab(n){activeView=n;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===n));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('v-'+n).classList.add('active');if(n==='presupuesto')renderPresupuesto();if(n==='partidas')renderTable();if(n==='resumen')renderResumen();if(n==='comparar')renderCompare();if(n==='salud')renderSalud();}
 
 /* exportar */
 function exportExcel(){const ps=state.partidas,wb=XLSX.utils.book_new();
