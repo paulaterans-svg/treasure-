@@ -100,7 +100,7 @@
 <body>
 <div class="top">
   <h1>Kardex de Obra — M/Y Treasure</h1>
-  <div class="sub">Control de materiales y herramientas · Dique 2026</div>
+  <div class="sub">Control de materiales y herramientas · Dique 2026 <span id="cloudEstado" style="color:#94a3b8">· ⚪ local</span></div>
 </div>
 <div class="tabs">
   <button id="tab-reg" class="active" onclick="showTab('reg')">➕ Registrar</button>
@@ -328,7 +328,11 @@ function normalize(r){
   }
   return r;
 }
-function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+let _cloudT;
+function save(){ saveLocal(); if(window.__cloud && window.__cloud.ready && !(window.__cloud.applying && window.__cloud.applying())){ clearTimeout(_cloudT); _cloudT=setTimeout(()=>{ try{ window.__cloud.push(S); }catch(e){} }, 500); } }
+window.__getState=function(){ return S; };
+window.__applyRemote=function(obj){ try{ S=normalize(obj); saveLocal(); curCuas=[...(S.ui.cuas||[])]; if(typeof initSelects==='function') initSelects(); if(typeof renderAll==='function') renderAll(); }catch(e){ console.warn('applyRemote',e); } };
 const keyOf=s=>(s||"").trim().toLowerCase();
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0'); }
 function diasFuera(f){ try{ const a=new Date(f+'T00:00:00'), b=new Date(todayStr()+'T00:00:00'); const d=Math.round((b-a)/86400000); return d<=0?'hoy':(d+'d'); }catch(e){ return ''; } }
@@ -844,6 +848,50 @@ document.getElementById('pEnc').addEventListener('input',renderPEnObra);
 document.getElementById('pCant').addEventListener('keydown',e=>{if(e.key==='Enter')prestar();});
 
 initSelects(); setTipo(S.ui.tipo||'Salida'); hShow('pre'); pRenderCart(); mRenderCart(); renderAll();
+</script>
+
+<!-- ===== NUBE (Firebase) — sincroniza en tiempo real entre dispositivos ===== -->
+<script type="module">
+if(!window.__NO_CLOUD){
+ (async()=>{
+  try{
+    const [{initializeApp},{getAuth,signInAnonymously},fs] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js")
+    ]);
+    const firebaseConfig={
+      apiKey:"AIzaSyCLAkDxWmquu5pLF8LU0HvW91Ksam_IdVM",
+      authDomain:"kardex-dique-treasure.firebaseapp.com",
+      projectId:"kardex-dique-treasure",
+      storageBucket:"kardex-dique-treasure.firebasestorage.app",
+      messagingSenderId:"983428260623",
+      appId:"1:983428260623:web:f8b0309ac585fc4e3c947a"
+    };
+    const app=initializeApp(firebaseConfig);
+    let db; try{ db=fs.initializeFirestore(app,{localCache:fs.persistentLocalCache()}); }catch(e){ db=fs.getFirestore(app); }
+    const auth=getAuth(app);
+    const code=(localStorage.getItem('kardex_obra_code')||'treasure-dique-2026').trim();
+    const ref=fs.doc(db,'kardex',code);
+    const clientId=Math.random().toString(36).slice(2);
+    let applying=false;
+    const setEstado=(t,c)=>{const el=document.getElementById('cloudEstado'); if(el){el.textContent=t; el.style.color=c;}};
+    setEstado('· 🔄 conectando…','#fde68a');
+    window.__cloud={ready:false, applying:()=>applying, push:async(state)=>{ try{ await fs.setDoc(ref,{data:JSON.stringify(state),updatedAt:Date.now(),by:clientId}); }catch(e){ console.warn('push',e); setEstado('· ⚠ sin guardar en nube','#f59e0b'); } }};
+    const isEmpty=(s)=>!(s&&((s.mov&&s.mov.length)||(s.prestamos&&s.prestamos.length)||(s.mats&&Object.keys(s.mats).length)||(s.herr&&Object.keys(s.herr).length)));
+    await signInAnonymously(auth);
+    fs.onSnapshot(ref,(snap)=>{
+      setEstado('· 🟢 en la nube','#86efac'); window.__cloud.ready=true;
+      const local=window.__getState?window.__getState():null;
+      if(!snap.exists()){ if(local && !isEmpty(local)) window.__cloud.push(local); return; }
+      const d=snap.data(); if(!d||!d.data||d.by===clientId) return;
+      let remote; try{ remote=JSON.parse(d.data); }catch(e){ return; }
+      if(isEmpty(remote) && local && !isEmpty(local)){ window.__cloud.push(local); return; }
+      try{ applying=true; if(window.__applyRemote) window.__applyRemote(remote); } finally { applying=false; }
+    },(err)=>{ console.warn('onSnapshot',err); setEstado('· ⚠ nube no conectada (revisa reglas/anónimo)','#f59e0b'); });
+  }catch(e){ console.warn('Firebase off, modo local',e); }
+ })();
+}
 </script>
 </body>
 </html>
