@@ -854,7 +854,9 @@ initSelects(); setTipo(S.ui.tipo||'Salida'); hShow('pre'); pRenderCart(); mRende
 <script type="module">
 if(!window.__NO_CLOUD){
  (async()=>{
+  const setEstado=(t,c)=>{const el=document.getElementById('cloudEstado'); if(el){el.textContent=t; el.style.color=c;}};
   try{
+    setEstado('· 🔄 conectando…','#fde68a');
     const [{initializeApp},{getAuth,signInAnonymously},fs] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
@@ -875,11 +877,10 @@ if(!window.__NO_CLOUD){
     const ref=fs.doc(db,'kardex',code);
     const clientId=Math.random().toString(36).slice(2);
     let applying=false;
-    const setEstado=(t,c)=>{const el=document.getElementById('cloudEstado'); if(el){el.textContent=t; el.style.color=c;}};
-    setEstado('· 🔄 conectando…','#fde68a');
-    window.__cloud={ready:false, applying:()=>applying, push:async(state)=>{ try{ await fs.setDoc(ref,{data:JSON.stringify(state),updatedAt:Date.now(),by:clientId}); }catch(e){ console.warn('push',e); setEstado('· ⚠ sin guardar en nube','#f59e0b'); } }};
+    window.__cloud={ready:false, applying:()=>applying, push:async(state)=>{ try{ await fs.setDoc(ref,{data:JSON.stringify(state),updatedAt:Date.now(),by:clientId}); }catch(e){ console.warn('push',e); setEstado('· ⚠ sin guardar (revisa Reglas)','#f59e0b'); } }};
     const isEmpty=(s)=>!(s&&((s.mov&&s.mov.length)||(s.prestamos&&s.prestamos.length)||(s.mats&&Object.keys(s.mats).length)||(s.herr&&Object.keys(s.herr).length)));
-    await signInAnonymously(auth);
+    try{ await signInAnonymously(auth); }
+    catch(e){ console.warn('auth',e); setEstado('· ⚠ activa "Anónimo" en Authentication','#f59e0b'); return; }
     fs.onSnapshot(ref,(snap)=>{
       setEstado('· 🟢 en la nube','#86efac'); window.__cloud.ready=true;
       const local=window.__getState?window.__getState():null;
@@ -888,8 +889,8 @@ if(!window.__NO_CLOUD){
       let remote; try{ remote=JSON.parse(d.data); }catch(e){ return; }
       if(isEmpty(remote) && local && !isEmpty(local)){ window.__cloud.push(local); return; }
       try{ applying=true; if(window.__applyRemote) window.__applyRemote(remote); } finally { applying=false; }
-    },(err)=>{ console.warn('onSnapshot',err); setEstado('· ⚠ nube no conectada (revisa reglas/anónimo)','#f59e0b'); });
-  }catch(e){ console.warn('Firebase off, modo local',e); }
+    },(err)=>{ console.warn('onSnapshot',err); setEstado('· ⚠ falta publicar las Reglas de Firestore','#f59e0b'); });
+  }catch(e){ console.warn('Firebase off',e); setEstado('· ⚠ nube no disponible (revisa internet)','#f59e0b'); }
  })();
 }
 </script>
