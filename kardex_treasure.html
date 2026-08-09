@@ -139,6 +139,10 @@
       <label>Cuadrilla(s) / Oficio <span class="mini">(puedes elegir varias, ej. EPP)</span></label>
       <div class="chips" id="cuaSel"></div>
       <select id="cuaAdd" onchange="addCua(this.value); this.value='';"></select>
+      <div class="mtline" style="gap:6px;margin-top:8px">
+        <input id="cuaNew" placeholder="➕ Nueva cuadrilla (ej. Maestro César)" style="flex:1" onkeydown="if(event.key==='Enter')addNuevaCua()">
+        <button class="btn primary" style="width:auto;margin:0;padding:12px 16px" onclick="addNuevaCua()">＋</button>
+      </div>
       <label>Zona <span class="mini">(opcional)</span></label>
       <select id="fZon"></select>
       <label>Nota <span class="mini">(opcional)</span></label>
@@ -288,6 +292,7 @@
       <label>Cuadrillas</label><textarea id="cfgCua" rows="5"></textarea>
       <label>Zonas</label><textarea id="cfgZon" rows="5"></textarea>
       <button class="btn primary" onclick="guardarConfig()">Guardar cuadrillas y zonas</button>
+      <button class="btn danger" onclick="vaciarCuadrillas()">🗑️ Vaciar todas las cuadrillas (empezar de cero)</button>
       <label>Procedencia de herramientas</label><textarea id="cfgProc" rows="3"></textarea>
       <button class="btn primary" onclick="guardarProc()">Guardar procedencias</button>
     </div>
@@ -297,7 +302,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const DEF_CUA=["TAERA","Mecánicos","Fibreros A","Fibreros B","Fibreros C","Carpinteros A","Carpinteros B","Maestro A","Maestro B","Cuadrilla A","Cuadrilla B","Pintores","Alucobond","Vidrieros","Eléctricos","Plomeros","A/C","Marmolistas","Tapiceros","Acero","Tripulación","Subcontrato","Múltiple"];
+const DEF_CUA=[];  // sin cuadrillas por defecto: las agregas tú (Maestro César, Carpintero Roberto, etc.)
 const DEF_ZON=["Cabina 1 · Owner","Cabina 2","Cabina 3","Cabina 4","Cabina 5","Cabina 6","Cabina 7","Cabina 8","Cabina 9","Pasillo First Floor","Salón","Upper Deck","Ext. First Floor","Ext. Upper Deck","Sundeck","Sala de Máquinas","Cocina (galley)","Cuartos tripulación","Lavandería","C100 Exterior","C100 Owner Suite","C100 Sala Ppal.","C100 Cabinas 2-5","C200 Exterior","C200 Cabinas 6-9","C200 Puente","Obra Viva","Todo el barco","Logística / Ext.","Parrilla TAERA"];
 const UNIDADES=["Unidad","Pieza","Caja","Par","Juego","Galón","Litro","ml","Kg","Gramo","Saco","Bote","Cartucho","Rollo","Metro","m2","Hoja","Pliego","Tramo","Lámina","Barra"];
 const DEF_PROC=["Quito","Galápagos"];
@@ -344,6 +349,7 @@ function refreshDatalists(){
 }
 function renderCuaSel(){ const c=document.getElementById('cuaSel'); c.innerHTML=curCuas.length?curCuas.map(n=>`<span class="chip sel" onclick="removeCua('${escq(n)}')">${esc(n)}<span class="x">✕</span></span>`).join(''):'<span class="mini">Ninguna elegida</span>'; fillSelect(document.getElementById('cuaAdd'),S.cfg.cua.filter(x=>!curCuas.includes(x)),'','＋ Agregar cuadrilla…'); }
 function addCua(n){ if(n&&!curCuas.includes(n)){curCuas.push(n);renderCuaSel();} }
+function addNuevaCua(){ const el=document.getElementById('cuaNew'); const n=(el.value||'').trim(); if(!n){toast('Escribe el nombre de la cuadrilla');return;} if(!S.cfg.cua.includes(n)){S.cfg.cua.push(n);save();} el.value=''; initSelects(); addCua(n); toast('✔ Cuadrilla agregada'); }
 function removeCua(n){ curCuas=curCuas.filter(x=>x!==n); renderCuaSel(); }
 function pickMat(n){ document.getElementById('fMat').value=n; onMatChange(); document.getElementById('fCant').focus(); }
 function onMatChange(){ const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(m){ if(m.unidad)document.getElementById('fUni').value=m.unidad; if(m.cuadrillas&&m.cuadrillas.length){curCuas=[...m.cuadrillas];renderCuaSel();} } updateFStock(); }
@@ -810,6 +816,7 @@ function backup(){ download('kardex_treasure_respaldo_'+todayStr()+'.json',JSON.
 function importar(ev){ const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.mov&&!d.prestamos)throw 0; S=normalize(d); curCuas=[...(S.ui.cuas||[])]; save(); initSelects(); renderAll(); toast('Respaldo importado'); }catch(e){ toast('Archivo no válido'); } }; r.readAsText(f); }
 function borrarTodo(){ if(confirm('¿Borrar TODOS los datos? No se puede deshacer.')){ if(confirm('Última confirmación.')){ localStorage.removeItem(KEY); S=load(); curCuas=[]; initSelects(); renderAll(); toast('Datos borrados'); } } }
 function guardarConfig(){ S.cfg.cua=document.getElementById('cfgCua').value.split('\n').map(x=>x.trim()).filter(Boolean); S.cfg.zon=document.getElementById('cfgZon').value.split('\n').map(x=>x.trim()).filter(Boolean); save(); initSelects(); renderCuaSel(); toast('Listas guardadas'); }
+function vaciarCuadrillas(){ if(confirm('¿Vaciar TODAS las cuadrillas para empezar de cero? (no borra los registros ya hechos)')){ S.cfg.cua=[]; curCuas=[]; save(); initSelects(); renderCuaSel(); toast('Cuadrillas vaciadas'); } }
 
 /* ================= helpers / init ================= */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
