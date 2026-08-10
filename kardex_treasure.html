@@ -148,15 +148,13 @@
       <button class="btn" style="margin-top:10px" onclick="mAddToCart()">＋ Agregar otro material a la lista</button>
       <div id="mCartBox"></div>
       <div id="cuaBlock">
-      <label>Cuadrilla(s) / Oficio <span class="mini">(toca para elegir; puedes marcar varias, ej. EPP)</span></label>
+      <label>¿Quién retira? — Cuadrilla <span class="mini">(escribe y toca; puedes marcar varias, ej. EPP)</span></label>
       <div class="chips" id="cuaSel"></div>
-      <div class="mini" style="margin-top:8px;margin-bottom:4px;color:#64748b">Toca una cuadrilla para asignarla:</div>
-      <div class="chips" id="cuaPick"></div>
-      <datalist id="cuaList"></datalist>
       <div class="mtline" style="gap:6px;margin-top:8px">
-        <input id="cuaNew" list="cuaList" placeholder="¿No está en la lista? Escríbela aquí y se crea" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addNuevaCua();}">
+        <input id="cuaNew" placeholder="Escribe la cuadrilla…" autocomplete="off" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addNuevaCua();}">
         <button class="btn primary" style="width:auto;margin:0;padding:12px 16px" onclick="addNuevaCua()">＋ Agregar</button>
       </div>
+      <div id="cuaSug" class="autolist" style="display:none"></div>
       </div>
       <div id="ingHint" class="mini" style="display:none;color:#64748b;margin-top:6px">Ingreso a bodega — no requiere cuadrilla.</div>
       <select id="fZon" style="display:none"></select>
@@ -206,10 +204,12 @@
         <label>Fecha del préstamo</label>
         <input id="pFecha" type="date">
         <label>Encargado / cuadrilla <span class="mini">(quién se lleva)</span></label>
-        <input id="pEnc" list="pEncList" placeholder="ej. Maestro César" autocomplete="off">
+        <input id="pEnc" placeholder="ej. Maestro César" autocomplete="off">
+        <div id="pEncSug" class="autolist" style="display:none"></div>
         <div class="chips" id="pEncChips"></div>
-        <label>Herramienta <span class="mini">(elige de lo que hay en bodega)</span></label>
-        <select id="pTool" onchange="updatePStock()"></select>
+        <label>Herramienta <span class="mini">(escribe y elige de lo que hay)</span></label>
+        <input id="pTool" placeholder="Escribe la herramienta…" autocomplete="off">
+        <div id="pToolSug" class="autolist" style="display:none"></div>
         <div id="pStock" class="mini" style="margin-top:6px"></div>
         <label>Cantidad</label>
         <input id="pCant" type="number" inputmode="numeric" placeholder="1" min="1" step="1">
@@ -299,12 +299,26 @@
     </div>
     <div class="card">
       <h3>Listas</h3>
-      <label>Cuadrillas</label><textarea id="cfgCua" rows="5"></textarea>
+      <label>Cuadrillas</label>
+      <div class="mtline" style="gap:6px;margin-bottom:6px">
+        <input id="cfgCuaNew" placeholder="Nueva cuadrilla (ej. Maestro César)" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addCuaCfg();}">
+        <button class="btn primary" style="width:auto;margin:0;padding:12px 16px" onclick="addCuaCfg()">＋ Agregar</button>
+      </div>
+      <textarea id="cfgCua" rows="5"></textarea>
       <label>Zonas</label><textarea id="cfgZon" rows="5"></textarea>
       <button class="btn primary" onclick="guardarConfig()">Guardar cuadrillas y zonas</button>
       <button class="btn danger" onclick="vaciarCuadrillas()">🗑️ Vaciar todas las cuadrillas (empezar de cero)</button>
       <label>Procedencia de herramientas</label><textarea id="cfgProc" rows="3"></textarea>
       <button class="btn primary" onclick="guardarProc()">Guardar procedencias</button>
+    </div>
+    <div class="card">
+      <h3>☁️ Nube (sincronización)</h3>
+      <label>Código de la nube <span class="mini">(debe ser el MISMO en todos los celulares que comparten datos)</span></label>
+      <input id="cfgCode" placeholder="treasure-dique-2026" autocomplete="off">
+      <button class="btn primary" onclick="guardarCodigo()">Guardar código y recargar</button>
+      <div style="height:10px"></div>
+      <button class="btn danger" onclick="empezarReal()">🚀 Empezar KARDEX REAL desde cero (borra todo, aquí y en la nube)</button>
+      <p class="mini">Úsalo UNA sola vez antes de empezar el dique real. Hazlo en tu celular y en el de Rubén, con el MISMO código nuevo. Así arrancan totalmente en blanco.</p>
     </div>
   </div>
 </div>
@@ -365,7 +379,8 @@ function refreshDatalists(){
 }
 function renderCuaSel(){ const c=document.getElementById('cuaSel'); c.innerHTML=curCuas.length?curCuas.map(n=>`<span class="chip sel" onclick="removeCua('${escq(n)}')">${esc(n)}<span class="x">✕</span></span>`).join(''):'<span class="mini">Ninguna elegida</span>'; const pick=document.getElementById('cuaPick'); if(pick){ const disp=S.cfg.cua.filter(x=>!curCuas.includes(x)); pick.innerHTML=disp.length?disp.map(n=>`<span class="chip" onclick="addCua('${escq(n)}')">${esc(n)}</span>`).join(''):'<span class="mini" style="color:#94a3b8">Todas asignadas</span>'; } const dl=document.getElementById('cuaList'); if(dl) dl.innerHTML=S.cfg.cua.filter(x=>!curCuas.includes(x)).map(n=>`<option value="${esc(n)}">`).join(''); }
 function addCua(n){ if(n&&!curCuas.includes(n)){curCuas.push(n);renderCuaSel();} }
-function addNuevaCua(){ const el=document.getElementById('cuaNew'); const n=(el.value||'').trim(); if(!n){toast('Escribe la cuadrilla');return;} if(!S.cfg.cua.includes(n)){S.cfg.cua.push(n);save();} el.value=''; addCua(n); renderCuaSel(); toast('✔ Cuadrilla: '+n); }
+function addNuevaCua(){ const el=document.getElementById('cuaNew'); const n=(el.value||'').trim(); if(!n){toast('Escribe la cuadrilla');return;} if(!S.cfg.cua.includes(n)){S.cfg.cua.push(n);save();} el.value=''; __autoHide('cuaSug'); addCua(n); renderCuaSel(); toast('✔ Cuadrilla: '+n); }
+function addCuaCfg(){ const el=document.getElementById('cfgCuaNew'); const n=(el.value||'').trim(); if(!n){toast('Escribe la cuadrilla');return;} if(!S.cfg.cua.includes(n)){S.cfg.cua.push(n);save();} el.value=''; const ta=document.getElementById('cfgCua'); if(ta)ta.value=S.cfg.cua.join('\n'); if(typeof initSelects==='function')initSelects(); renderCuaSel(); toast('✔ Cuadrilla: '+n); }
 function removeCua(n){ curCuas=curCuas.filter(x=>x!==n); renderCuaSel(); }
 function pickMat(n){ document.getElementById('fMat').value=n; hideMatSug(); onMatChange(); document.getElementById('fCant').focus(); }
 function hideMatSug(){ const box=document.getElementById('matSug'); if(box){box.style.display='none';box.innerHTML='';} }
@@ -456,10 +471,6 @@ function enBodega(k){ return (Number(S.herr[k]?S.herr[k].total:0)||0) - enObra(k
 function hShow(sec){ HSUB=sec; ['inv','pre','dev'].forEach(x=>{document.getElementById('hp-'+x).style.display=x===sec?'block':'none'; document.getElementById('hs-'+x).className=x===sec?'on':'';}); renderHer(); }
 function hRefresh(){
   // selector de herramientas = lo que hay en bodega (con cantidad)
-  const sel=document.getElementById('pTool');
-  if(sel){ const cur=sel.value; const ks=Object.keys(S.herr).sort((a,b)=>S.herr[a].nombre.localeCompare(S.herr[b].nombre));
-    sel.innerHTML='<option value="">— elige herramienta —</option>'+ks.map(k=>{const b=enBodega(k); return `<option value="${esc(S.herr[k].nombre)}"${b<=0?' disabled':''}>${esc(S.herr[k].nombre)} — ${fmt(b)} en bodega</option>`;}).join('');
-    if(cur) sel.value=cur; }
   const encs=[...new Set(S.prestamos.map(p=>p.encargado).filter(Boolean))];
   const pel=document.getElementById('pEncList'); if(pel) pel.innerHTML=encs.map(n=>`<option value="${esc(n)}">`).join('');
   const rE=[]; for(let i=S.prestamos.length-1;i>=0&&rE.length<8;i--){const n=S.prestamos[i].encargado; if(n&&!rE.includes(n))rE.push(n);}
@@ -467,6 +478,27 @@ function hRefresh(){
 }
 function pPickEnc(n){ document.getElementById('pEnc').value=n; renderPEnObra(); document.getElementById('pTool').focus(); }
 function pPickTool(n){ document.getElementById('pTool').value=n; pOnToolChange(); document.getElementById('pCant').focus(); }
+// ---- autocompletado genérico (buscar y recomendar, compacto) ----
+const __autoReg={};
+function __autoHide(boxId){ const b=document.getElementById(boxId); if(b){b.style.display='none';b.innerHTML='';} }
+function __autoPick(boxId,n){ const r=__autoReg[boxId]; if(r){__autoHide(boxId); r.pick(n);} }
+function __autoCreate(boxId){ const r=__autoReg[boxId]; if(!r)return; const v=(document.getElementById(r.inp).value||'').trim(); __autoHide(boxId); if(r.create)r.create(v); }
+function __autoShow(boxId){ const r=__autoReg[boxId]; if(!r)return; const box=document.getElementById(boxId); const inp=document.getElementById(r.inp); if(!box||!inp)return;
+  const raw=(inp.value||'').trim(); const q=raw.toLowerCase(); if(!q){ __autoHide(boxId); return; }
+  const all=r.items(); const starts=[],has=[];
+  all.forEach(it=>{ const l=(it.n||'').toLowerCase(); if(l===q)return; if(l.startsWith(q))starts.push(it); else if(l.includes(q))has.push(it); });
+  const list=starts.concat(has).slice(0,8);
+  const exact=all.some(it=>(it.n||'').toLowerCase()===q);
+  let html=list.map(it=>`<div class="it" onmousedown="event.preventDefault();__autoPick('${boxId}','${escq(it.n)}')">${esc(it.n)}${it.sub?`<div class="sub">${esc(it.sub)}</div>`:''}</div>`).join('');
+  if(r.create && !exact) html+=`<div class="it newit" onmousedown="event.preventDefault();__autoCreate('${boxId}')">＋ Crear "${esc(raw)}"</div>`;
+  if(!html){ __autoHide(boxId); return; } box.innerHTML=html; box.style.display='block'; }
+function setupAuto(inpId, boxId, itemsFn, pickFn, createFn){
+  const inp=document.getElementById(inpId); if(!inp)return;
+  __autoReg[boxId]={inp:inpId, items:itemsFn, pick:pickFn, create:createFn||null};
+  inp.addEventListener('input',()=>__autoShow(boxId));
+  inp.addEventListener('focus',()=>__autoShow(boxId));
+  inp.addEventListener('blur',()=>setTimeout(()=>__autoHide(boxId),150));
+}
 function pOnToolChange(){ const k=keyOf(document.getElementById('pTool').value); const h=S.herr[k]; if(h&&h.procedencia)document.getElementById('pProc').value=h.procedencia; updatePStock(); }
 function updatePStock(){ const el=document.getElementById('pStock'); const k=keyOf(document.getElementById('pTool').value); const h=S.herr[k];
   if(!h){ el.innerHTML=''; return; }
@@ -844,6 +876,18 @@ function importar(ev){ const f=ev.target.files[0]; if(!f)return; const r=new Fil
 function borrarTodo(){ if(confirm('¿Borrar TODOS los datos? No se puede deshacer.')){ if(confirm('Última confirmación.')){ localStorage.removeItem(KEY); S=load(); curCuas=[]; initSelects(); renderAll(); toast('Datos borrados'); } } }
 function guardarConfig(){ S.cfg.cua=document.getElementById('cfgCua').value.split('\n').map(x=>x.trim()).filter(Boolean); S.cfg.zon=document.getElementById('cfgZon').value.split('\n').map(x=>x.trim()).filter(Boolean); save(); initSelects(); renderCuaSel(); toast('Listas guardadas'); }
 function vaciarCuadrillas(){ if(confirm('¿Vaciar TODAS las cuadrillas para empezar de cero? (no borra los registros ya hechos)')){ S.cfg.cua=[]; curCuas=[]; save(); initSelects(); renderCuaSel(); toast('Cuadrillas vaciadas'); } }
+function guardarCodigo(){ const v=(document.getElementById('cfgCode').value||'').trim(); if(!v){toast('Escribe un código');return;} localStorage.setItem('kardex_obra_code',v); toast('Código guardado, recargando…'); setTimeout(()=>location.reload(),600); }
+function empezarReal(){
+  if(!confirm('¿Empezar el KARDEX REAL desde cero?\n\nSe borrará TODO lo de prueba en este celular y se arranca una nube nueva en blanco.'))return;
+  if(!confirm('Última confirmación: esto NO se puede deshacer.'))return;
+  const actual=(localStorage.getItem('kardex_obra_code')||'treasure-dique-2026');
+  const nuevo=(prompt('Código de la nube para el KARDEX REAL.\nPon EXACTAMENTE el mismo en el celular de Rubén:', 'treasure-real-2026')||'').trim();
+  if(!nuevo){toast('Cancelado (sin código)');return;}
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  localStorage.setItem('kardex_obra_code', nuevo);
+  toast('Listo. Empezando en limpio…');
+  setTimeout(()=>location.reload(),700);
+}
 
 /* ================= helpers / init ================= */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -858,6 +902,7 @@ function initSelects(){
   fillSelect(document.getElementById('fZon'),S.cfg.zon,S.ui.zon,'—'); renderCuaSel();
   fillSelect(document.getElementById('pProc'),S.cfg.proc,S.ui.pproc,'—'); fillSelect(document.getElementById('pCua'),S.cfg.cua,'','—'); fillSelect(document.getElementById('pZon'),S.cfg.zon,'','—'); fillSelect(document.getElementById('hAddProc'),S.cfg.proc,'','Procedencia');
   document.getElementById('cfgCua').value=S.cfg.cua.join('\n'); document.getElementById('cfgZon').value=S.cfg.zon.join('\n'); document.getElementById('cfgProc').value=S.cfg.proc.join('\n');
+  const cc=document.getElementById('cfgCode'); if(cc) cc.value=(localStorage.getItem('kardex_obra_code')||'treasure-dique-2026');
   const ff=document.getElementById('fFecha'); if(ff&&!ff.value)ff.value=todayStr();
   const pf=document.getElementById('pFecha'); if(pf&&!pf.value)pf.value=todayStr();
 }
@@ -873,6 +918,10 @@ document.getElementById('pTool').addEventListener('change',pOnToolChange);
 document.getElementById('pEnc').addEventListener('input',renderPEnObra);
 document.getElementById('pCant').addEventListener('keydown',e=>{if(e.key==='Enter')prestar();});
 
+// autocompletado: herramienta, encargado y cuadrilla (salida)
+setupAuto('pTool','pToolSug', ()=>Object.keys(S.herr).sort((a,b)=>S.herr[a].nombre.localeCompare(S.herr[b].nombre)).map(k=>({n:S.herr[k].nombre, sub:fmt(enBodega(k))+' en bodega'})), pPickTool, null);
+setupAuto('pEnc','pEncSug', ()=>[...new Set(S.prestamos.map(p=>p.encargado).filter(Boolean))].sort((a,b)=>a.localeCompare(b)).map(n=>({n})), pPickEnc, null);
+setupAuto('cuaNew','cuaSug', ()=>S.cfg.cua.filter(n=>!curCuas.includes(n)).map(n=>({n})), function(n){ addCua(n); const el=document.getElementById('cuaNew'); if(el)el.value=''; }, function(v){ const el=document.getElementById('cuaNew'); if(el)el.value=v; addNuevaCua(); });
 initSelects(); setTipo(S.ui.tipo||'Salida'); hShow('pre'); pRenderCart(); mRenderCart(); renderAll();
 </script>
 
