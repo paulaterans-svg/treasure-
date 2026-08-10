@@ -96,7 +96,7 @@
   .drow .lrow{display:flex;gap:12px;align-items:flex-start}
   .bigck{width:auto!important;transform:scale(1.5);margin-top:6px}
   .acts{display:flex;gap:12px;align-items:flex-end;margin-top:12px;flex-wrap:wrap}
-  .acts .fld{min-width:80px;flex:0 0 84px}
+  .acts .fld{min-width:100px;flex:0 0 108px}
   .acts select{flex:1;min-width:120px;padding:12px}
   .acts .miniBtn{flex:0 0 auto;padding:13px 18px}
 </style>
@@ -136,15 +136,17 @@
       <div class="chips" id="matChips"></div>
       <div class="row2">
         <div><label>Cantidad</label><input id="fCant" type="number" inputmode="decimal" placeholder="0" min="0" step="any"></div>
-        <div><label>Unidad</label><input id="fUni" list="uniList" placeholder="elige…" autocomplete="off"></div>
+        <div><label>Unidad</label><select id="fUni" onchange="onUniChange()"><option value="">elige medida…</option></select><input id="fUniOtra" placeholder="escribe la medida" autocomplete="off" style="display:none;margin-top:6px"></div>
       </div>
       <button class="btn" style="margin-top:10px" onclick="mAddToCart()">＋ Agregar otro material a la lista</button>
       <div id="mCartBox"></div>
-      <label>Cuadrilla(s) / Oficio <span class="mini">(puedes elegir varias, ej. EPP)</span></label>
+      <label>Cuadrilla(s) / Oficio <span class="mini">(toca para elegir; puedes marcar varias, ej. EPP)</span></label>
       <div class="chips" id="cuaSel"></div>
+      <div class="mini" style="margin-top:8px;margin-bottom:4px;color:#64748b">Toca una cuadrilla para asignarla:</div>
+      <div class="chips" id="cuaPick"></div>
       <datalist id="cuaList"></datalist>
       <div class="mtline" style="gap:6px;margin-top:8px">
-        <input id="cuaNew" list="cuaList" placeholder="Escribe o elige la cuadrilla (si es nueva, se crea)" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addNuevaCua();}">
+        <input id="cuaNew" list="cuaList" placeholder="¿No está en la lista? Escríbela aquí y se crea" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addNuevaCua();}">
         <button class="btn primary" style="width:auto;margin:0;padding:12px 16px" onclick="addNuevaCua()">＋ Agregar</button>
       </div>
       <select id="fZon" style="display:none"></select>
@@ -223,7 +225,7 @@
         <div class="mtline" style="gap:6px;margin-bottom:10px;flex-wrap:wrap">
           <input id="hAddName" placeholder="Nueva herramienta…" style="flex:1;min-width:150px">
           <select id="hAddProc" style="width:130px"></select>
-          <input id="hAddTotal" type="number" min="0" step="1" placeholder="cant." style="width:74px;text-align:center">
+          <input id="hAddTotal" type="number" min="0" step="1" placeholder="cant." style="flex:1;min-width:96px;text-align:center">
           <button class="btn primary" style="width:auto;margin:0;padding:12px 16px" onclick="addHerr()">＋ Agregar</button>
         </div>
         <div id="hInv"></div>
@@ -347,28 +349,33 @@ function fillSelect(sel,arr,val,ph){ sel.innerHTML=`<option value="">${ph||'—'
 function refreshDatalists(){
   document.getElementById('matList').innerHTML=Object.values(S.mats).map(m=>m.nombre).sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${esc(n)}">`).join('');
   document.getElementById('uniList').innerHTML=UNIDADES.map(n=>`<option value="${esc(n)}">`).join('');
+  const uSel=document.getElementById('fUni'); if(uSel){ const cur=uSel.value; uSel.innerHTML='<option value="">elige medida…</option>'+UNIDADES.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')+'<option value="__otra__">➕ Otra medida…</option>'; if(cur&&[...uSel.options].some(o=>o.value===cur)) uSel.value=cur; }
   const recent=[]; for(let i=S.mov.length-1;i>=0&&recent.length<8;i--){ const n=S.mov[i].material; if(n&&!recent.includes(n))recent.push(n);}
   document.getElementById('matChips').innerHTML=recent.map(n=>`<span class="chip" onclick="pickMat('${escq(n)}')">${esc(n)}</span>`).join('');
 }
-function renderCuaSel(){ const c=document.getElementById('cuaSel'); c.innerHTML=curCuas.length?curCuas.map(n=>`<span class="chip sel" onclick="removeCua('${escq(n)}')">${esc(n)}<span class="x">✕</span></span>`).join(''):'<span class="mini">Ninguna elegida</span>'; const dl=document.getElementById('cuaList'); if(dl) dl.innerHTML=S.cfg.cua.filter(x=>!curCuas.includes(x)).map(n=>`<option value="${esc(n)}">`).join(''); }
+function renderCuaSel(){ const c=document.getElementById('cuaSel'); c.innerHTML=curCuas.length?curCuas.map(n=>`<span class="chip sel" onclick="removeCua('${escq(n)}')">${esc(n)}<span class="x">✕</span></span>`).join(''):'<span class="mini">Ninguna elegida</span>'; const pick=document.getElementById('cuaPick'); if(pick){ const disp=S.cfg.cua.filter(x=>!curCuas.includes(x)); pick.innerHTML=disp.length?disp.map(n=>`<span class="chip" onclick="addCua('${escq(n)}')">${esc(n)}</span>`).join(''):'<span class="mini" style="color:#94a3b8">Todas asignadas</span>'; } const dl=document.getElementById('cuaList'); if(dl) dl.innerHTML=S.cfg.cua.filter(x=>!curCuas.includes(x)).map(n=>`<option value="${esc(n)}">`).join(''); }
 function addCua(n){ if(n&&!curCuas.includes(n)){curCuas.push(n);renderCuaSel();} }
 function addNuevaCua(){ const el=document.getElementById('cuaNew'); const n=(el.value||'').trim(); if(!n){toast('Escribe la cuadrilla');return;} if(!S.cfg.cua.includes(n)){S.cfg.cua.push(n);save();} el.value=''; addCua(n); renderCuaSel(); toast('✔ Cuadrilla: '+n); }
 function removeCua(n){ curCuas=curCuas.filter(x=>x!==n); renderCuaSel(); }
 function pickMat(n){ document.getElementById('fMat').value=n; onMatChange(); document.getElementById('fCant').focus(); }
-function onMatChange(){ const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(m){ if(m.unidad)document.getElementById('fUni').value=m.unidad; if(m.cuadrillas&&m.cuadrillas.length){curCuas=[...m.cuadrillas];renderCuaSel();} } updateFStock(); }
+function onUniChange(){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(!sel||!otra)return; if(sel.value==='__otra__'){ otra.style.display='block'; otra.focus(); } else { otra.style.display='none'; otra.value=''; } }
+function getUni(){ const sel=document.getElementById('fUni'); if(!sel)return''; if(sel.value==='__otra__')return (document.getElementById('fUniOtra').value||'').trim(); return sel.value.trim(); }
+function setUni(v){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(!sel)return; v=(v||'').trim(); if(!v){ sel.value=''; if(otra){otra.style.display='none';otra.value='';} return; } if([...sel.options].some(o=>o.value===v)){ sel.value=v; if(otra){otra.style.display='none';otra.value='';} } else { sel.value='__otra__'; if(otra){otra.style.display='block';otra.value=v;} } }
+function clearUni(){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(sel)sel.value=''; if(otra){otra.style.display='none';otra.value='';} }
+function onMatChange(){ const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(m){ if(m.unidad)setUni(m.unidad); if(m.cuadrillas&&m.cuadrillas.length){curCuas=[...m.cuadrillas];renderCuaSel();} } updateFStock(); }
 function matTieneStock(k){ const m=S.mats[k]; if(!m)return false; return (Number(m.inicial)||0)>0 || S.mov.some(x=>keyOf(x.material)===k && x.tipo==='Ingreso'); }
 function updateFStock(){ const el=document.getElementById('fStock'); const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(!m||!matTieneStock(k)){ el.innerHTML=''; return; } const sal=saldo(k); el.innerHTML=`En stock: <b style="color:${sal>0?'var(--verde)':'var(--rojo)'}">${fmt(sal)} ${esc(m.unidad||'')}</b>`; }
 let mCart=[];
 function mDispStock(k){ return saldo(k) - mCart.filter(x=>keyOf(x.material)===k).reduce((a,x)=>a+x.cantidad,0); }
 function mAddToCart(){
-  const material=document.getElementById('fMat').value.trim(); const cant=parseFloat(document.getElementById('fCant').value); const uni=document.getElementById('fUni').value.trim();
+  const material=document.getElementById('fMat').value.trim(); const cant=parseFloat(document.getElementById('fCant').value); const uni=getUni();
   if(!material){toast('Escribe el material');document.getElementById('fMat').focus();return false;}
   if(!(cant>0)){toast('Escribe la cantidad');document.getElementById('fCant').focus();return false;}
   const k=keyOf(material);
   if(S.ui.tipo==='Salida' && matTieneStock(k) && cant>mDispStock(k)){ toast('⚠ Solo hay '+fmt(mDispStock(k))+' '+((S.mats[k]||{}).unidad||'')+' de '+material+'.'); return false; }
   const u=uni||((S.mats[k]||{}).unidad||'');
   mCart.push({material:material,cantidad:cant,unidad:u});
-  document.getElementById('fMat').value='';document.getElementById('fCant').value='';document.getElementById('fUni').value='';
+  document.getElementById('fMat').value='';document.getElementById('fCant').value='';clearUni();
   updateFStock(); mRenderCart(); toast('✔ Agregado a la lista'); document.getElementById('fMat').focus(); return true;
 }
 function mRemoveCart(i){ mCart.splice(i,1); mRenderCart(); }
@@ -418,7 +425,7 @@ function renderMat(){ const el=document.getElementById('matTable'); let ks=Objec
   el.innerHTML=ks.map(k=>{ const m=S.mats[k]; const s=saldo(k); const e=estado(k); const col=e==='SIN STOCK'?'var(--rojo)':(e==='POR ACABARSE'?'var(--naranja)':'var(--verde)');
     const cks=S.cfg.cua.map(c=>`<label class="ck"><input type="checkbox" ${m.cuadrillas.includes(c)?'checked':''} onchange="toggleMatCua('${escq(k)}','${escq(c)}',this.checked)"> ${esc(c)}</label>`).join('');
     return `<div class="mtrow"><div class="mtline"><div class="nm">${esc(m.nombre)}</div><div style="font-weight:800;color:${col}">${fmt(s)} <span class="mini" style="color:${col}">${esc(m.unidad||'')}</span></div><button class="del" onclick="delMat('${escq(k)}')">✕</button></div>
-      <div class="grp"><div class="fld"><span>Unidad</span><input list="uniList" value="${esc(m.unidad||'')}" onchange="setMat('${escq(k)}','unidad',this.value)"></div><div class="fld" style="flex:0 0 90px;min-width:80px"><span>Inicial</span><input type="number" step="any" value="${m.inicial||0}" onchange="setMat('${escq(k)}','inicial',this.value)"></div><div class="fld" style="flex:0 0 90px;min-width:80px"><span>Mínimo</span><input type="number" step="any" value="${m.min==null?'':m.min}" onchange="setMat('${escq(k)}','min',this.value)" placeholder="—"></div></div>
+      <div class="grp"><div class="fld"><span>Unidad</span><input list="uniList" value="${esc(m.unidad||'')}" onchange="setMat('${escq(k)}','unidad',this.value)"></div><div class="fld" style="flex:0 0 112px;min-width:104px"><span>Inicial</span><input type="number" step="any" value="${m.inicial||0}" onchange="setMat('${escq(k)}','inicial',this.value)"></div><div class="fld" style="flex:0 0 112px;min-width:104px"><span>Mínimo</span><input type="number" step="any" value="${m.min==null?'':m.min}" onchange="setMat('${escq(k)}','min',this.value)" placeholder="—"></div></div>
       <details><summary>Cuadrillas que lo usan (${m.cuadrillas.length})</summary><div class="cklist">${cks}</div></details></div>`; }).join('');
 }
 function setMat(k,f,v){ if(f==='min'){S.mats[k].min=(v===''?null:Number(v));}else if(f==='inicial'){S.mats[k].inicial=Number(v)||0;}else{S.mats[k][f]=v;} save(); renderAll(); }
@@ -560,7 +567,7 @@ function renderHer(){
       const po=S.cfg.proc.map(p=>`<option ${p===h.procedencia?'selected':''}>${esc(p)}</option>`).join('');
       const eo=['Buena','Dañada','Perdida','En reparación'].map(x=>`<option ${x===h.estado?'selected':''}>${esc(x)}</option>`).join('');
       return `<div class="mtrow"><div class="mtline"><div class="nm">${esc(h.nombre)}</div><div class="mini" style="text-align:right">Obra <b style="color:var(--naranja)">${fmt(o)}</b> · Bodega <b style="color:var(--verde)">${fmt(bd)}</b></div><button class="del" onclick="delHerr('${escq(k)}')">✕</button></div>
-        <div class="grp"><div class="fld"><span>Procedencia</span><select onchange="setHerr('${escq(k)}','procedencia',this.value)">${po}</select></div><div class="fld" style="flex:0 0 90px;min-width:80px"><span>Total</span><input type="number" step="1" value="${h.total||0}" onchange="setHerr('${escq(k)}','total',this.value)"></div><div class="fld"><span>Estado</span><select style="${bad?'color:var(--rojo);font-weight:700':''}" onchange="setHerr('${escq(k)}','estado',this.value)">${eo}</select></div></div></div>`;
+        <div class="grp"><div class="fld"><span>Procedencia</span><select onchange="setHerr('${escq(k)}','procedencia',this.value)">${po}</select></div><div class="fld" style="flex:0 0 112px;min-width:104px"><span>Total</span><input type="number" step="1" value="${h.total||0}" onchange="setHerr('${escq(k)}','total',this.value)"></div><div class="fld"><span>Estado</span><select style="${bad?'color:var(--rojo);font-weight:700':''}" onchange="setHerr('${escq(k)}','estado',this.value)">${eo}</select></div></div></div>`;
     }).join(''):'<div class="empty">Aún no hay herramientas. Agrégalas arriba.</div>';
   }
   renderPEnObra(); hRefresh();
@@ -840,10 +847,10 @@ function initSelects(){
 }
 function renderAll(){ refreshDatalists(); renderLast(); if(document.getElementById('view-res').style.display!=='none')renderResumen(); if(document.getElementById('view-mat').style.display!=='none')renderMat(); if(document.getElementById('view-her').style.display!=='none')renderHer(); }
 document.getElementById('fMat').addEventListener('change',onMatChange);
-document.getElementById('fMat').addEventListener('input',function(){ const k=keyOf(this.value); const m=S.mats[k]; if(m&&m.unidad) document.getElementById('fUni').value=m.unidad; updateFStock(); });
+document.getElementById('fMat').addEventListener('input',function(){ const k=keyOf(this.value); const m=S.mats[k]; if(m&&m.unidad) setUni(m.unidad); updateFStock(); });
 document.getElementById('pTool').addEventListener('input',updatePStock);
 document.getElementById('fCant').addEventListener('keydown',e=>{if(e.key==='Enter')guardar();});
-document.getElementById('fUni').addEventListener('keydown',e=>{if(e.key==='Enter')guardar();});
+document.getElementById('fUniOtra').addEventListener('keydown',e=>{if(e.key==='Enter')guardar();});
 document.getElementById('pTool').addEventListener('change',pOnToolChange);
 document.getElementById('pEnc').addEventListener('input',renderPEnObra);
 document.getElementById('pCant').addEventListener('keydown',e=>{if(e.key==='Enter')prestar();});
