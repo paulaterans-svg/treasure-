@@ -19,6 +19,12 @@
   .card{background:#fff;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 16px rgba(15,23,42,.06);border:1px solid #eef2f7}
   label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 6px}
   input,select,textarea{width:100%;padding:14px;font-size:18px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+  .autolist{border:2px solid #2563eb;border-radius:12px;margin-top:6px;overflow:hidden;background:#fff;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+  .autolist .it{padding:13px 14px;font-size:17px;border-bottom:1px solid #eef2f7;cursor:pointer}
+  .autolist .it:last-child{border-bottom:none}
+  .autolist .it:active{background:#eff6ff}
+  .autolist .it .sub{font-size:12px;color:#64748b;margin-top:2px}
+  .autolist .newit{color:#2563eb;font-weight:700}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul)}
   .seg{display:flex;gap:10px;margin-bottom:6px}
   .seg button{flex:1;padding:16px;border-radius:14px;border:3px solid var(--line);background:#fff;font-size:17px;font-weight:800;color:var(--muted)}
@@ -131,7 +137,8 @@
       <label>Fecha</label>
       <input id="fFecha" type="date">
       <label>Material</label>
-      <input id="fMat" list="matList" placeholder="Escribe o elige… (si es nuevo, se crea solo)" autocomplete="off">
+      <input id="fMat" placeholder="Escribe el material… (si es nuevo, se crea solo)" autocomplete="off">
+      <div id="matSug" class="autolist" style="display:none"></div>
       <div id="fStock" class="mini" style="margin-top:6px"></div>
       <div class="chips" id="matChips"></div>
       <div class="row2">
@@ -360,7 +367,13 @@ function renderCuaSel(){ const c=document.getElementById('cuaSel'); c.innerHTML=
 function addCua(n){ if(n&&!curCuas.includes(n)){curCuas.push(n);renderCuaSel();} }
 function addNuevaCua(){ const el=document.getElementById('cuaNew'); const n=(el.value||'').trim(); if(!n){toast('Escribe la cuadrilla');return;} if(!S.cfg.cua.includes(n)){S.cfg.cua.push(n);save();} el.value=''; addCua(n); renderCuaSel(); toast('✔ Cuadrilla: '+n); }
 function removeCua(n){ curCuas=curCuas.filter(x=>x!==n); renderCuaSel(); }
-function pickMat(n){ document.getElementById('fMat').value=n; onMatChange(); document.getElementById('fCant').focus(); }
+function pickMat(n){ document.getElementById('fMat').value=n; hideMatSug(); onMatChange(); document.getElementById('fCant').focus(); }
+function hideMatSug(){ const box=document.getElementById('matSug'); if(box){box.style.display='none';box.innerHTML='';} }
+function matSuggest(){ const box=document.getElementById('matSug'); if(!box)return; const raw=(document.getElementById('fMat').value||'').trim(); const q=raw.toLowerCase(); if(!q){ hideMatSug(); return; }
+  const all=Object.values(S.mats).map(m=>m.nombre); const starts=[],has=[]; all.forEach(n=>{ const l=n.toLowerCase(); if(l===q)return; if(l.startsWith(q))starts.push(n); else if(l.includes(q))has.push(n); }); const list=starts.concat(has).slice(0,8);
+  const exact=all.some(n=>n.toLowerCase()===q); let html=list.map(n=>{ const k=keyOf(n); const m=S.mats[k]; const parts=[]; if(m&&m.unidad)parts.push(esc(m.unidad)); if(matTieneStock(k)){const s=saldo(k); parts.push('stock '+fmt(s));} const sub=parts.join(' · '); return `<div class="it" onmousedown="event.preventDefault();pickMat('${escq(n)}')">${esc(n)}${sub?`<div class="sub">${sub}</div>`:''}</div>`; }).join('');
+  if(!exact){ html+=`<div class="it newit" onmousedown="event.preventDefault();hideMatSug();document.getElementById('fCant').focus();">＋ Crear "${esc(raw)}" (material nuevo)</div>`; }
+  if(!html){ hideMatSug(); return; } box.innerHTML=html; box.style.display='block'; }
 function onUniChange(){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(!sel||!otra)return; if(sel.value==='__otra__'){ otra.style.display='block'; otra.focus(); } else { otra.style.display='none'; otra.value=''; } }
 function getUni(){ const sel=document.getElementById('fUni'); if(!sel)return''; if(sel.value==='__otra__')return (document.getElementById('fUniOtra').value||'').trim(); return sel.value.trim(); }
 function setUni(v){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(!sel)return; v=(v||'').trim(); if(!v){ sel.value=''; if(otra){otra.style.display='none';otra.value='';} return; } if([...sel.options].some(o=>o.value===v)){ sel.value=v; if(otra){otra.style.display='none';otra.value='';} } else { sel.value='__otra__'; if(otra){otra.style.display='block';otra.value=v;} } }
@@ -850,7 +863,9 @@ function initSelects(){
 }
 function renderAll(){ refreshDatalists(); renderLast(); if(document.getElementById('view-res').style.display!=='none')renderResumen(); if(document.getElementById('view-mat').style.display!=='none')renderMat(); if(document.getElementById('view-her').style.display!=='none')renderHer(); }
 document.getElementById('fMat').addEventListener('change',onMatChange);
-document.getElementById('fMat').addEventListener('input',function(){ const k=keyOf(this.value); const m=S.mats[k]; if(m&&m.unidad) setUni(m.unidad); updateFStock(); });
+document.getElementById('fMat').addEventListener('input',function(){ const k=keyOf(this.value); const m=S.mats[k]; if(m&&m.unidad) setUni(m.unidad); updateFStock(); matSuggest(); });
+document.getElementById('fMat').addEventListener('focus',matSuggest);
+document.getElementById('fMat').addEventListener('blur',function(){ setTimeout(hideMatSug,150); });
 document.getElementById('pTool').addEventListener('input',updatePStock);
 document.getElementById('fCant').addEventListener('keydown',e=>{if(e.key==='Enter')guardar();});
 document.getElementById('fUniOtra').addEventListener('keydown',e=>{if(e.key==='Enter')guardar();});
