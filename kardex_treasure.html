@@ -140,6 +140,7 @@
       </div>
       <button class="btn" style="margin-top:10px" onclick="mAddToCart()">＋ Agregar otro material a la lista</button>
       <div id="mCartBox"></div>
+      <div id="cuaBlock">
       <label>Cuadrilla(s) / Oficio <span class="mini">(toca para elegir; puedes marcar varias, ej. EPP)</span></label>
       <div class="chips" id="cuaSel"></div>
       <div class="mini" style="margin-top:8px;margin-bottom:4px;color:#64748b">Toca una cuadrilla para asignarla:</div>
@@ -149,6 +150,8 @@
         <input id="cuaNew" list="cuaList" placeholder="¿No está en la lista? Escríbela aquí y se crea" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addNuevaCua();}">
         <button class="btn primary" style="width:auto;margin:0;padding:12px 16px" onclick="addNuevaCua()">＋ Agregar</button>
       </div>
+      </div>
+      <div id="ingHint" class="mini" style="display:none;color:#64748b;margin-top:6px">Ingreso a bodega — no requiere cuadrilla.</div>
       <select id="fZon" style="display:none"></select>
       <label>Nota <span class="mini">(opcional)</span></label>
       <input id="fNota" placeholder="ej. Laminado casco / para bodega" autocomplete="off">
@@ -344,7 +347,7 @@ let matFilter='', herrFilter='';
 function ensureMat(nombre,unidad){ const k=keyOf(nombre); if(!k)return null; if(!S.mats[k])S.mats[k]={nombre:nombre.trim(),unidad:(unidad||"").trim(),min:null,inicial:0,cuadrillas:[]}; else if(unidad&&!S.mats[k].unidad)S.mats[k].unidad=unidad.trim(); return S.mats[k]; }
 function saldo(k){ const m=S.mats[k]; if(!m)return 0; let s=Number(m.inicial)||0; for(const mv of S.mov){ if(keyOf(mv.material)===k) s+=(mv.tipo==='Ingreso'?+mv.cantidad:-mv.cantidad);} return s; }
 function estado(k){ const m=S.mats[k]; const sal=saldo(k); if(m&&m.min!=null&&m.min!==''){ if(sal<=0)return'SIN STOCK'; if(sal<=Number(m.min))return'POR ACABARSE'; return'OK'; } if(sal<=0)return'SIN STOCK'; return'OK'; }
-function setTipo(t){ S.ui.tipo=t; save(); document.getElementById('btnSal').className=t==='Salida'?'s-on':''; document.getElementById('btnIng').className=t==='Ingreso'?'i-on':''; const b=document.getElementById('btnSave'); b.className='save '+(t==='Salida'?'salida':'ingreso'); mRenderCart(); }
+function setTipo(t){ S.ui.tipo=t; save(); document.getElementById('btnSal').className=t==='Salida'?'s-on':''; document.getElementById('btnIng').className=t==='Ingreso'?'i-on':''; const b=document.getElementById('btnSave'); b.className='save '+(t==='Salida'?'salida':'ingreso'); const cb=document.getElementById('cuaBlock'),ih=document.getElementById('ingHint'); if(t==='Ingreso'){ if(cb)cb.style.display='none'; if(ih)ih.style.display='block'; curCuas=[]; if(typeof renderCuaSel==='function')renderCuaSel(); } else { if(cb)cb.style.display='block'; if(ih)ih.style.display='none'; } mRenderCart(); }
 function fillSelect(sel,arr,val,ph){ sel.innerHTML=`<option value="">${ph||'—'}</option>`+arr.map(x=>`<option${x===val?' selected':''}>${esc(x)}</option>`).join(''); }
 function refreshDatalists(){
   document.getElementById('matList').innerHTML=Object.values(S.mats).map(m=>m.nombre).sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${esc(n)}">`).join('');
@@ -362,7 +365,7 @@ function onUniChange(){ const sel=document.getElementById('fUni'); const otra=do
 function getUni(){ const sel=document.getElementById('fUni'); if(!sel)return''; if(sel.value==='__otra__')return (document.getElementById('fUniOtra').value||'').trim(); return sel.value.trim(); }
 function setUni(v){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(!sel)return; v=(v||'').trim(); if(!v){ sel.value=''; if(otra){otra.style.display='none';otra.value='';} return; } if([...sel.options].some(o=>o.value===v)){ sel.value=v; if(otra){otra.style.display='none';otra.value='';} } else { sel.value='__otra__'; if(otra){otra.style.display='block';otra.value=v;} } }
 function clearUni(){ const sel=document.getElementById('fUni'); const otra=document.getElementById('fUniOtra'); if(sel)sel.value=''; if(otra){otra.style.display='none';otra.value='';} }
-function onMatChange(){ const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(m){ if(m.unidad)setUni(m.unidad); if(m.cuadrillas&&m.cuadrillas.length){curCuas=[...m.cuadrillas];renderCuaSel();} } updateFStock(); }
+function onMatChange(){ const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(m){ if(m.unidad)setUni(m.unidad); if(S.ui.tipo!=='Ingreso' && m.cuadrillas&&m.cuadrillas.length){curCuas=[...m.cuadrillas];renderCuaSel();} } updateFStock(); }
 function matTieneStock(k){ const m=S.mats[k]; if(!m)return false; return (Number(m.inicial)||0)>0 || S.mov.some(x=>keyOf(x.material)===k && x.tipo==='Ingreso'); }
 function updateFStock(){ const el=document.getElementById('fStock'); const k=keyOf(document.getElementById('fMat').value); const m=S.mats[k]; if(!m||!matTieneStock(k)){ el.innerHTML=''; return; } const sal=saldo(k); el.innerHTML=`En stock: <b style="color:${sal>0?'var(--verde)':'var(--rojo)'}">${fmt(sal)} ${esc(m.unidad||'')}</b>`; }
 let mCart=[];
